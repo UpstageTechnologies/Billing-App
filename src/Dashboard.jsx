@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { auth } from "./firebase";
 import { Link, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 export default function Dashboard() {
-  const user = auth.currentUser;
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  // Listen for auth state (ensures username loads correctly)
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((u) => {
+      setUser(u);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -37,7 +46,7 @@ export default function Dashboard() {
           <h3>📊 Dashboard</h3>
 
           <div>
-            👤 <b>{user?.email || "User"}</b>
+            👤 <b>{user?.displayName || user?.email || "User"}</b>
           </div>
         </div>
 
