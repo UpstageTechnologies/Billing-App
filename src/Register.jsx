@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Register.css";
-import { auth } from "./firebase";
+
+import { auth } from "./services/firebase";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -9,58 +10,131 @@ import {
   updateProfile,
 } from "firebase/auth";
 
+/* ⭐ FIRESTORE */
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "./services/firebase";
+
 export default function Register() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
 
+  // ---------------- SIGNUP ----------------
 const handleSignup = async () => {
   setError("");
+  setMessage("");
+  setLoading(true);
 
-  if (!username.trim()) return setError("Please enter your username");
-  if (!password.trim()) return setError("Please enter your password");
-  if (password !== confirmPassword) return setError("Passwords do not match ❌");
+  if (!username.trim()) {
+    setLoading(false);
+    return setError("Please enter your username");
+  }
+
+  if (!email.trim()) {
+    setLoading(false);
+    return setError("Please enter your email");
+  }
+
+  if (!password.trim()) {
+    setLoading(false);
+    return setError("Please enter your password");
+  }
+
+  if (password !== confirmPassword) {
+    setLoading(false);
+    return setError("Passwords do not match ❌");
+  }
 
   try {
-    // create account
-    const result = await createUserWithEmailAndPassword(auth, email, password);
+    const result = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
-    // ⭐ use result.user instead of auth.currentUser
+    // ✅ SET DISPLAY NAME (VERY IMPORTANT)
     await updateProfile(result.user, {
       displayName: username,
     });
 
-    alert("Account created successfully 🎉 — now you can login");
+    // ✅ SAVE MASTER USER
+    await setDoc(doc(db, "users", result.user.uid), {
+      uid: result.user.uid,
+      name: username,
+      email: result.user.email,
+      role: "master",       // ✅ DEFAULT ROLE
+      plan: "basic",
+      isActive: true,
+      createdAt: new Date(),
+    });
+
+    setMessage("Account created successfully 🎉");
+    setLoading(false);
+
+    // ✅ DIRECT DASHBOARD REDIRECT
+    setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 500);
+
   } catch (e) {
-    setError(e.message);
+    console.error(e);
+    setLoading(false);
+    setError(e.message || "Could not create account ❌");
   }
 };
 
 
+  // ---------------- GOOGLE SIGNUP ----------------
   const handleGoogleSignup = async () => {
-    setError("");
+  setError("");
+  setMessage("");
+  setLoading(true);
 
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: "select_account" });
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
 
-      const result = await signInWithPopup(auth, provider);
-      const isNewUser = result._tokenResponse?.isNewUser;
+    const result = await signInWithPopup(auth, provider);
+    const isNewUser = result._tokenResponse?.isNewUser;
 
-      if (!isNewUser) {
-        await auth.signOut();
-        alert("This Google account is already registered. Please Login 👍");
-        return;
-      }
-
-      alert("Google account registered successfully 🎉");
-    } catch (e) {
-      setError(e.message);
+    if (!isNewUser) {
+      await auth.signOut();
+      setLoading(false);
+      return setError("This Google account is already registered. Please Login 👍");
     }
-  };
+
+    await setDoc(doc(db, "users", result.user.uid), {
+      uid: result.user.uid,
+      name: result.user.displayName || "User",
+      email: result.user.email,
+      role: "master",     // ✅ DEFAULT ROLE
+      plan: "basic",
+      isActive: true,
+      createdAt: new Date(),
+    });
+
+    setMessage("Google account registered successfully 🎉");
+    setLoading(false);
+
+    // ✅ DASHBOARD REDIRECT
+    setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 500);
+
+  } catch (e) {
+    console.error(e);
+    setLoading(false);
+    setError("Google signup failed ❌");
+  }
+};
+
 
   return (
     <>
@@ -109,7 +183,7 @@ const handleSignup = async () => {
                       ? "https://cdn-icons-png.flaticon.com/512/159/159604.png"
                       : "https://cdn-icons-png.flaticon.com/512/709/709612.png"
                   }
-                  alt="toggle password"
+                  alt="toggle"
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: "absolute",
@@ -117,9 +191,7 @@ const handleSignup = async () => {
                     top: "50%",
                     transform: "translateY(-50%)",
                     width: 18,
-                    height: 18,
                     cursor: "pointer",
-                    opacity: 0.9,
                   }}
                 />
               </div>
@@ -139,7 +211,7 @@ const handleSignup = async () => {
                       ? "https://cdn-icons-png.flaticon.com/512/159/159604.png"
                       : "https://cdn-icons-png.flaticon.com/512/709/709612.png"
                   }
-                  alt="toggle password"
+                  alt="toggle"
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: "absolute",
@@ -147,15 +219,17 @@ const handleSignup = async () => {
                     top: "50%",
                     transform: "translateY(-50%)",
                     width: 18,
-                    height: 18,
                     cursor: "pointer",
-                    opacity: 0.9,
                   }}
                 />
               </div>
 
-              <button className="register-btn" onClick={handleSignup}>
-                Register
+              <button
+                className="register-btn"
+                onClick={handleSignup}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Register"}
               </button>
 
               <button className="google-btn" onClick={handleGoogleSignup}>
@@ -175,12 +249,18 @@ const handleSignup = async () => {
                 </p>
               )}
 
+              {message && (
+                <p className="hint" style={{ color: "lightgreen" }}>
+                  {message}
+                </p>
+              )}
+
               <Link to="/login">
                 <p className="back">Already have an account? Login →</p>
               </Link>
 
               <Link to="/">
-                <p className="back">← Back to Home</p>
+                <p className="back">← Back to Home </p>
               </Link>
             </div>
           </div>

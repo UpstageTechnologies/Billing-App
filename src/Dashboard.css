@@ -1,108 +1,99 @@
-/* ----------- LAYOUT ----------- */
-.dash-layout {
-  display: flex;
+.dash-wrapper {
   min-height: 100vh;
-  background: #f4f6fb;
-  font-family: Inter, system-ui, Arial;
+  background: #f6f7fb;
+  color:#292d33;
 }
 
-/* ----------- SIDEBAR ----------- */
-.dash-sidebar {
-  width: 240px;
+/* Top bar */
+.dash-topbar {
   background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-}
-
-.logo {
-  font-weight: 700;
-  margin-bottom: 25px;
-}
-
-.menu-title {
-  color: #6b7280;
-  font-size: 12px;
-  margin-bottom: 10px;
-  letter-spacing: 0.8px;
-}
-
-/* sidebar buttons */
-.menu-btn {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  margin-bottom: 6px;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: 0.2s;
-}
-
-.menu-btn:hover {
-  background: #eef2ff;
-  color: #4f46e5;
-}
-
-/* logout pinned bottom */
-.logout-btn {
-  margin-top: auto;
-  padding: 10px;
-  border-radius: 12px;
-  border: none;
-  background: #fee2e2;
-  color: #dc2626;
-  cursor: pointer;
-}
-
-/* ----------- MAIN AREA ----------- */
-.dash-main {
-  flex: 1;
-  padding: 26px;
-}
-
-/* header */
-.topbar {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 14px 18px;
-  border: 1px solid #e5e7eb;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 22px;
+  border-bottom: 1px solid #e5e7eb;
+  color:#292d33;
 }
 
-/* card */
-.content-card {
-  background: #ffffff;
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.logout-btn {
+  background: #fee2e2;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Cards */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  padding: 40px;
+  color:#292d33;
+}
+
+.dash-card {
+  background: white;
+  padding: 30px;
   border-radius: 16px;
-  border: 1px solid #e5e7eb;
-  padding: 22px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0,0,0,.05);
+  transition: .25s;
+  font-size: 40px;
 }
 
-.subtitle {
-  color: #6b7280;
-  margin-top: 6px;
+.dash-card h3 {
+  margin-top: 10px;
+  font-size: 18px;
 }
 
-.info-box {
-  margin-top: 16px;
-  padding: 14px;
-  border-radius: 12px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+.dash-card p {
+  color: #64748b;
+  font-size: 14px;
 }
 
-.back-home {
-  margin-top: 14px;
-  display: inline-block;
-  color: #4f46e5;
-  text-decoration: none;
+.dash-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.08);
+}
+.plan-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+/* Bronze */
+.plan-badge.basic {
+  background: linear-gradient(135deg, #cd7f32, #a97142);
+  color: white;
+}
+
+/* Silver */
+.plan-badge.premium {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+  color: #111827;
+}
+
+/* Gold */
+.plan-badge.lifetime {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: #78350f;
 }

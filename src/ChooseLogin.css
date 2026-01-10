@@ -1,0 +1,65 @@
+.choose-wrapper {
+  height: 100vh;
+  background: linear-gradient(135deg, #5f7cff, #8fa4ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choose-card {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  padding: 40px 30px;
+  width: 320px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.choose-card h2 {
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.choose-card .sub {
+  color: #e5e7eb;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.login-btn {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.login-btn b {
+  font-size: 16px;
+}
+
+.login-btn span {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* COLORS */
+.login-btn.admin {
+  background: linear-gradient(135deg, #ffb703, #fb8500);
+}
+
+.login-btn.teacher {
+  background: linear-gradient(135deg, #06d6a0, #118ab2);
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  transition: 0.2s;
+}

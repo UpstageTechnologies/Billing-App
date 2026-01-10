@@ -1,0 +1,184 @@
+/* ---------- GLOBAL ---------- */
+.wrapper {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", "Poppins", sans-serif;
+  background: linear-gradient(135deg, #f5f7ff, #eef2ff);
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ---------- PAYMENT BODY ---------- */
+.payment-body {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- WRAPPER ---------- */
+.payment-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* ---------- TITLE ---------- */
+.payment-title {
+  color: #1e293b;
+  font-size: 34px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.payment-subtitle {
+  color: #64748b;
+  font-size: 15px;
+  margin-bottom: 40px;
+}
+
+/* ---------- GRID ---------- */
+.payment-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+/* ---------- PLAN CARD ---------- */
+.plan-box {
+  background: white;
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.06);
+  border: 1px solid #e5e7eb;
+  transition: .4s ease;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.plan-box:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 40px 80px rgba(0,0,0,.12);
+}
+
+/* ---------- HEAD ---------- */
+.plan-box h3 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.desc {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+/* ---------- PRICE ---------- */
+.price {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2563eb;
+  margin: 18px 0;
+}
+
+.old {
+  font-size: 14px;
+  color: #94a3b8;
+  text-decoration: line-through;
+  margin-left: 6px;
+}
+
+/* ---------- LIST ---------- */
+.tick,
+.wrong {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tick li,
+.wrong li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin: 8px 0;
+  color: #334155;
+}
+
+.tick li::before {
+  content: "✔";
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.wrong li::before {
+  content: "✖";
+  color: #ef4444;
+  font-weight: bold;
+}
+
+/* ---------- BUTTON ---------- */
+.choose-btn {
+  margin-top: auto;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.choose-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-2px);
+}
+
+/* ---------- PREMIUM HIGHLIGHT ---------- */
+.plan-box.premium {
+  border: 2px solid #2563eb;
+  position: relative;
+}
+
+.plan-box.premium::after {
+  content: "Most Popular";
+  position: absolute;
+  top: -14px;
+  right: 20px;
+  background: #2563eb;
+  color: white;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* ---------- POPUP ---------- */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-box {
+  background: white;
+  padding: 24px 30px;
+  border-radius: 16px;
+  box-shadow: 0 40px 80px rgba(0,0,0,.25);
+  animation: pop .3s ease;
+  text-align: center;
+  font-size: 16px;
+}
+
+@keyframes pop {
+  from { transform: scale(.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}

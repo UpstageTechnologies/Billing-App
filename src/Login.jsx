@@ -1,43 +1,47 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
-import { auth } from "./firebase";
-import {
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  getAdditionalUserInfo,
-  sendPasswordResetEmail,
-} from "firebase/auth";
+import { auth } from "./services/firebase";
+import { signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,getAdditionalUserInfo,sendPasswordResetEmail,} from "firebase/auth";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");         // 🌟 SUCCESS MESSAGE
+  const [loading, setLoading] = useState(false);      // 🌟 LOADING SPINNER
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // ▶ EMAIL / PASSWORD LOGIN
   const handleLogin = async () => {
     setError("");
+    setMessage("");
+    setLoading(true);
 
     if (!email || !password) {
+      setLoading(false);
       setError("Please enter your email and password ⚠");
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Login successful 🎉");
-      navigate("/dashboard");
+
+      setMessage("Login successful");
+      setLoading(false);
+
+      setTimeout(() => navigate("/dashboard"), 800);
     } catch (e) {
-      setError(e.message);
+      setLoading(false);
+      setError("Invalid email or password ❌");
     }
   };
 
-  // ▶ GOOGLE LOGIN (redirect to dashboard)
   const handleGoogleLogin = async () => {
     setError("");
+    setMessage("");
+    setLoading(true);
 
     try {
       const provider = new GoogleAuthProvider();
@@ -46,31 +50,35 @@ export default function Login() {
 
       if (info?.isNewUser) {
         await auth.signOut();
-        alert("This Google account is not registered. Please register first 👍");
+        setLoading(false);
+        setError("This Google account is not registered. Please register 👍");
         return;
       }
 
-      alert("Login successful with Google 🎉");
-      navigate("/dashboard");
+      setMessage("Login successful");
+      setLoading(false);
+
+      setTimeout(() => navigate("/dashboard"), 800);
     } catch (e) {
-      setError(e.message);
+      setLoading(false);
+      setError("Google login failed ❌");
     }
   };
 
-  // ▶ RESET PASSWORD
   const handleForgotPassword = async () => {
     setError("");
+    setMessage("");
 
     if (!email) {
-      setError("Please enter your email first to reset password ⚠");
+      setError("Please enter your email first ⚠");
       return;
     }
 
     try {
       await sendPasswordResetEmail(auth, email);
-      alert("Password reset link sent to your email 📩");
+      setMessage("Password reset link sent 📩");
     } catch (e) {
-      setError(e.message);
+      setError("Could not send reset link ❌");
     }
   };
 
@@ -84,6 +92,13 @@ export default function Login() {
           <li>Pricing</li>
           <li>Contact</li>
         </ul>
+        <div>
+         <Link to="/chooselogin">
+         <button className="btn-outline" style={{ marginLeft: 10 }}>
+               Other Login
+         </button>
+         </Link>
+         </div>
       </nav>
 
       <div className="login-wrapper">
@@ -129,8 +144,17 @@ export default function Login() {
                 />
               </div>
 
-              <button className="login-btn" onClick={handleLogin}>
-                Login
+              {/* LOGIN BUTTON WITH LOADING */}
+              <button
+                className="login-btn"
+                onClick={handleLogin}
+                disabled={loading}
+                style={{
+                  filter: loading ? "blur(1px)" : "none",
+                  position: "relative",
+                }}
+              >
+                {loading ? "Processing..." : "Login"}
               </button>
 
               {/* GOOGLE LOGIN */}
@@ -145,9 +169,16 @@ export default function Login() {
                 <span className="google-text">Continue with Google</span>
               </button>
 
+              {/* ERROR + SUCCESS MESSAGE BELOW BUTTON */}
               {error && (
                 <p className="hint" style={{ color: "tomato" }}>
                   {error}
+                </p>
+              )}
+
+              {message && (
+                <p className="hint" style={{ color: "lightgreen" }}>
+                  {message}
                 </p>
               )}
 
@@ -170,6 +201,8 @@ export default function Login() {
               <Link to="/">
                 <p className="back">← Back to Home</p>
               </Link>
+             
+
             </div>
           </div>
         </center>
