@@ -9,7 +9,7 @@ import EmployeeLogin from "./EmployeeLogin";
 import CustomerLogin from "./CustomerLogin";
 import ChooseLogin from "./ChooseLogin";
 import Scan from "./Scan";
-import Sales from "./Sales";
+import Sales from "./sales";
 
 
 
