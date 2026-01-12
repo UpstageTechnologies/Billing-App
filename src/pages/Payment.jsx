@@ -5,7 +5,7 @@ import "./Payment.css";
 import { auth, db } from "../services/firebase";
 import { doc, updateDoc, setDoc } from "firebase/firestore";
 
-const Payment = () => {
+const Payment = ({setActivePage} ) => {
   const navigate = useNavigate();
 
   const [showPopup, setShowPopup] = useState(false);
@@ -65,7 +65,25 @@ window.location.href = "/dashboard";
 
   return (
     <div className="wrapper">
+      <button
+  onClick={() => setActivePage("home")}
+  style={{
+    marginBottom: 12,
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "none",
+    background: "#0f172a",
+    color: "white",
+    cursor: "pointer",
+    marginLeft:30,
+    marginTop:20
+  }}
+>
+  ⬅ Back 
+</button>
+
       <div className="payment-body">
+        
         <div className="payment-wrapper">
           <h2 className="payment-title">Choose Your Power Plan ⚡</h2>
           <p className="payment-subtitle">Colorful • Animated • No Hidden Fees</p>

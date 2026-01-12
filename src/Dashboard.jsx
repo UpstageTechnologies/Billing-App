@@ -7,7 +7,7 @@ import AccountSection from "./AccountSection";
 import Inventory from "./Inventory";
 import Scan from "./Scan";
 import Payment from "./pages/Payment";
-
+import Sales from "./sales";
 
 
 export default function Dashboard() {
@@ -18,6 +18,21 @@ export default function Dashboard() {
   const [plan, setPlan] = useState("basic");
 
   const navigate = useNavigate();
+
+  const [todaySales, setTodaySales] = useState(0);
+
+useEffect(() => {
+  if (!auth.currentUser) return;
+
+  const ref = collection(db, "users", auth.currentUser.uid, "sales");
+
+  onSnapshot(ref, snap => {
+    let total = 0;
+    snap.docs.forEach(d => total += d.data().total || 0);
+    setTodaySales(total);
+  });
+}, []);
+
 
   useEffect(() => {
     const emp = localStorage.getItem("employeeLogin");
@@ -173,17 +188,27 @@ setUserName(finalName);
   <h3>Scan</h3>
   <p>Scan barcode</p>
 </div>
+<div className="dash-card" onClick={() => setActivePage("sales")}>
+  💰
+  <h3>Sales</h3>
+  <p>Today Billing</p>
+  <p>₹{todaySales}</p>
+
+</div>
+
 
 
         </div>
       )}
 
-      {activePage === "account" && <AccountSection />}
+      {activePage === "account" && <AccountSection setActivePage={setActivePage}  />}
       {activePage === "invoices" && <h2 style={{ padding: 20 }}>Invoices Page</h2>}
       {activePage === "reports" && <h2 style={{ padding: 20 }}>Reports Page</h2>}
-      {activePage === "inventory" && <Inventory />}
-      {activePage === "scan" && <Scan />}
-      {activePage === "payment" && <Payment />}
+      {activePage === "inventory" && <Inventory setActivePage={setActivePage} />}
+      {activePage === "scan" && <Scan setActivePage={setActivePage}/>}
+      {activePage === "payment" && <Payment setActivePage={setActivePage} />}
+      {activePage === "sales" && <Sales setActivePage={setActivePage} />}
+
 
 
     </div>

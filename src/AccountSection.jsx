@@ -9,7 +9,7 @@ import { runTransaction } from "firebase/firestore";
 
 
 
-export default function AccountSection() {
+export default function AccountSection({setActivePage}) {
   const [type, setType] = useState("employee");
   const [list, setList] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -140,6 +140,22 @@ const handleDelete = async (id) => {
 
   return (
     <div className="content-card">
+            <button
+  onClick={() => setActivePage("home")}
+  style={{
+    marginBottom: 12,
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "none",
+    background: "#0f172a",
+    color: "white",
+    cursor: "pointer",
+    marginLeft:30,
+    marginTop:20
+  }}
+>
+  ⬅ Back 
+</button>
       {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h3>

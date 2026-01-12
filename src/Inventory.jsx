@@ -11,11 +11,11 @@ import {
 } from "firebase/firestore";
 import JsBarcode from "jsbarcode";
 
-export default function Inventory() {
+export default function Inventory({setActivePage}) {
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [search, setSearch] = useState("");
   const [barcodeImg, setBarcodeImg] = useState("");
-
 
   const [form, setForm] = useState({
     itemNo: "",
@@ -26,6 +26,7 @@ export default function Inventory() {
     image: ""
   });
 
+  // 🔥 Live Inventory Sync
   useEffect(() => {
     const unsubAuth = auth.onAuthStateChanged((user) => {
       if (!user) return;
@@ -42,24 +43,25 @@ export default function Inventory() {
     return () => unsubAuth();
   }, []);
 
+  // 🔥 Barcode Generator
   const generateBarcode = () => {
     const random = Math.floor(1000 + Math.random() * 9000);
     const code = "BC" + Date.now() + random;
     setForm({ ...form, barcode: code });
 
-setTimeout(() => {
-  JsBarcode("#barcode", code, {
-    format: "CODE128",
-    width: 2,
-    height: 50,
-    displayValue: true
-  });
+    setTimeout(() => {
+      JsBarcode("#barcode", code, {
+        format: "CODE128",
+        width: 2,
+        height: 50,
+        displayValue: true
+      });
 
-  saveBarcodeImage(code); // 🔥 capture barcode image
-}, 50);
-
+      saveBarcodeImage(code);
+    }, 50);
   };
 
+  // 🔥 Product Image
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -68,6 +70,7 @@ setTimeout(() => {
     reader.readAsDataURL(file);
   };
 
+  // 🔥 Add / Update Item
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -79,26 +82,36 @@ setTimeout(() => {
     if (editingId) {
       await updateDoc(
         doc(db, "users", auth.currentUser.uid, "inventory", editingId),
-        form
+        { ...form, barcodeImage: barcodeImg }   // 🔥 FIX
       );
       setEditingId(null);
     } else {
       await addDoc(
         collection(db, "users", auth.currentUser.uid, "inventory"),
-       {...form,
-        barcodeImage: barcodeImg,   // 🔥 save barcode image
-        createdAt: serverTimestamp()
-       }
-
+        {
+          ...form,
+          barcodeImage: barcodeImg,
+          createdAt: serverTimestamp()
+        }
       );
     }
 
-    setForm({ itemNo: "", itemName: "", price: "",quantity: "", barcode: "", image: "" });
+    setForm({ itemNo: "", itemName: "", price: "", quantity: "", barcode: "", image: "" });
   };
 
+  // 🔥 Edit Item
   const editItem = (item) => {
     setEditingId(item.id);
-    setForm(item);
+    setForm({
+      itemNo: item.itemNo,
+      itemName: item.itemName,
+      price: item.price,
+      quantity: item.quantity,
+      barcode: item.barcode,
+      image: item.image || ""
+    });
+
+    setBarcodeImg(item.barcodeImage || "");
 
     setTimeout(() => {
       if (item.barcode) {
@@ -112,39 +125,70 @@ setTimeout(() => {
     }, 100);
   };
 
+  // 🔥 Delete
   const deleteItem = async (id) => {
     if (!window.confirm("Delete this item?")) return;
     await deleteDoc(doc(db, "users", auth.currentUser.uid, "inventory", id));
   };
-  const saveBarcodeImage = (code) => {
-  setTimeout(() => {
-    const svg = document.getElementById("barcode");
-    if (!svg) return;
 
-    const serializer = new XMLSerializer();
-    const svgStr = serializer.serializeToString(svg);
+  // 🔥 Convert Barcode SVG → PNG
+  const saveBarcodeImage = () => {
+    setTimeout(() => {
+      const svg = document.getElementById("barcode");
+      if (!svg) return;
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svg);
 
-    const img = new Image();
-    img.src = "data:image/svg+xml;base64," + btoa(svgStr);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+      const img = new Image();
+      img.src = "data:image/svg+xml;base64," + btoa(svgStr);
 
-      const png = canvas.toDataURL("image/png");
-      setBarcodeImg(png);   // 🔥 barcode image stored
-    };
-  }, 200);
-};
-
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        setBarcodeImg(canvas.toDataURL("image/png"));
+      };
+    }, 200);
+  };
 
   return (
     <div className="content-card">
-      <h3>📦 Inventory</h3>
+      
+      <button
+  onClick={() => setActivePage("home")}
+  style={{
+    marginBottom: 12,
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "none",
+    background: "#0f172a",
+    color: "white",
+    cursor: "pointer"
+  }}
+>
+  ⬅ Back
+</button>
+<br/>
+<h3>📦 Inventory</h3><br/>
+      <input
+  type="text"
+  placeholder="🔍 Search by Item No or Name..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  style={{
+    padding: "10px",
+    width: "100%",
+    maxWidth: "320px",
+    marginBottom: "15px",
+    borderRadius: "8px",
+    border: "1px solid #ccc"
+  }}
+/>
+
 
       <form onSubmit={handleSubmit}>
         <input placeholder="Item No" value={form.itemNo}
@@ -153,39 +197,35 @@ setTimeout(() => {
           onChange={e => setForm({ ...form, itemName: e.target.value })} />
         <input placeholder="Price" value={form.price}
           onChange={e => setForm({ ...form, price: e.target.value })} />
-           <input placeholder="Quantity" value={form.quantity}
-          onChange={e => setForm({ ...form, quantity: e.target.value })} />
+        <input placeholder="Quantity" value={form.quantity}
+          onChange={e => setForm({ ...form, quantity: Number(e.target.value) })} /> {/* 🔥 FIX */}
 
         <div style={{ gridColumn: "span 2" }}>
           <input placeholder="Barcode" value={form.barcode}
-          onChange={e => {
-          const val = e.target.value;
-          setForm({ ...form, barcode: val });
-          if (val) {JsBarcode("#barcode", val, {
-          format: "CODE128",
-          width: 2,
-          height: 50,
-          displayValue: true
-       });
-
-  saveBarcodeImage(val);   // 🔥 capture
-}
+            onChange={e => {
+              const val = e.target.value;
+              setForm({ ...form, barcode: val });
+              if (val) {
+                JsBarcode("#barcode", val, {
+                  format: "CODE128",
+                  width: 2,
+                  height: 50,
+                  displayValue: true
+                });
+                saveBarcodeImage();
+              }
             }} />
 
           <button type="button" onClick={generateBarcode}>Generate Barcode</button>
 
           <input type="file" accept="image/*" onChange={handleImage} />
 
-          {form.image && (
-            <img src={form.image} style={{ width: 80, marginTop: 10, borderRadius: 8 }} />
-          )}
+          {form.image && <img src={form.image} style={{ width: 80, marginTop: 10 }} />}
 
           {form.barcode && <svg id="barcode" style={{ marginTop: 10 }} />}
         </div>
 
-        <button type="submit">
-          {editingId ? "Update Item" : "Add Item"}
-        </button>
+        <button type="submit">{editingId ? "Update Item" : "Add Item"}</button>
       </form>
 
       <table className="account-table">
@@ -202,18 +242,23 @@ setTimeout(() => {
           </tr>
         </thead>
         <tbody>
-          {items.map(i => (
+          {items
+  .filter(i =>
+    i.itemNo?.toLowerCase().includes(search.toLowerCase()) ||
+    i.itemName?.toLowerCase().includes(search.toLowerCase())
+  )
+  .map(i => (
+
             <tr key={i.id}>
               <td>{i.image && <img src={i.image} style={{ width: 40 }} />}</td>
               <td>{i.itemNo}</td>
               <td>{i.itemName}</td>
               <td>₹{i.price}</td>
-             <td>
-            <div>{i.barcode}</div>
-            {i.barcodeImage && <img src={i.barcodeImage} style={{ width: 100 }} />}
+              <td>
+                {i.barcode}
+                {i.barcodeImage && <img src={i.barcodeImage} style={{ width: 100 }} />}
               </td>
-              <td>{i.quantity || 1}</td>
-
+              <td>{i.quantity}</td>
               <td><button onClick={() => editItem(i)}>✏</button></td>
               <td><button onClick={() => deleteItem(i.id)}>🗑</button></td>
             </tr>

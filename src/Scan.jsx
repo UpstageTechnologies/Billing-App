@@ -7,69 +7,70 @@ import {
   getDocs,
   addDoc,
   serverTimestamp,
-  updateDoc,
-  doc
+  updateDoc
 } from "firebase/firestore";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import JsBarcode from "jsbarcode";
 
-export default function Scan() {
+export default function Scan({setActivePage }) {
   const [scanned, setScanned] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
+  /* 🔥 Generate barcode image */
+  const generateBarcodeImage = (code) => {
+    const canvas = document.createElement("canvas");
+    JsBarcode(canvas, code, {
+      format: "CODE128",
+      width: 2,
+      height: 60,
+      displayValue: true
+    });
+    return canvas.toDataURL("image/png");
+  };
+
   const searchBarcode = async (code) => {
-    const user = auth.currentUser;   // 🔥 FIX 1
+    const user = auth.currentUser;
     if (!user || busy) return;
 
     const uid = user.uid;
-
     setBusy(true);
     setLoading(true);
 
     const invRef = collection(db, "users", uid, "inventory");
 
-    // 🔍 1. Check in Firestore
+    /* 🔍 Check if barcode already exists */
     const q = query(invRef, where("barcode", "==", code));
     const snap = await getDocs(q);
 
-    // 🔥 FIX 2 — If exists, increase quantity
     if (!snap.empty) {
       const docRef = snap.docs[0].ref;
       const data = snap.docs[0].data();
+      const newQty = (data.quantity || 1) + 1;
 
-      await updateDoc(docRef, {
-        quantity: (data.quantity || 1) + 1
-      });
+      await updateDoc(docRef, { quantity: newQty });
 
-      setResult({ ...data, quantity: (data.quantity || 1) + 1 });
+      setResult({ ...data, quantity: newQty });
       setIsScanning(false);
       setLoading(false);
       setTimeout(() => setBusy(false), 400);
       return;
     }
 
-    // 🌍 2. Not in DB → Search Online
+    /* 🌍 Fetch product from Vercel API (All supermarket items) */
     try {
       const res = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${code}.json`
+        `https://scanner-api.vercel.app/api/barcode?code=${code}`
       );
       const data = await res.json();
 
-      let name = "Unknown Product";
-      let image = "";
-      let price = 0;
+      const name = data.name || "Unknown Product";
+      const image = data.image || "";
+      const price = 0;
 
-      // 🔥 FIX 3 — Correct API check
-      if (data.status === 1) {
-        name =
-          data.product.product_name ||
-          data.product.brands ||
-          "Unknown Product";
-
-        image = data.product.image_front_url || "";
-      }
+      const barcodeImg = generateBarcodeImage(code);
 
       const newItem = {
         itemNo: Date.now().toString(),
@@ -77,6 +78,7 @@ export default function Scan() {
         price,
         barcode: code,
         image,
+        barcodeImage: barcodeImg,
         quantity: 1,
         createdAt: serverTimestamp()
       };
@@ -95,7 +97,23 @@ export default function Scan() {
 
   return (
     <div style={{ padding: 20, textAlign: "center" }}>
-      <h2>📷 Barcode Scanner</h2>
+      
+      <button
+  onClick={() => setActivePage("home")}
+  style={{
+    marginBottom: 10,
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "none",
+    background: "#0f172a",
+    color: "white",
+    cursor: "pointer"
+  }}
+>
+  ⬅ Back
+</button><br/>
+<h2>📷 Barcode Scanner</h2>
+
 
       {!isScanning && (
         <button
@@ -163,7 +181,14 @@ export default function Scan() {
           <h3>{result.itemName}</h3>
           <p>Price: ₹{result.price}</p>
           <p>Barcode: {result.barcode}</p>
-          <p>Qty: {result.quantity || 1}</p>
+          <p>Qty: {result.quantity}</p>
+
+          {result.barcodeImage && (
+            <img
+              src={result.barcodeImage}
+              style={{ width: "100%", marginTop: 10 }}
+            />
+          )}
 
           <button
             onClick={() => {

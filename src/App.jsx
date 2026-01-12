@@ -9,6 +9,7 @@ import EmployeeLogin from "./EmployeeLogin";
 import CustomerLogin from "./CustomerLogin";
 import ChooseLogin from "./ChooseLogin";
 import Scan from "./Scan";
+import Sales from "./Sales";
 
 
 
@@ -88,10 +89,11 @@ export default function App() {
 
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/payment" element={<Payment />} />
-        <Route path="/employee-login" element={<EmployeeLogin />} />
+        <Route path="/employee-login" element={<EmployeeLogin />} />s
         <Route path="/customer-login" element={<CustomerLogin />} />
        <Route path="/chooselogin" element={<ChooseLogin />} />
        <Route path="/scan" element={<Scan />} />
+       <Route path="/sales" element={<Sales />}/>
 
 
 
