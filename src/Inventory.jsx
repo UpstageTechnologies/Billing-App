@@ -242,12 +242,13 @@ export default function Inventory({setActivePage}) {
           </tr>
         </thead>
         <tbody>
-          {items
+      {items
   .filter(i =>
-    i.itemNo?.toLowerCase().includes(search.toLowerCase()) ||
-    i.itemName?.toLowerCase().includes(search.toLowerCase())
+    String(i.itemNo).toLowerCase().includes(search.toLowerCase()) ||
+    String(i.itemName).toLowerCase().includes(search.toLowerCase())
   )
   .map(i => (
+
 
             <tr key={i.id}>
               <td>{i.image && <img src={i.image} style={{ width: 40 }} />}</td>

@@ -1,0 +1,73 @@
+.invoice-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.invoice-box {
+  background: white;
+  padding: 25px;
+  width: 350px;
+  border-radius: 12px;
+  font-family: monospace;
+}
+
+.invoice-box h2 {
+  text-align: center;
+}
+
+.invoice-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+
+th, td {
+  border-bottom: 1px dashed #ccc;
+  padding: 4px;
+}
+
+.invoice-total {
+  text-align: right;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.invoice-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.invoice-buttons button {
+  padding: 8px 14px;
+  border: none;
+  background: #16a34a;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #invoice-print, #invoice-print * {
+    visibility: visible;
+  }
+  .invoice-overlay {
+    position: absolute;
+    background: white;
+  }
+}

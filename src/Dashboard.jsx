@@ -8,7 +8,10 @@ import Inventory from "./Inventory";
 import Scan from "./Scan";
 import Payment from "./pages/Payment";
 import Sales from "./sales";
+import { collection, onSnapshot } from "firebase/firestore";
+import Invoices from "./Invoices";
 
+  
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -202,7 +205,7 @@ setUserName(finalName);
       )}
 
       {activePage === "account" && <AccountSection setActivePage={setActivePage}  />}
-      {activePage === "invoices" && <h2 style={{ padding: 20 }}>Invoices Page</h2>}
+      {activePage === "invoices" && <Invoices setActivePage={setActivePage} />}
       {activePage === "reports" && <h2 style={{ padding: 20 }}>Reports Page</h2>}
       {activePage === "inventory" && <Inventory setActivePage={setActivePage} />}
       {activePage === "scan" && <Scan setActivePage={setActivePage}/>}
