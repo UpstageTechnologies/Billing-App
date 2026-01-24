@@ -11,7 +11,6 @@ export default function EmployeeList() {
     });
     return () => unsub();
   }, []);
-
   return (
     <div className="content-card">
       <h3>👨‍💼 Employees</h3>
