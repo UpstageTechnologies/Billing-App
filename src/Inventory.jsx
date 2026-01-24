@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./services/firebase";
+import "./Inventory.css";
 import {
   collection,
   addDoc,
@@ -7,8 +8,10 @@ import {
   serverTimestamp,
   doc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  setDoc
 } from "firebase/firestore";
+
 import JsBarcode from "jsbarcode";
 
 export default function Inventory({setActivePage}) {
@@ -17,14 +20,37 @@ export default function Inventory({setActivePage}) {
   const [search, setSearch] = useState("");
   const [barcodeImg, setBarcodeImg] = useState("");
 
-  const [form, setForm] = useState({
-    itemNo: "",
-    itemName: "",
-    price: "",
-    quantity: "",
-    barcode: "",
-    image: ""
-  });
+ const [form, setForm] = useState({
+  itemNo: "",
+  itemName: "",
+  price: "",
+  quantity: "",
+  barcode: "",
+  gst: "0",
+  image: ""
+});
+useEffect(() => {
+  if (!auth.currentUser) return;
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      await setDoc(
+  doc(db, "users", auth.currentUser.uid, "settings", "shopProfile"),
+  {
+    name: form.shopName || "",
+    address: form.shopAddress || "",
+    logo
+  },
+  { merge: true }
+);
+
+    },
+    () => {
+      console.warn("Shop location permission denied");
+    }
+  );
+}, []);
+
 
   // 🔥 Live Inventory Sync
   useEffect(() => {
@@ -121,7 +147,7 @@ export default function Inventory({setActivePage}) {
           height: 50,
           displayValue: true
         });
-      }
+      } 
     }, 100);
   };
 
@@ -173,6 +199,47 @@ export default function Inventory({setActivePage}) {
   ⬅ Back
 </button>
 <br/>
+{/* 🏪 SHOP PROFILE */}
+<div className="shop-profile">
+  <h3>🏪 Shop Profile</h3>
+
+  <input
+    placeholder="Shop Name"
+    value={form.shopName || ""}
+    onChange={e => setForm({ ...form, shopName: e.target.value })}
+  />
+  <input
+  placeholder="Shop Address"
+  value={form.shopAddress || ""}
+  onChange={e => setForm({ ...form, shopAddress: e.target.value })}
+/>
+
+
+  <input type="file" accept="image/*" onChange={e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const logo = reader.result;
+
+    await setDoc(
+  doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
+  {
+    name: form.shopName,
+    address: form.shopAddress,
+    logo
+  },
+  { merge: true }
+);
+
+      
+
+      alert("Shop profile saved ✅");
+    };
+    reader.readAsDataURL(file);
+  }} />
+</div>
+
 <h3>📦 Inventory</h3><br/>
       <input
   type="text"
@@ -199,6 +266,8 @@ export default function Inventory({setActivePage}) {
           onChange={e => setForm({ ...form, price: e.target.value })} />
         <input placeholder="Quantity" value={form.quantity}
           onChange={e => setForm({ ...form, quantity: Number(e.target.value) })} /> {/* 🔥 FIX */}
+        <input placeholder="GST %"value={form.gst}onChange={e => setForm({ ...form, gst: e.target.value })}/>
+
 
         <div style={{ gridColumn: "span 2" }}>
           <input placeholder="Barcode" value={form.barcode}
@@ -236,6 +305,7 @@ export default function Inventory({setActivePage}) {
             <th>Name</th>
             <th>Price</th>
             <th>Barcode</th>
+            <th>GST %</th>  
             <th>Qty</th>
             <th>Edit</th>
             <th>Delete</th>
@@ -250,20 +320,25 @@ export default function Inventory({setActivePage}) {
   .map(i => (
 
 
-            <tr key={i.id}>
-              <td>{i.image && <img src={i.image} style={{ width: 40 }} />}</td>
-              <td>{i.itemNo}</td>
-              <td>{i.itemName}</td>
-              <td>₹{i.price}</td>
-              <td>
-                {i.barcode}
-                {i.barcodeImage && <img src={i.barcodeImage} style={{ width: 100 }} />}
-              </td>
-              <td>{i.quantity}</td>
-              <td><button onClick={() => editItem(i)}>✏</button></td>
-              <td><button onClick={() => deleteItem(i.id)}>🗑</button></td>
-            </tr>
-          ))}
+        <tr key={i.id}>
+  <td>{i.image && <img src={i.image} style={{ width: 40 }} />}</td>
+  <td>{i.itemNo}</td>
+  <td>{i.itemName}</td>
+  <td>₹{i.price}</td>
+
+  <td>
+    {i.barcode}
+    {i.barcodeImage && <img src={i.barcodeImage} style={{ width: 100 }} />}
+  </td>
+
+  <td>{i.gst || 0}%</td>   
+
+  <td>{i.quantity}</td>
+  <td><button onClick={() => editItem(i)}>✏</button></td>
+  <td><button onClick={() => deleteItem(i.id)}>🗑</button></td>
+</tr>
+
+ ))}
         </tbody>
       </table>
     </div>

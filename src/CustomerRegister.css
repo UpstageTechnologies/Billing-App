@@ -1,11 +1,10 @@
 :root {
   --primary: #6d5bff;
   --primary-dark: #4f46e5;
-  --bg: #020617;
 }
 
 /* PAGE */
-.login-wrapper {
+.auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -18,9 +17,9 @@
 }
 
 /* CARD */
-.login-card {
-  width: 380px;
-  padding: 32px 28px;
+.auth-card {
+  width: 400px;
+  padding: 34px 30px;
   border-radius: 22px;
   background: rgba(10, 18, 40, 0.88);
   backdrop-filter: blur(14px);
@@ -36,7 +35,7 @@
 }
 
 /* TITLE */
-.login-card h2 {
+.auth-card h2 {
   text-align: center;
   margin-bottom: 22px;
   font-size: 22px;
@@ -44,14 +43,14 @@
 }
 
 /* FORM */
-.login-form {
+.auth-card form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 /* INPUT */
-.login-form input {
+.auth-card input {
   background: rgba(2, 6, 23, 0.9);
   border: 1px solid #334155;
   padding: 12px 14px;
@@ -60,19 +59,19 @@
   font-size: 14px;
 }
 
-.login-form input::placeholder {
+.auth-card input::placeholder {
   color: #64748b;
 }
 
-.login-form input:focus {
+.auth-card input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(109,91,255,.25);
 }
 
 /* BUTTON */
-.customer-login-btn {
-  margin-top: 6px;
+.auth-card button {
+  margin-top: 10px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   border: none;
@@ -83,44 +82,27 @@
   transition: .25s;
 }
 
-.customer-login-btn:hover {
+.auth-card button:hover {
   transform: translateY(-1px);
   box-shadow: 0 18px 35px rgba(79,70,229,.35);
 }
 
-/* TEXT */
-.hint {
+/* BACK */
+.back-text {
   margin-top: 16px;
   text-align: center;
   font-size: 13px;
-  color: #a1a1aa;
-}
-
-.hint a {
-  color: #c7d2fe;
-  text-decoration: none;
-}
-
-.hint a:hover {
-  color: #fff;
-}
-
-.back {
-  display: block;
-  margin-top: 14px;
-  text-align: center;
-  font-size: 13px;
   color: #cbd5e1;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.back:hover {
+.back-text:hover {
   color: #fff;
 }
 
 /* MOBILE */
 @media (max-width: 480px) {
-  .login-card {
+  .auth-card {
     width: 92%;
     padding: 26px 20px;
   }

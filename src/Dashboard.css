@@ -97,3 +97,71 @@
   background: linear-gradient(135deg, #facc15, #f59e0b);
   color: #78350f;
 }
+.profile {
+  position: relative;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  width: 160px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.menu-item {
+  padding: 12px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.menu-item:hover {
+  background: #f8fafc;
+}
+
+.menu-item.danger {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+/* Confirm popup */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.confirm-box {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  width: 300px;
+  text-align: center;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.confirm-actions button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.confirm-actions .danger {
+  background: #ef4444;
+  color: white;
+}

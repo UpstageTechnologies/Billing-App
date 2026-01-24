@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { auth, db } from "./services/firebase";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -11,113 +11,97 @@ import Sales from "./sales";
 import { collection, onSnapshot } from "firebase/firestore";
 import Invoices from "./Invoices";
 
-  
-
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [photo, setPhoto] = useState("");
   const [activePage, setActivePage] = useState("home");
   const [userName, setUserName] = useState("user");
   const [plan, setPlan] = useState("basic");
+  const [todaySales, setTodaySales] = useState(0);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const navigate = useNavigate();
+  const menuRef = useRef();
 
-  const [todaySales, setTodaySales] = useState(0);
-
-useEffect(() => {
-  if (!auth.currentUser) return;
-
-  const ref = collection(db, "users", auth.currentUser.uid, "sales");
-
-  onSnapshot(ref, snap => {
-    let total = 0;
-    snap.docs.forEach(d => total += d.data().total || 0);
-    setTodaySales(total);
-  });
-}, []);
-
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = e => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   useEffect(() => {
-    const emp = localStorage.getItem("employeeLogin");
-    const cust = localStorage.getItem("customerLogin");
-      // 🔥 EMPLOYEE SESSION
-  if (emp) {
-    const empName = localStorage.getItem("employeeName");
-    setUserName(empName || "Employee");
-    setPlan("basic"); // or hide if you want
-    setPhoto("");    // or default avatar
-    return;
-  }
-  // 🔥 CUSTOMER SESSION
-if (cust) {
-  const custName = localStorage.getItem("customerName");
-  setUserName(custName || "Customer");
-  setPlan("basic");
-  setPhoto("");
-  return;
-}
+    if (!auth.currentUser) return;
+    const ref = collection(db, "users", auth.currentUser.uid, "sales");
+    return onSnapshot(ref, snap => {
+      let total = 0;
+      snap.docs.forEach(d => total += d.data().total || 0);
+      setTodaySales(total);
+    });
+  }, []);
 
-
-  // 🔥 CUSTOMER / MASTER LOGIN (Firebase)
-
-    if (emp || cust) return;
-
+  useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (u) => {
       if (!u) {
-        navigate("/employee-login");
+        navigate("/login");
         return;
       }
       setUser(u);
 
-const userRef = doc(db, "users", u.uid);
-const snap = await getDoc(userRef);
+      const userRef = doc(db, "users", u.uid);
+      const snap = await getDoc(userRef);
 
-// 🔥 Always use Google data if available
-const googlePhoto = u.photoURL || "";
-const googleName = u.displayName || "";
+      const googlePhoto = u.photoURL || "";
+      const googleName = u.displayName || "";
 
-if (snap.exists()) {
-  const data = snap.data();
-
-  // Profile photo priority
-  setPhoto(data.photo || googlePhoto || "");
-
-  // Name priority
-const finalName = data.name || googleName || u.email || "User";
-setUserName(finalName);
-
- // 🔥 If name missing in Firestore, auto save it
-  if (!data.name && finalName) {
-    await setDoc(userRef, { name: finalName }, { merge: true });
-  }
-
-
-  setPlan(data.plan || "basic");
-
-} else {
-  // 🔥 First time Google login → SAVE in Firestore
-  await setDoc(userRef, {
-    name: googleName,
-    photo: googlePhoto || "",
-    plan: "basic",
-    isActive: true,
-    createdAt: new Date()
-  });
-
-  setPhoto(googlePhoto || "");
-  setUserName(googleName || "User");
-  setPlan("basic");
-}
-
-
+      if (snap.exists()) {
+        const data = snap.data();
+        setPhoto(data.photo || googlePhoto || "");
+        setUserName(data.name || googleName || "User");
+        setPlan(data.plan || "basic");
+      } else {
+        await setDoc(userRef, {
+          name: googleName,
+          photo: googlePhoto || "",
+          plan: "basic",
+          createdAt: new Date()
+        });
+        setPhoto(googlePhoto || "");
+        setUserName(googleName || "User");
+      }
     });
 
     return () => unsub();
   }, []);
+  useEffect(() => {
+  if (!auth.currentUser) return;
 
-  const handleLogout = async () => {
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      await setDoc(
+        doc(db, "users", auth.currentUser.uid, "settings", "shopProfile"),
+        {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        },
+        { merge: true }
+      );
+    },
+    (err) => {
+      console.log("Location denied by shop owner");
+    }
+  );
+}, []);
+
+
+  const confirmLogout = async () => {
     localStorage.clear();
-    await auth.signOut().catch(() => {});
+    await auth.signOut();
     navigate("/login");
   };
 
@@ -135,84 +119,72 @@ setUserName(finalName);
 
   return (
     <div className="dash-wrapper">
-
-      {/* ===== TOP BAR ===== */}
       <div className="dash-topbar">
         <h2>📊 Dashboard</h2>
 
-      <div className="profile">
-        <div className={`plan-badge ${plan}`}>
-        {plan === "basic" && " Basic"}
-        {plan === "premium" && " Premium"}
-        {plan === "lifetime" && "Onetime Acces"}
-      </div>
-          <label>
-            <img
-              src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
-              alt="profile"
-              className="profile-img"
-            />
-            <input type="file" hidden onChange={handleUpload} />
-          </label>
-          <span>{userName}</span>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <div className="profile" ref={menuRef}>
+          <div
+            className={`plan-badge ${plan}`}
+            onClick={() => setActivePage("payment")}
+          >
+            {plan === "basic" && "Basic"}
+            {plan === "premium" && "Premium"}
+            {plan === "lifetime" && "Onetime Access"}
+          </div>
+
+          <img
+            src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
+            className="profile-img"
+            onClick={() => setShowMenu(!showMenu)}
+          />
+
+          {showMenu && (
+            <div className="profile-menu">
+              <label className="menu-item">
+                Change Photo
+                <input type="file" hidden onChange={handleUpload} />
+              </label>
+              <div className="menu-item danger" onClick={() => {
+                setShowConfirm(true);
+                setShowMenu(false);
+              }}>
+                Logout
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ===== CONTENT ===== */}
       {activePage === "home" && (
         <div className="dashboard-grid">
-
-          <div className="dash-card" onClick={() => setActivePage("account")}>
-            👤
-            <h3>Account Creation</h3>
-            <p>Employees & Customers</p>
-          </div>
-
-          <div className="dash-card" onClick={() => setActivePage("invoices")}>
-            📄
-            <h3>Invoices</h3>
-            <p>Billing Records</p>
-          </div>
-
-          <div className="dash-card" onClick={() => setActivePage("payment")}>
-            📈
-            <h3>Upgrade To Pro</h3>
-            <p>Premiam & onetimepayment</p>
-          </div>
-
-          <div className="dash-card" onClick={() => setActivePage("inventory")}>
-            📦
-            <h3>Inventory</h3>
-            <p>Stock Management</p>
-          </div>
-          <div className="dash-card" onClick={() => setActivePage("scan")}>
-  📷
-  <h3>Scan</h3>
-  <p>Scan barcode</p>
-</div>
-<div className="dash-card" onClick={() => setActivePage("sales")}>
-  💰
-  <h3>Sales</h3>
-  <p>Today Billing</p>
-  <p>₹{todaySales}</p>
-
-</div>
-
-
-
+          <div className="dash-card" onClick={() => setActivePage("account")}>👤<h3>Account Creation</h3></div>
+          <div className="dash-card" onClick={() => setActivePage("invoices")}>📄<h3>Invoices</h3></div>
+          <div className="dash-card" onClick={() => setActivePage("inventory")}>📦<h3>Inventory</h3></div>
+          <div className="dash-card" onClick={() => setActivePage("scan")}>📷<h3>Scan</h3></div>
+          <div className="dash-card" onClick={() => setActivePage("sales")}>💰<h3>Sales</h3><p>₹{todaySales}</p></div>
         </div>
       )}
 
-      {activePage === "account" && <AccountSection setActivePage={setActivePage}  />}
-      {activePage === "invoices" && <Invoices setActivePage={setActivePage} />}
-      {activePage === "reports" && <h2 style={{ padding: 20 }}>Reports Page</h2>}
+      {activePage === "account" && <AccountSection setActivePage={setActivePage} />}
       {activePage === "inventory" && <Inventory setActivePage={setActivePage} />}
-      {activePage === "scan" && <Scan setActivePage={setActivePage}/>}
+      {activePage === "scan" && <Scan setActivePage={setActivePage} />}
       {activePage === "payment" && <Payment setActivePage={setActivePage} />}
       {activePage === "sales" && <Sales setActivePage={setActivePage} />}
+      {activePage === "invoices" && <Invoices setActivePage={setActivePage} />}
 
-
+      {/* Confirm Logout */}
+      {showConfirm && (
+        <div className="confirm-overlay">
+          <div className="confirm-box">
+            <h3>Are you sure?</h3>
+            <p>You want to logout?</p>
+            <div className="confirm-actions">
+              <button onClick={() => setShowConfirm(false)}>Cancel</button>
+              <button className="danger" onClick={confirmLogout}>Logout</button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

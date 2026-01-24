@@ -19,6 +19,15 @@ export default function InvoiceView({ bill, onClose }) {
           <div>Time: {date.toLocaleTimeString()}</div>
         </div>
 
+        {/* 👤 CUSTOMER DETAILS FIX */}
+        {(bill.customerName || bill.customerAddress) && (
+          <div style={{ fontSize: "13px", margin: "6px 0" }}>
+            {bill.customerName && <div>Name : {bill.customerName}</div>}
+            {bill.customerAddress && <div>Address : {bill.customerAddress}</div>}
+            <hr/>
+          </div>
+        )}
+
         <table>
           <thead>
             <tr>
@@ -29,7 +38,7 @@ export default function InvoiceView({ bill, onClose }) {
             </tr>
           </thead>
           <tbody>
-            {bill.items.map((it, i) => (
+{bill.items?.map((it, i) => (
               <tr key={i}>
                 <td>{it.itemName}</td>
                 <td>{it.qty}</td>

@@ -1,0 +1,152 @@
+/* ===== GLOBAL CARD ===== */
+.content-card {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(18px);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.08);
+  border: 1px solid rgba(255,255,255,0.4);
+  animation: fadeIn .25s ease;
+}
+
+/* ===== TITLES ===== */
+h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+/* ===== SHOP PROFILE BOX ===== */
+.shop-profile {
+  background: linear-gradient(135deg,#f8fafc,#ffffff);
+  border: 1px solid #e2e8f0;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+
+/* ===== FORM GRID ===== */
+form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* ===== INPUTS ===== */
+input {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  background: #ffffff;
+  transition: all .2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+}
+
+/* FILE INPUT */
+input[type="file"] {
+  padding: 6px;
+  background: #f8fafc;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 14px;
+  transition: .2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+/* SUBMIT */
+button[type="submit"] {
+  grid-column: span 2;
+  background: linear-gradient(135deg,#22c55e,#16a34a);
+  color: white;
+}
+
+/* GENERATE BARCODE */
+button[type="button"] {
+  background: #0f172a;
+  color: white;
+}
+
+/* ===== BARCODE SVG ===== */
+#barcode {
+  background: white;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px dashed #cbd5f5;
+}
+
+/* ===== INVENTORY TABLE ===== */
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,.06);
+}
+
+.account-table thead {
+  background: #0f172a;
+  color: white;
+}
+
+.account-table th {
+  padding: 10px;
+  font-weight: 600;
+}
+
+.account-table td {
+  padding: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: center;
+}
+
+.account-table tr:hover {
+  background: #f8fafc;
+}
+
+/* ===== IMAGES ===== */
+.account-table img {
+  border-radius: 6px;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.account-table button {
+  padding: 4px 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  background: #0f172a;
+  color: white;
+}
+
+.account-table button:hover {
+  background: #22c55e;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(6px);}
+  to {opacity: 1;}
+}

@@ -23,9 +23,9 @@ export default function ChooseLogin() {
 
           <button
             className="login-btn"
-            onClick={() => navigate("/customer-login")}
+            onClick={() => navigate("/staff-login")}
           >
-            🧑 Customer Login
+            🧑 Staff Login
           </button>
           <Link to="/">
             <p className="back">← Back to Home</p>

@@ -1,3 +1,4 @@
+/* ================== GLOBAL ================== */
 .pos-container {
   display: flex;
   height: 100vh;
@@ -5,7 +6,7 @@
   font-family: "Inter", system-ui, sans-serif;
 }
 
-/* LEFT PANEL */
+/* ================= LEFT ================= */
 .pos-left {
   width: 38%;
   background: #ffffff;
@@ -20,7 +21,6 @@
   color: #0f172a;
 }
 
-/* Product Card */
 .pos-item {
   display: flex;
   justify-content: space-between;
@@ -31,13 +31,12 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s;
 }
 
 .pos-item:hover {
   background: #f8fafc;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-  transform: scale(1.01);
+  box-shadow: 0 6px 18px rgba(0,0,0,.05);
 }
 
 .pos-item-left {
@@ -51,142 +50,303 @@
   height: 52px;
   border-radius: 12px;
   object-fit: cover;
-  border: 1px solid #e5e7eb;
 }
 
-.pos-name {
-  font-weight: 600;
-  color: #0f172a;
-}
+.pos-name { font-weight: 600; }
+.pos-price { font-size: 13px; color: #64748b; }
 
-.pos-price {
-  font-size: 13px;
-  color: #64748b;
-}
-
-/* Stock badge */
 .pos-stock {
   background: linear-gradient(135deg,#22c55e,#16a34a);
   color: white;
   padding: 6px 14px;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 14px;
 }
 
-/* RIGHT PANEL */
+/* ================= RIGHT ================= */
 .pos-right {
   width: 62%;
   padding: 18px;
   display: flex;
   flex-direction: column;
   background: #f8fafc;
+  overflow-y: hidden;
 }
 
-.pos-right h3 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-/* Bill item */
-.bill-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px;
-  background: white;
-  border-radius: 14px;
-  margin-bottom: 8px;
-  border: 1px solid #e5e7eb;
-  font-weight: 500;
-}
-
-/* TOTAL */
-.total {
-  margin-top: auto;
-  font-size: 28px;
-  font-weight: 800;
-  padding: 22px;
-  background: white;
-  border-radius: 18px;
-  text-align: center;
-  border: 1px solid #e5e7eb;
-  color: #16a34a;
-}
-
-/* PAY BUTTON */
-.pay-btn {
-  background: linear-gradient(135deg,#22c55e,#16a34a);
-  padding: 20px;
+/* ================= BACK BUTTON ================= */
+.back-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #0f172a;
+  color: white;
   border: none;
-  border-radius: 16px;
-  font-size: 20px;
-  margin-top: 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+/* ================= BILL RECEIPT ================= */
+.current-bill-list {
+  flex: 1;
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  font-family: monospace;
+  overflow-y: auto;
+}
+
+/* ================= RECEIPT HEADER ================= */
+.receipt-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.receipt-shop {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.receipt-top {
+  font-size: 13px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed black;
+  padding-bottom: 4px;
+}
+
+/* ================= BILL TABLE (PERFECT ALIGNMENT) ================= */
+/* Item | Qty | Price | GST | Total | Delete */
+
+.bill-header,
+.bill-item {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 1fr)  /* Item */
+    30px                /* Qty */
+    30px                /* Price */
+    30px                /* GST */
+    30px               /* Total */
+    90px;               /* Delete */
+  column-gap: 90px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.bill-header {
+  font-weight: 700;
+  padding: 8px 0;
+  border-bottom: 1px dashed #000;
+}
+
+.bill-item {
+  padding: 10px 0;
+  border-bottom: 1px dashed #d1d5db;
+}
+
+/* ITEM TEXT WRAP CONTROL */
+.bill-item span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ALIGNMENTS */
+.col-qty { text-align: center; }
+
+.col-price,
+.col-gst,
+.col-total {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ================= DELETE ICON ================= */
+.cancel-btn {
+  justify-self: end;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #0f172a;
+  color: white;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #dc2626;
+}
+
+/* ================= TOTAL ================= */
+.total {
+  font-size: 18px;
+  font-weight: 800;
+  background: white;
+  padding: 14px;
+  border-radius: 14px;
+  text-align: center;
+  border: 2px solid #16a34a;
+  color: #16a34a;
+  margin-top: 10px;
+}
+
+/* ❌ REMOVE AUTO GST TEXT */
+.total::after {
+  content: "" !important;
+}
+
+/* ================= ACTION BAR ================= */
+.action-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.action-btn {
+  height: 52px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
   color: white;
-  font-weight: 800;
-  box-shadow: 0 10px 20px rgba(34,197,94,0.3);
 }
 
-.pay-btn:hover {
-  transform: scale(1.03);
-}
-/* ===== TODAY BILL HISTORY ===== */
+.print-btn { background: #0f172a; }
+.today-btn { background: #1e293b; }
+.hold-btn { background: linear-gradient(135deg,#f59e0b,#d97706); }
+.pay-btn { background: linear-gradient(135deg,#22c55e,#16a34a); }
 
-.bill-history {
-  margin-top: 10px;
-  margin-bottom: 15px;
-  max-height: 180px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
+/* ================= PRINT ================= */
+@media print {
+  body * { visibility: hidden; }
 
-.history-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
+  .pos-right,
+  .pos-right * { visibility: visible; }
 
-.history-card:hover {
-  background: #f1f5f9;
-  transform: scale(1.01);
-}
+  .pos-right {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    background: white;
+    padding: 25px;
+    font-family: monospace;
+  }
 
-.history-title {
-  font-weight: 600;
-  font-size: 14px;
-  color: #0f172a;
-}
+  .action-bar,
+  .back-btn,
+  .cancel-btn {
+    display: none !important;
+  }
 
-.history-card small {
-  font-size: 12px;
-  color: #64748b;
-}
-/* ===== CURRENT BILL SCROLL AREA ===== */
-.current-bill-list {
-  max-height: 280px;        /* Bill area height */
-  overflow-y: auto;
-  margin-top: 10px;
-  margin-bottom: 12px;
-  padding-right: 6px;
-}
+  .current-bill-list { border: none; }
 
-/* nice scrollbar */
-.current-bill-list::-webkit-scrollbar {
-  width: 6px;
+  .total {
+    border: none;
+    background: none;
+    color: black;
+  }
 }
+/* TODAY BILL POPUP */
+ .history-overlay { position: fixed;
+  inset: 0; 
+  background: rgba(15,23,42,.6); 
+  backdrop-filter: blur(4px); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  z-index: 999; }
 
-.current-bill-list::-webkit-scrollbar-thumb {
-  background: #cbd5f5;
-  border-radius: 10px;
-}
+  .history-modal { 
+    background: white; 
+    width: 360px; 
+    max-height: 80vh; 
+    overflow-y: auto; 
+    border-radius: 16px; 
+    padding: 16px; 
+    box-shadow: 0 25px 60px rgba(0,0,0,.25);
+     animation: fadeIn .2s ease; 
+    }
 
-.current-bill-list::-webkit-scrollbar-track {
-  background: transparent;
+.history-modal h3 {
+ margin-bottom: 10px;
 }
 
+.history-modal button {
+margin-top: 10px;
+width: 100%; 
+padding: 10px; 
+border-radius: 10px; 
+border: none; 
+background: #0f172a; 
+color: white; 
+}
+
+@media print 
+{ 
+.no-print{ 
+  display: none !important; 
+ } 
+}
+
+/* ================= RESPONSIVE ================= */
+
+/* 📱 MOBILE */
+@media (max-width: 768px) {
+  .pos-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .pos-left,
+  .pos-right {
+    width: 100%;
+  }
+
+  .bill-header,
+  .bill-item {
+    grid-template-columns:
+      minmax(120px, 1fr)
+      46px
+      70px
+      56px
+      80px
+      36px;
+    column-gap: 8px;
+    font-size: 12px;
+  }
+
+  .action-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .action-btn {
+    height: 46px;
+    font-size: 14px;
+  }
+}
+
+/* 💻 TABLET */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .pos-left { width: 42%; }
+  .pos-right { width: 58%; }
+}
+
+/* 🖥 LARGE SCREEN */
+@media (min-width: 1400px) {
+  .pos-left { width: 35%; }
+  .pos-right { width: 65%; }
+
+  .bill-header,
+  .bill-item {
+    font-size: 14px;
+  }
+}

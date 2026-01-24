@@ -1,106 +1,63 @@
-import React, { useState } from "react";
-import { db } from "./services/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./CustomerLogin.css";
 
 export default function CustomerLogin() {
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
 
-  const handleLogin = async () => {
-    setError("");
+  useEffect(() => {
+    localStorage.removeItem("customerLoggedIn");
+  }, []);
 
-    if (!userId || !password) {
-      return setError("Fill all fields ❌");
-    }
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const saved = JSON.parse(localStorage.getItem("customer"));
 
-    try {
-      // 🔥 STEP 1: get all admin users
-      const usersSnap = await getDocs(collection(db, "users"));
+    if (!saved) return alert("Register first");
 
-      let loginSuccess = false;
-      let ownerUid = "";
-
-      // 🔥 STEP 2: search customers inside each admin
-      for (const userDoc of usersSnap.docs) {
-        const custRef = collection(
-          db,
-          "users",
-          userDoc.id,
-          "customers"
-        );
-
-        const q = query(
-          custRef,
-          where("userId", "==", userId),
-          where("password", "==", password),
-        );
-
-        const custSnap = await getDocs(q);
-
-if (!custSnap.empty) {
-  const custData = custSnap.docs[0].data(); // 🔥 get customer data
-
-  loginSuccess = true;
-  ownerUid = userDoc.id;
-
-  // 🔥 store customer name
-  localStorage.setItem("customerName", custData.name);
-
-  break;
-}
-
-      }
-
-      if (!loginSuccess) {
-        return setError("Invalid Customer ID or Password ❌");
-      }
-
-      // ✅ LocalStorage session
-      localStorage.setItem("customerLogin", "true");
-      localStorage.setItem("customerId", userId);
-      localStorage.setItem("ownerUid", ownerUid);
-
-      navigate("/dashboard");
-
-    } catch (err) {
-      console.error(err);
-      setError("Login failed ❌");
+    if (
+      saved.name.toLowerCase() === name.toLowerCase() &&
+      saved.mobile === mobile
+    ) {
+      localStorage.setItem("customerLoggedIn", "true");
+      navigate("/customer-dashboard");
+    } else {
+      alert("Invalid details");
     }
   };
 
   return (
     <div className="login-wrapper">
       <div className="login-card">
-        <h2 className="login-title">🧑 Customer Login</h2>
+        <h2>Customer Login</h2>
 
-        <div className="login-form">
+        <form className="login-form" onSubmit={handleLogin}>
           <input
-            placeholder="Customer ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
+            placeholder="Name"
+            value={name}
+            onChange={e => setName(e.target.value)}
           />
 
           <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Mobile"
+            value={mobile}
+            onChange={e => setMobile(e.target.value)}
           />
 
-          <button className="login-btn" onClick={handleLogin}>
+          <button className="customer-login-btn">
             Login
           </button>
+        </form>
 
-          {error && <p className="error-text">{error}</p>}
+        <p className="hint">
+          New user? <Link to="/customer-register">Register</Link>
+        </p>
 
-          <Link to="/login">
-            <p className="back">← Back</p>
-          </Link>
-        </div>
+        <Link className="back" to="/">
+          ← Back to Home
+        </Link>
       </div>
     </div>
   );
