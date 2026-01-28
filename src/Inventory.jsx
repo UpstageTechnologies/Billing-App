@@ -11,336 +11,315 @@ import {
   deleteDoc,
   setDoc
 } from "firebase/firestore";
-
 import JsBarcode from "jsbarcode";
 
-export default function Inventory({setActivePage}) {
+export default function Inventory({ setActivePage }) {
+
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [barcodeImg, setBarcodeImg] = useState("");
 
- const [form, setForm] = useState({
-  itemNo: "",
-  itemName: "",
-  price: "",
-  quantity: "",
-  barcode: "",
-  gst: "0",
-  image: ""
-});
+  const [form, setForm] = useState({
+    itemNo:"",
+    itemName:"",
+    price:"",
+    quantity:"",
+    barcode:"",
+    gst:"0",
+    image:"",
+    shopName:"",
+    shopAddress:"",
+    lat:null,
+    lng:null
+  });
+
+/* ✅ GET SHOP LOCATION ONCE */ 
 useEffect(() => {
   if (!auth.currentUser) return;
 
   navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      await setDoc(
-  doc(db, "users", auth.currentUser.uid, "settings", "shopProfile"),
-  {
-    name: form.shopName || "",
-    address: form.shopAddress || "",
-    logo
-  },
-  { merge: true }
-);
-
+    (pos)=>{
+      setForm(prev=>({
+        ...prev,
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      }));
+      console.log("Shop Location:",pos.coords.latitude,pos.coords.longitude);
     },
-    () => {
-      console.warn("Shop location permission denied");
-    }
+    ()=> alert("Please allow location access")
   );
-}, []);
+},[]);
+
+/* ✅ INVENTORY LIVE */
+useEffect(()=>{
+  const unsub = auth.onAuthStateChanged(user=>{
+    if(!user) return;
+    return onSnapshot(
+      collection(db,"users",user.uid,"inventory"),
+      snap=> setItems(snap.docs.map(d=>({id:d.id,...d.data()})))
+    );
+  });
+  return ()=>unsub();
+},[]);
+
+/* BARCODE */
+const generateBarcode = () => {
+  const code = "BC"+Date.now();
+  setForm({...form,barcode:code});
+  setTimeout(()=>{
+    JsBarcode("#barcode",code,{format:"CODE128",width:2,height:50});
+    saveBarcodeImage();
+  },50);
+};
+
+const saveBarcodeImage = () =>{
+  setTimeout(()=>{
+    const svg=document.getElementById("barcode");
+    if(!svg) return;
+    const xml=new XMLSerializer().serializeToString(svg);
+    const canvas=document.createElement("canvas");
+    const ctx=canvas.getContext("2d");
+    const img=new Image();
+    img.src="data:image/svg+xml;base64,"+btoa(xml);
+    img.onload=()=>{
+      canvas.width=img.width;
+      canvas.height=img.height;
+      ctx.drawImage(img,0,0);
+      setBarcodeImg(canvas.toDataURL("image/png"));
+    };
+  },200);
+};
+
+/* IMAGE */
+const handleImage=(e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onloadend=()=>setForm({...form,image:reader.result});
+  reader.readAsDataURL(file);
+};
+
+/* ADD ITEM */
+const handleSubmit=async(e)=>{
+  e.preventDefault();
+
+  if(editingId){
+    await updateDoc(
+      doc(db,"users",auth.currentUser.uid,"inventory",editingId),
+      {...form,barcodeImage:barcodeImg}
+    );
+    setEditingId(null);
+  }else{
+    await addDoc(
+      collection(db,"users",auth.currentUser.uid,"inventory"),
+      {...form,barcodeImage:barcodeImg,createdAt:serverTimestamp()}
+    );
+  }
+
+  setForm({...form,itemNo:"",itemName:"",price:"",quantity:"",barcode:"",image:""});
+};
+
+/* DELETE */
+const deleteItem=async(id)=>{
+  await deleteDoc(doc(db,"users",auth.currentUser.uid,"inventory",id));
+};
+
+/* EDIT */
+const editItem = (i) => {
+  setEditingId(i.id);
+  setForm({...i});
+  setBarcodeImg(i.barcodeImage || "");
+
+  if(i.barcode){
+    setTimeout(()=>{
+      JsBarcode("#barcode", i.barcode, {format:"CODE128",width:2,height:50});
+    },50);
+  }
+};
 
 
-  // 🔥 Live Inventory Sync
-  useEffect(() => {
-    const unsubAuth = auth.onAuthStateChanged((user) => {
-      if (!user) return;
+return(
+<div className="content-card">
 
-      const ref = collection(db, "users", user.uid, "inventory");
+<button onClick={()=>setActivePage("home")}>⬅ Back</button>
 
-      const unsubData = onSnapshot(ref, (snap) => {
-        setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      });
-
-      return () => unsubData();
-    });
-
-    return () => unsubAuth();
-  }, []);
-
-  // 🔥 Barcode Generator
-  const generateBarcode = () => {
-    const random = Math.floor(1000 + Math.random() * 9000);
-    const code = "BC" + Date.now() + random;
-    setForm({ ...form, barcode: code });
-
-    setTimeout(() => {
-      JsBarcode("#barcode", code, {
-        format: "CODE128",
-        width: 2,
-        height: 50,
-        displayValue: true
-      });
-
-      saveBarcodeImage(code);
-    }, 50);
-  };
-
-  // 🔥 Product Image
-  const handleImage = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setForm({ ...form, image: reader.result });
-    reader.readAsDataURL(file);
-  };
-
-  // 🔥 Add / Update Item
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!form.itemNo || !form.itemName || !form.price || !form.quantity || !form.barcode) {
-      alert("Fill all fields");
-      return;
-    }
-
-    if (editingId) {
-      await updateDoc(
-        doc(db, "users", auth.currentUser.uid, "inventory", editingId),
-        { ...form, barcodeImage: barcodeImg }   // 🔥 FIX
-      );
-      setEditingId(null);
-    } else {
-      await addDoc(
-        collection(db, "users", auth.currentUser.uid, "inventory"),
-        {
-          ...form,
-          barcodeImage: barcodeImg,
-          createdAt: serverTimestamp()
-        }
-      );
-    }
-
-    setForm({ itemNo: "", itemName: "", price: "", quantity: "", barcode: "", image: "" });
-  };
-
-  // 🔥 Edit Item
-  const editItem = (item) => {
-    setEditingId(item.id);
-    setForm({
-      itemNo: item.itemNo,
-      itemName: item.itemName,
-      price: item.price,
-      quantity: item.quantity,
-      barcode: item.barcode,
-      image: item.image || ""
-    });
-
-    setBarcodeImg(item.barcodeImage || "");
-
-    setTimeout(() => {
-      if (item.barcode) {
-        JsBarcode("#barcode", item.barcode, {
-          format: "CODE128",
-          width: 2,
-          height: 50,
-          displayValue: true
-        });
-      } 
-    }, 100);
-  };
-
-  // 🔥 Delete
-  const deleteItem = async (id) => {
-    if (!window.confirm("Delete this item?")) return;
-    await deleteDoc(doc(db, "users", auth.currentUser.uid, "inventory", id));
-  };
-
-  // 🔥 Convert Barcode SVG → PNG
-  const saveBarcodeImage = () => {
-    setTimeout(() => {
-      const svg = document.getElementById("barcode");
-      if (!svg) return;
-
-      const serializer = new XMLSerializer();
-      const svgStr = serializer.serializeToString(svg);
-
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      const img = new Image();
-      img.src = "data:image/svg+xml;base64," + btoa(svgStr);
-
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        setBarcodeImg(canvas.toDataURL("image/png"));
-      };
-    }, 200);
-  };
-
-  return (
-    <div className="content-card">
-      
-      <button
-  onClick={() => setActivePage("home")}
-  style={{
-    marginBottom: 12,
-    padding: "8px 14px",
-    borderRadius: 8,
-    border: "none",
-    background: "#0f172a",
-    color: "white",
-    cursor: "pointer"
-  }}
->
-  ⬅ Back
-</button>
-<br/>
 {/* 🏪 SHOP PROFILE */}
 <div className="shop-profile">
-  <h3>🏪 Shop Profile</h3>
+<h3>🏪 Shop Profile</h3>
 
-  <input
-    placeholder="Shop Name"
-    value={form.shopName || ""}
-    onChange={e => setForm({ ...form, shopName: e.target.value })}
-  />
-  <input
-  placeholder="Shop Address"
-  value={form.shopAddress || ""}
-  onChange={e => setForm({ ...form, shopAddress: e.target.value })}
+<input
+  placeholder="Shop Name"
+  value={form.shopName}
+  onChange={e=>setForm({...form,shopName:e.target.value})}
 />
 
+<input
+  placeholder="Shop Address"
+  value={form.shopAddress}
+  onChange={e=>setForm({...form,shopAddress:e.target.value})}
+/>
 
-  <input type="file" accept="image/*" onChange={e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const logo = reader.result;
+<input
+type="file"
+accept="image/*"
+onChange={async(e)=>{
 
-    await setDoc(
-  doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
-  {
-    name: form.shopName,
-    address: form.shopAddress,
-    logo
-  },
-  { merge: true }
+const file=e.target.files[0];
+if(!file) return;
+
+const reader=new FileReader();
+
+reader.onloadend=async()=>{
+
+// 👉 capture latest form values
+const shopName = form.shopName;
+const shopAddress = form.shopAddress;
+
+// 👉 get live location
+navigator.geolocation.getCurrentPosition(
+async(pos)=>{
+
+const shopData={
+ name: shopName,
+ address: shopAddress,
+ logo: reader.result,
+ lat: form.lat,
+ lng: form.lng
+};
+
+
+// SAVE USER SIDE
+await setDoc(
+ doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
+ shopData,
+ {merge:true}
 );
 
-      
+// SAVE PUBLIC SIDE
+await setDoc(
+ doc(db,"public_shops",auth.currentUser.uid),
+ shopData,
+ {merge:true}
+);
 
-      alert("Shop profile saved ✅");
-    };
-    reader.readAsDataURL(file);
-  }} />
-</div>
+alert("Shop Profile Saved Successfully ✅");
 
-<h3>📦 Inventory</h3><br/>
-      <input
-  type="text"
-  placeholder="🔍 Search by Item No or Name..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  style={{
-    padding: "10px",
-    width: "100%",
-    maxWidth: "320px",
-    marginBottom: "15px",
-    borderRadius: "8px",
-    border: "1px solid #ccc"
-  }}
+},
+()=>alert("Please allow location access")
+);
+
+};
+
+reader.readAsDataURL(file);
+}}
 />
 
 
-      <form onSubmit={handleSubmit}>
-        <input placeholder="Item No" value={form.itemNo}
-          onChange={e => setForm({ ...form, itemNo: e.target.value })} />
-        <input placeholder="Item Name" value={form.itemName}
-          onChange={e => setForm({ ...form, itemName: e.target.value })} />
-        <input placeholder="Price" value={form.price}
-          onChange={e => setForm({ ...form, price: e.target.value })} />
-        <input placeholder="Quantity" value={form.quantity}
-          onChange={e => setForm({ ...form, quantity: Number(e.target.value) })} /> {/* 🔥 FIX */}
-        <input placeholder="GST %"value={form.gst}onChange={e => setForm({ ...form, gst: e.target.value })}/>
+</div>
 
+{/* 🔍 SEARCH */}
+<input placeholder="Search"
+value={search}
+onChange={e=>setSearch(e.target.value)}/>
 
-        <div style={{ gridColumn: "span 2" }}>
-          <input placeholder="Barcode" value={form.barcode}
-            onChange={e => {
-              const val = e.target.value;
-              setForm({ ...form, barcode: val });
-              if (val) {
-                JsBarcode("#barcode", val, {
-                  format: "CODE128",
-                  width: 2,
-                  height: 50,
-                  displayValue: true
-                });
-                saveBarcodeImage();
-              }
-            }} />
+<form onSubmit={handleSubmit}>
 
-          <button type="button" onClick={generateBarcode}>Generate Barcode</button>
+<input placeholder="Item No"  
+value={form.itemNo}
+onChange={e=>setForm({...form,itemNo:e.target.value})}/>
 
-          <input type="file" accept="image/*" onChange={handleImage} />
+<input placeholder="Item Name"
+value={form.itemName}
+onChange={e=>setForm({...form,itemName:e.target.value})}/>
 
-          {form.image && <img src={form.image} style={{ width: 80, marginTop: 10 }} />}
+<input placeholder="Price"
+value={form.price}
+onChange={e=>setForm({...form,price:e.target.value})}/>
 
-          {form.barcode && <svg id="barcode" style={{ marginTop: 10 }} />}
-        </div>
+<input placeholder="Quantity"
+value={form.quantity}
+onChange={e=>setForm({...form,quantity:Number(e.target.value)})}/>
 
-        <button type="submit">{editingId ? "Update Item" : "Add Item"}</button>
-      </form>
+<input placeholder="GST %"
+value={form.gst}
+onChange={e=>setForm({...form,gst:e.target.value})}/>
 
-      <table className="account-table">
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Item No</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Barcode</th>
-            <th>GST %</th>  
-            <th>Qty</th>
-            <th>Edit</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-      {items
-  .filter(i =>
-    String(i.itemNo).toLowerCase().includes(search.toLowerCase()) ||
-    String(i.itemName).toLowerCase().includes(search.toLowerCase())
-  )
-  .map(i => (
+<input placeholder="Barcode"
+value={form.barcode}
+onChange={e=>{
+setForm({...form,barcode:e.target.value});
+JsBarcode("#barcode",e.target.value);
+saveBarcodeImage();
+}}/>
 
+<button type="button" onClick={generateBarcode}>Generate Barcode</button>
 
-        <tr key={i.id}>
-  <td>{i.image && <img src={i.image} style={{ width: 40 }} />}</td>
-  <td>{i.itemNo}</td>
-  <td>{i.itemName}</td>
-  <td>₹{i.price}</td>
+<input type="file" accept="image/*" onChange={handleImage}/>
 
-  <td>
-    {i.barcode}
-    {i.barcodeImage && <img src={i.barcodeImage} style={{ width: 100 }} />}
-  </td>
+{form.barcode && <svg id="barcode"></svg>}
 
-  <td>{i.gst || 0}%</td>   
+<button type="submit">{editingId?"Update":"Add"} Item</button>
 
-  <td>{i.quantity}</td>
-  <td><button onClick={() => editItem(i)}>✏</button></td>
-  <td><button onClick={() => deleteItem(i.id)}>🗑</button></td>
+</form>
+<table className="account-table">
+<thead>
+<tr>
+<th>Image</th>
+<th>Name</th>
+<th>Price</th>
+<th>Qty</th>
+<th>Barcode</th>
+<th>Edit</th>
+<th>Del</th>
 </tr>
+</thead>
 
- ))}
-        </tbody>
-      </table>
-    </div>
-  );
+<tbody>
+{items.filter(i =>
+  i.itemName.toLowerCase().includes(search.toLowerCase())
+).map(i => (
+<tr key={i.id}>
+
+<td>
+{i.image && (
+  <img 
+    src={i.image}
+    style={{ width:40, height:40, objectFit:"cover" }}
+  />
+)}
+</td>
+
+<td>{i.itemName}</td>
+<td>{i.price}</td>
+<td>{i.quantity}</td>
+
+{/* ✅ BARCODE TEXT + IMAGE */}
+<td>
+  <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+    <small>{i.barcode}</small>
+    {i.barcodeImage && (
+      <img 
+        src={i.barcodeImage}
+        style={{ width:100 }}
+      />
+    )}
+  </div>
+</td>
+
+<td>
+<button onClick={()=>editItem(i)}>✏</button>
+</td>
+
+<td>
+<button onClick={()=>deleteItem(i.id)}>🗑</button>
+</td>
+
+</tr>
+))}
+</tbody>
+</table>
+
+</div>
+);
 }

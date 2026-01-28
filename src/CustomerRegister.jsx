@@ -14,15 +14,17 @@ export default function CustomerRegister() {
     email: "",
     mobile: ""
   });
-
 const handleSubmit = async (e) => {
   e.preventDefault();
 
   // 🔥 save to Firestore
   const docRef = await addDoc(collection(db, "customers"), {
-    ...form,
-    createdAt: serverTimestamp()
-  });
+  name: form.name.trim(),
+  address: form.address.trim(),
+  email: form.email.trim(),
+  mobile: String(form.mobile).trim(), // 🔥 IMPORTANT
+  createdAt: serverTimestamp()
+});
 
   // 🔥 keep id locally
   localStorage.setItem(
@@ -51,7 +53,8 @@ const handleSubmit = async (e) => {
             onChange={e => setForm({ ...form, email: e.target.value })} />
 
           <input placeholder="Mobile" required
-            onChange={e => setForm({ ...form, mobile: e.target.value.trim() })} />
+            onChange={e => setForm({ ...form, mobile: e.target.value })}
+ />
 
           <button>Register</button>
 

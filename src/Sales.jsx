@@ -198,7 +198,7 @@ const saveBill = async () => {
               <button key={i} onClick={() => restoreHold(i)}>
                 Hold #{i + 1}
               </button>
-            ))}
+            ))} 
           </div>
         )}
 

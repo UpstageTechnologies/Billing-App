@@ -1,130 +1,177 @@
-.customer-app {
-  min-height: 100vh;
-  background: linear-gradient(180deg,#020617,#020617);
-  color: white;
-  padding: 16px;
-  font-family: system-ui;
+/* ROOT */
+.customer-app{
+  min-height:100vh;
+  background:linear-gradient(135deg,#fdfcff,#eef2ff,#f0fdf4);
+  padding:16px;
+  font-family:system-ui;
 }
 
-/* TOP */
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* TOP BAR */
+.top-bar{
+  background:white;
+  padding:14px;
+  border-radius:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.1);
 }
 
-.top-bar h3 {
-  margin: 0;
-}
+.top-bar h3{margin:0}
+.top-bar p{margin:0;font-size:12px;color:#64748b}
 
-.top-bar p {
-  font-size: 12px;
-  opacity: 0.7;
+/* PROFILE CIRCLE */
+.profile-btn{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#6366f1,#22c55e);
+  cursor:pointer;
 }
-
-.profile-btn {
-  background: #1e293b;
-  border: none;
-  border-radius: 50%;
-  padding: 10px;
-  color: white;
+.logout-btn{
+  width:100%;
+  background:#ef4444;
+  color:white;
+  border:none;
+  padding:14px;
+  border-radius:14px;
+  font-weight:600;
+  margin-top:12px;
 }
 
 /* SEARCH */
-.search-box {
-  display: flex;
-  background: #0f172a;
-  padding: 12px;
-  border-radius: 12px;
-  margin: 16px 0;
+.search-input{
+  width:100%;
+  margin-top:18px;
+  padding:12px;
+  border-radius:14px;
+  border:none;
+  box-shadow:0 6px 18px rgba(0,0,0,.1);
 }
 
-.search-box input {
-  flex: 1;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 14px;
+/* LOCATION */
+.location-btn{
+  width:100%;
+  margin-top:16px;
+  background:linear-gradient(135deg,#22c55e,#4ade80);
+  border:none;
+  padding:14px;
+  border-radius:14px;
+  color:white;
+  font-weight:600;
 }
 
-.search-box span {
-  font-size: 18px;
+/* GRID */
+.shop-list{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:18px;
 }
 
-/* LOCATION BTN */
-.location-btn {
-  width: 100%;
-  background: #22c55e;
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 10px;
-  cursor: pointer;
+/* CARD */
+.shop-card{
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,.12);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  transition:.2s;
 }
 
-/* STATES */
-.loading {
-  margin-top: 20px;
-  opacity: 0.8;
+.shop-card:hover{
+  transform:translateY(-5px);
 }
 
-.error {
-  color: orange;
-  margin-top: 10px;
+/* IMAGE */
+.shop-img-top{
+  width:100%;
+  height:140px;
+  object-fit:cover;
 }
 
-/* SHOPS */
-.shop-list {
-  margin-top: 20px;
+/* INFO */
+.shop-info{
+  padding:12px;
+  text-align:center;
 }
 
-.shop-card {
-  background: #0f172a;
-  padding: 16px;
-  border-radius: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
+.shop-info h4{
+  margin:0;
+  font-size:16px;
 }
 
-.shop-info h4 {
-  margin: 0;
+.shop-info p{
+  margin:6px 0 0;
+  font-size:12px;
+  color:#64748b;
 }
 
-.shop-info p {
-  font-size: 12px;
-  opacity: 0.7;
+/* RATING */
+.rating{
+  margin-top:6px;
+  color:#f59e0b;
+  font-size:13px;
 }
 
-.view-btn {
-  background: #22c55e;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-weight: bold;
+/* FAVORITE */
+.fav{
+  position:absolute;
+  top:10px;
+  right:10px;
+  font-size:18px;
+}
+
+/* VIEW BTN */
+.view-btn{
+  margin:12px;
+  margin-top:auto;
+  background:linear-gradient(135deg,#6366f1,#22c55e);
+  border:none;
+  padding:10px;
+  border-radius:12px;
+  color:white;
+  font-weight:600;
 }
 
 /* EMPTY */
-.empty {
-  text-align: center;
-  margin-top: 40px;
+.empty{
+  text-align:center;
 }
 
-.empty img {
-  width: 180px;
-  opacity: 0.8;
+.empty img{
+  width:160px;
+}
+/* PROFILE DROPDOWN */
+.profile-menu{
+  position:absolute;
+  top:70px;
+  right:16px;
+  background:white;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+  overflow:hidden;
+  display:none;
+  z-index:20;
 }
 
-/* LOGOUT */
-.logout {
-  margin-top: 40px;
-  width: 100%;
-  background: #334155;
-  border: none;
-  padding: 12px;
-  border-radius: 12px;
-  color: white;
+.profile-menu.show{
+  display:block;
+}
+
+.menu-item{
+  padding:12px 18px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.menu-item:hover{
+  background:#f1f5f9;
+}
+
+.menu-item.logout{
+  color:#ef4444;
 }

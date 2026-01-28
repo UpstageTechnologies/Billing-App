@@ -42,6 +42,7 @@ input {
   font-size: 14px;
   background: #ffffff;
   transition: all .2s ease;
+  width: 100%;
 }
 
 input:focus {
@@ -54,6 +55,7 @@ input:focus {
 input[type="file"] {
   padding: 6px;
   background: #f8fafc;
+  grid-column: span 2;
 }
 
 /* ===== BUTTONS ===== */
@@ -86,18 +88,30 @@ button[type="submit"] {
 button[type="button"] {
   background: #0f172a;
   color: white;
+  grid-column: span 2;
+}
+
+/* ===== BARCODE INPUT ===== */
+input[placeholder="Barcode"]{
+  grid-column: span 2;
 }
 
 /* ===== BARCODE SVG ===== */
 #barcode {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  height: auto;
   background: white;
   padding: 6px;
   border-radius: 10px;
   border: 1px dashed #cbd5f5;
+  margin-top: 10px;
+  grid-column: span 2;
 }
 
 /* ===== INVENTORY TABLE ===== */
-.account-table {
+table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
@@ -107,33 +121,37 @@ button[type="button"] {
   box-shadow: 0 10px 25px rgba(0,0,0,.06);
 }
 
-.account-table thead {
+thead {
   background: #0f172a;
   color: white;
 }
 
-.account-table th {
+th {
   padding: 10px;
   font-weight: 600;
 }
 
-.account-table td {
+td {
   padding: 8px;
   border-bottom: 1px solid #f1f5f9;
   text-align: center;
+  vertical-align: middle;
 }
 
-.account-table tr:hover {
+tr:hover {
   background: #f8fafc;
 }
 
-/* ===== IMAGES ===== */
-.account-table img {
+/* ===== PRODUCT IMAGE ===== */
+table img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
   border-radius: 6px;
 }
 
 /* ===== ACTION BUTTONS ===== */
-.account-table button {
+table button {
   padding: 4px 8px;
   font-size: 13px;
   border-radius: 6px;
@@ -141,8 +159,21 @@ button[type="button"] {
   color: white;
 }
 
-.account-table button:hover {
+table button:hover {
   background: #22c55e;
+}
+
+/* ===== SEARCH INPUT ===== */
+input[placeholder="Search"]{
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+/* ===== BACK BUTTON ===== */
+.content-card > button {
+  background: #0f172a;
+  color: white;
+  margin-bottom: 12px;
 }
 
 /* ===== ANIMATION ===== */

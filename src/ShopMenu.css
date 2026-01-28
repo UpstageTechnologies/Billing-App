@@ -1,0 +1,89 @@
+.shopmenu{
+  padding:20px;
+  background:linear-gradient(180deg,#f8fafc,#eef2ff);
+  min-height:100vh;
+}
+
+/* BACK */
+.back-btn{  
+  background:#6366f1;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+}
+
+/* GRID */
+.product-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:16px;
+  margin-top:20px;
+}
+
+/* CARD */
+.product-card{
+  background:white;
+  padding:14px;
+  border-radius:18px;
+  text-align:center;
+  box-shadow:0 6px 16px rgba(0,0,0,.08);
+  transition:.2s;
+}
+
+.product-card:hover{
+  transform:translateY(-4px);
+}
+
+/* IMAGE */
+.product-card img{
+  width:90px;
+  height:90px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+/* NAME */
+.product-card h4{
+  margin:10px 0 6px;
+  font-size:14px;
+  color:#0f172a;
+}
+
+/* PRICE */
+.product-card p{
+  margin:0;
+  font-weight:bold;
+  color:#16a34a;
+}
+
+/* STOCK */
+.product-card span{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  color:#64748b;
+}
+.action-row{
+  margin-top:10px;
+  display:flex;
+  gap:8px;
+}
+
+.cart-btn{
+  flex:1;
+  background:#6366f1;
+  color:white;
+  border:none;
+  padding:6px;
+  border-radius:8px;
+}
+
+.buy-btn{
+  flex:1;
+  background:#22c55e;
+  color:white;
+  border:none;
+  padding:6px;
+  border-radius:8px;
+}

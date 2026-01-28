@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "./services/firebase";
 import "./CustomerLogin.css";
 
 export default function CustomerLogin() {
@@ -11,22 +13,52 @@ export default function CustomerLogin() {
     localStorage.removeItem("customerLoggedIn");
   }, []);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    const saved = JSON.parse(localStorage.getItem("customer"));
+  const handleLogin = async (e) => {
+  e.preventDefault();
 
-    if (!saved) return alert("Register first");
+  const cleanMobile = String(mobile).trim();
+  const cleanName = String(name).trim().toLowerCase();
 
-    if (
-      saved.name.toLowerCase() === name.toLowerCase() &&
-      saved.mobile === mobile
-    ) {
-      localStorage.setItem("customerLoggedIn", "true");
-      navigate("/customer-dashboard");
-    } else {
-      alert("Invalid details");
+  console.log("INPUT MOBILE:", cleanMobile);
+
+  const q = query(
+    collection(db, "customers"),
+    where("mobile", "==", cleanMobile)
+  );
+
+  const snap = await getDocs(q);
+
+  console.log("DOC COUNT:", snap.size);
+
+  if (snap.empty) {
+    alert("Register first");
+    return;
+  }
+
+  let matchedCustomer = null;
+
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.name?.trim().toLowerCase() === cleanName) {
+      matchedCustomer = { id: d.id, ...data };
     }
-  };
+  });
+
+  if (!matchedCustomer) {
+    alert("Invalid details");
+    return;
+  }
+
+  // ✅ Save session
+  localStorage.setItem(
+    "customer",
+    JSON.stringify(matchedCustomer)
+  );
+  localStorage.setItem("customerLoggedIn", "true");
+
+  navigate("/customer-dashboard");
+};
+
 
   return (
     <div className="login-wrapper">
@@ -38,13 +70,16 @@ export default function CustomerLogin() {
             placeholder="Name"
             value={name}
             onChange={e => setName(e.target.value)}
+            required
           />
 
-          <input
-            placeholder="Mobile"
-            value={mobile}
-            onChange={e => setMobile(e.target.value)}
-          />
+         <input
+  placeholder="Mobile"
+  value={mobile}
+  onChange={e => setMobile(e.target.value)}
+  required
+/>
+
 
           <button className="customer-login-btn">
             Login

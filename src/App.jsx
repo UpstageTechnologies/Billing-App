@@ -11,6 +11,8 @@ import StaffLogin from "./StaffLogin";
 import ChooseLogin from "./ChooseLogin";
 import Scan from "./Scan";
 import Sales from "./sales";
+import ShopMenu from "./ShopMenu";
+
 
 /* ✅ CUSTOMER IMPORTS (IMPORTANT) */
 import CustomerLogin from "./CustomerLogin";
@@ -84,6 +86,8 @@ export default function App() {
       <Route path="/customer-login" element={<CustomerLogin />} />
       <Route path="/customer-register" element={<CustomerRegister />} />
       <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+      <Route path="/shop/:shopId" element={<ShopMenu />} />
+
 
     </Routes>
   );

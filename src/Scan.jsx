@@ -60,15 +60,24 @@
       }
 
       /* 🌍 Fetch product from Vercel API (All supermarket items) */
-      try {
-        const res = await fetch(
-          `https://scanner-api.vercel.app/api/barcode?code=${code}`
-        );
-        const data = await res.json();
+   try {
+   const res = await fetch(
+   `https://world.openfoodfacts.org/api/v0/product/${code}.json`
+   );
+      const data = await res.json();
 
-        const name = data.name || "Unknown Product";
-        const image = data.image || "";
-        const price = 0;
+     const name =
+  data.status === 1
+    ? data.product.product_name || "Unknown Product"
+    : "Unknown Product";
+
+const image =
+  data.status === 1
+    ? data.product.image_front_url || ""
+    : "";
+
+      const price = 0;
+
 
         const barcodeImg = generateBarcodeImage(code);
 
@@ -87,9 +96,26 @@
 
         setResult(newItem);
         setIsScanning(false);
-      } catch (err) {
-        alert("Product not found ❌");
-      }
+     } catch (err) {
+
+  const barcodeImg = generateBarcodeImage(code);
+
+  const newItem = {
+    itemNo: Date.now().toString(),
+    itemName: "Unknown Product",
+    price: 0,
+    barcode: code,
+    image: "",
+    barcodeImage: barcodeImg,
+    quantity: 1,
+    createdAt: serverTimestamp()
+  };
+
+  await addDoc(invRef, newItem);
+  setResult(newItem);
+  setIsScanning(false);
+}
+
 
       setLoading(false);
       setTimeout(() => setBusy(false), 400);
