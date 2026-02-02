@@ -7,7 +7,7 @@ import AccountSection from "./AccountSection";
 import Inventory from "./Inventory";
 import Scan from "./Scan";
 import Payment from "./pages/Payment";
-import Sales from "./sales";
+import Sales from "./Sales";
 import { collection, onSnapshot } from "firebase/firestore";
 import Invoices from "./Invoices";
 import CustomerUISetup from "./CustomerUISetup";
