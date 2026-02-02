@@ -1,0 +1,181 @@
+/* ================= CATEGORY PAGE WRAPPER ================= */
+
+.category-page{
+  min-height:100vh;
+  padding:30px 20px;
+  background:linear-gradient(180deg,#f8fafc,#eef2ff);
+}
+
+/* PAGE TITLE */
+
+.category-page h2{
+  font-size:28px;
+  font-weight:800;
+  margin-bottom:26px;
+  color:#0f172a;
+  text-transform:capitalize;
+  letter-spacing:.5px;
+}
+
+/* ================= PRODUCT GRID ================= */
+
+.shop-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:24px;
+  justify-items:center;
+}
+
+/* ================= PRODUCT CARD ================= */
+
+.shop-card{
+  width:100%;
+  max-width:240px;
+  background:white;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 12px 28px rgba(0,0,0,.12);
+  transition:.3s ease;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+}
+
+.shop-card:hover{
+  transform:translateY(-10px) scale(1.03);
+  box-shadow:0 18px 40px rgba(0,0,0,.18);
+}
+
+/* IMAGE */
+
+.shop-img-top{
+  width:100%;
+  height:170px;
+  object-fit:cover;
+  background:#f1f5f9;
+}
+
+/* INFO AREA */
+
+.shop-info{
+  padding:14px;
+  text-align:center;
+}
+
+/* PRODUCT NAME */
+
+.shop-info h4{
+  font-size:15px;
+  font-weight:700;
+  color:#0f172a;
+  margin-bottom:6px;
+}
+
+/* PRICE */
+
+.shop-info p{
+  font-size:14px;
+  font-weight:700;
+  color:#22c55e;
+}
+
+/* ================= SHOP NAME BADGE ================= */
+
+.shop-info::after{
+  content:attr(data-shop);
+  display:inline-block;
+  margin-top:10px;
+  background:#eef2ff;
+  color:#4338ca;
+  font-size:11px;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:20px;
+}
+
+/* ================= LOADING EMPTY STATE ================= */
+
+.empty-msg{
+  text-align:center;
+  font-size:18px;
+  color:#64748b;
+  margin-top:80px;
+}
+
+/* ================= SMALL SCREEN ================= */
+
+@media(max-width:600px){
+
+  .shop-list{
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+  }
+
+  .shop-card{
+    max-width:100%;
+  }
+
+  .shop-img-top{
+    height:140px;
+  }
+}
+/* ================= PRODUCT GRID ================= */
+
+.shop-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:24px;
+  justify-content:center;     /* 🔥 FIX */
+  align-items:start;
+  width:100%;
+}
+
+/* SHOP GROUP TITLE */
+
+.shop-title{
+  font-size:20px;
+  font-weight:700;
+  color:#0f172a;
+  margin:30px 0 16px;
+  text-align:left;
+}
+
+/* ================= PRODUCT CARD ================= */
+
+.shop-card{
+  width:100%;
+  max-width:240px;
+  margin:auto;                /* 🔥 FIX */
+  background:white;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 12px 28px rgba(0,0,0,.12);
+  transition:.3s ease;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+}
+/* Hover glow */
+
+.shop-card:hover{
+  transform:translateY(-8px) scale(1.03);
+  box-shadow:0 18px 40px rgba(99,102,241,.35);
+}
+
+/* Price highlight */
+
+.shop-info p{
+  font-size:14px;
+  font-weight:700;
+  color:#22c55e;
+}
+
+/* Smooth image */
+
+.shop-img-top{
+  transition:transform .4s ease;
+}
+
+.shop-card:hover .shop-img-top{
+  transform:scale(1.06);
+}

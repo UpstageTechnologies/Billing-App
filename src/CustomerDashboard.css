@@ -137,7 +137,7 @@
   margin-top:26px;
   display:flex;
   justify-content:center;
-  gap:28px;
+  gap:100px;
   overflow-x:auto;
   padding-bottom:18px;
 }
@@ -149,7 +149,8 @@
 /* ================= CATEGORY CARD ================= */
 
 .category-card{
-  min-width:220px;
+  min-width:270px;
+  min-height: 300px;
   background:white;
   border-radius:26px;
   padding:26px;
@@ -270,3 +271,51 @@
     width:90%;
   }
 }
+/* SLIDER ARROWS */
+
+.slider-arrow{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:none;
+  background:rgba(0,0,0,.55);
+  color:white;
+  font-size:26px;
+  cursor:pointer;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.slider-arrow.left{ left:14px; }
+.slider-arrow.right{ right:14px; }
+
+.slider-arrow:hover{
+  background:black;
+}
+/* SKELETONS */
+
+.skeleton-banner{
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg,#ddd,#eee,#ddd);
+  animation:pulse 1.3s infinite;
+}
+
+.skeleton-shop{
+  width:230px;
+  height:260px;
+  border-radius:20px;
+  background:linear-gradient(90deg,#ddd,#eee,#ddd);
+  animation:pulse 1.3s infinite;
+}
+
+@keyframes pulse{
+  0%{background-position:0%}
+  100%{background-position:200%}
+}
+

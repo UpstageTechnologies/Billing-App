@@ -1,6 +1,8 @@
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
-import "./Landing.css";
+import { Routes, Route } from "react-router-dom";
+
+import LandingPage from "./LandingPage";
+
 import Login from "./Login";
 import Register from "./Register";
 import Dashboard from "./Dashboard";
@@ -15,12 +17,6 @@ import Checkout from "./Checkout";
 import Cart from "./Cart";
 import OrderHistory from "./OrderHistory";
 import CategoryProducts from "./CategoryProducts";
-
-
-
-
-
-/* ✅ CUSTOMER IMPORTS (IMPORTANT) */
 import CustomerLogin from "./CustomerLogin";
 import CustomerRegister from "./CustomerRegister";
 import CustomerDashboard from "./CustomerDashboard";
@@ -30,48 +26,7 @@ export default function App() {
     <Routes>
 
       {/* ===== LANDING PAGE ===== */}
-      <Route
-        path="/"
-        element={
-          <div className="landing">
-            <nav className="nav">
-              <div className="logo">BillPro</div>
-
-              <ul className="menu">
-                <li>Features</li>
-                <li>Pricing</li>
-                <li>Contact</li>
-              </ul>
-
-              <div style={{ display: "flex", gap: 10 }}>
-                <Link to="/login">
-                  <button className="btn-outline">Login</button>
-                </Link>
-
-                <Link to="/customer-login">
-                  <button className="btn-primary">Customer Login</button>
-                </Link>
-              </div>
-            </nav>
-
-            <div className="hero-text">
-              <h1>
-                Smart Billing Software
-                <span>Built for Businesses</span>
-              </h1>
-              <button className="btn-primary">Get Started</button>
-            </div>
-
-            <section className="features">
-              <h2>Why choose BillPro?</h2>
-            </section>
-
-            <footer>
-              <p>© 2026 BillPro — Billing made simple.</p>
-            </footer>
-          </div>
-        }
-      />
+      <Route path="/" element={<LandingPage />} />
 
       {/* ===== AUTH ===== */}
       <Route path="/login" element={<Login />} />
@@ -95,10 +50,9 @@ export default function App() {
       <Route path="/shop/:shopId" element={<ShopMenu />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/cart" element={<Cart />} />
-      <Route path="/orders" element={<OrderHistory/>}/>
-      <Route path="/category/:name" element={<CategoryProducts/>}/>
+      <Route path="/orders" element={<OrderHistory />} />
+      <Route path="/category/:name" element={<CategoryProducts />} />
 
-
- </Routes>
+    </Routes>
   );
 }
