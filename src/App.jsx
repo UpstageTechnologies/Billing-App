@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import "./Landing.css";
-
 import Login from "./Login";
 import Register from "./Register";
 import Dashboard from "./Dashboard";
@@ -12,6 +11,13 @@ import ChooseLogin from "./ChooseLogin";
 import Scan from "./Scan";
 import Sales from "./sales";
 import ShopMenu from "./ShopMenu";
+import Checkout from "./Checkout";
+import Cart from "./Cart";
+import OrderHistory from "./OrderHistory";
+import CategoryProducts from "./CategoryProducts";
+
+
+
 
 
 /* ✅ CUSTOMER IMPORTS (IMPORTANT) */
@@ -87,8 +93,12 @@ export default function App() {
       <Route path="/customer-register" element={<CustomerRegister />} />
       <Route path="/customer-dashboard" element={<CustomerDashboard />} />
       <Route path="/shop/:shopId" element={<ShopMenu />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/orders" element={<OrderHistory/>}/>
+      <Route path="/category/:name" element={<CategoryProducts/>}/>
 
 
-    </Routes>
+ </Routes>
   );
 }

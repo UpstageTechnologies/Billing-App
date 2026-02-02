@@ -28,6 +28,7 @@ export default function Inventory({ setActivePage }) {
     barcode:"",
     gst:"0",
     image:"",
+    category:"",    
     shopName:"",
     shopAddress:"",
     lat:null,
@@ -244,6 +245,19 @@ onChange={e=>setForm({...form,quantity:Number(e.target.value)})}/>
 <input placeholder="GST %"
 value={form.gst}
 onChange={e=>setForm({...form,gst:e.target.value})}/>
+
+<select
+  value={form.category}
+  onChange={e=>setForm({...form,category:e.target.value})}
+  required
+>
+  <option value="">Select Category</option>
+  <option value="Groceries">Groceries</option>
+  <option value="Snacks">Snacks</option>
+  <option value="Drinks">Drinks</option>
+  <option value="Household">Household</option>
+</select>
+
 
 <input placeholder="Barcode"
 value={form.barcode}

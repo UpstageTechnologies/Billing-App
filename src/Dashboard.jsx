@@ -10,6 +10,8 @@ import Payment from "./pages/Payment";
 import Sales from "./sales";
 import { collection, onSnapshot } from "firebase/firestore";
 import Invoices from "./Invoices";
+import CustomerUISetup from "./CustomerUISetup";
+
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -162,6 +164,8 @@ export default function Dashboard() {
           <div className="dash-card" onClick={() => setActivePage("inventory")}>📦<h3>Inventory</h3></div>
           <div className="dash-card" onClick={() => setActivePage("scan")}>📷<h3>Scan</h3></div>
           <div className="dash-card" onClick={() => setActivePage("sales")}>💰<h3>Sales</h3><p>₹{todaySales}</p></div>
+          <div className="dash-card" onClick={() => setActivePage("customerUI")}>🖼️<h3>Customer Dashboard</h3></div>
+
         </div>
       )}
 
@@ -171,6 +175,8 @@ export default function Dashboard() {
       {activePage === "payment" && <Payment setActivePage={setActivePage} />}
       {activePage === "sales" && <Sales setActivePage={setActivePage} />}
       {activePage === "invoices" && <Invoices setActivePage={setActivePage} />}
+      {activePage==="customerUI" && <CustomerUISetup setActivePage={setActivePage} />}
+
 
       {/* Confirm Logout */}
       {showConfirm && (
