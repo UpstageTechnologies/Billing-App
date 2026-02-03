@@ -1,89 +1,169 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { useParams, useNavigate } from "react-router-dom";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./services/firebase";
 import "./CategoryProducts.css";
 
 export default function CategoryProducts(){
 
+  const navigate = useNavigate();
   const { name } = useParams();
-  const [grouped,setGrouped] = useState({});
 
+  const [grouped, setGrouped] = useState({});
+  const [search, setSearch] = useState("");
+
+  const [cartState, setCartState] = useState(
+    JSON.parse(localStorage.getItem("cart")) || []
+  );
+  const [showMiniCart, setShowMiniCart] = useState(false);
+
+  /* 🔐 LOGIN CHECK */
+  useEffect(()=>{
+    if(!localStorage.getItem("customerLoggedIn")){
+      navigate("/customer-login");
+    }
+  },[navigate]);
+
+  /* 📦 LOAD PRODUCTS */
   useEffect(()=>{
     const load = async()=>{
-
       const shopSnap = await getDocs(collection(db,"public_shops"));
       let temp = {};
 
       for(const shop of shopSnap.docs){
-
-        const shopData = shop.data();
-
         const invSnap = await getDocs(
           collection(db,"users",shop.id,"inventory")
         );
 
         invSnap.forEach(p=>{
           if(p.data().category === name){
-
-            if(!temp[shopData.name]){
-              temp[shopData.name] = [];
-            }
-
-            temp[shopData.name].push({
-              id:p.id,
-              shopId:shop.id,
-              ...p.data()
-            });
-
+            if(!temp[shop.data().name]) temp[shop.data().name] = [];
+            temp[shop.data().name].push({...p.data(), id:p.id});
           }
         });
-
       }
-
       setGrouped(temp);
     };
-
     load();
   },[name]);
 
+  /* 🔄 CART SYNC */
+  useEffect(()=>{
+    const syncCart = ()=>{
+      setCartState(JSON.parse(localStorage.getItem("cart")) || []);
+    };
+    window.addEventListener("cartUpdated", syncCart);
+    return ()=>window.removeEventListener("cartUpdated", syncCart);
+  },[]);
+
+  /* ➕ ADD TO CART */
+  const addToCart = (p, shopName)=>{
+    const updated = [...cartState];
+    const exist = updated.find(i=>i.id===p.id);
+
+    if(exist){
+      exist.qty += 1;
+    }else{
+      updated.push({
+        id:p.id,
+        itemName:p.itemName,
+        price:Number(p.price),
+        image:p.image,
+        shopName,
+        qty:1
+      });
+    }
+
+    setCartState(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
+    window.dispatchEvent(new Event("cartUpdated"));
+    setShowMiniCart(true);
+  };
+
+  const totalQty = cartState.reduce((s,i)=>s+i.qty,0);
+  const totalPrice = cartState.reduce((s,i)=>s+i.price*i.qty,0);
+
   return(
-    <div className="category-page">
+    <div className="cat-page">
 
-      <h2>{name}</h2>
+      <h2 className="cat-title">{name}</h2>
 
-      {Object.keys(grouped).length === 0 && (
-        <p className="empty-msg">No products found</p>
-      )}
+      <input
+        className="cat-search"
+        placeholder="Search products..."
+        value={search}
+        onChange={e=>setSearch(e.target.value)}
+      />
 
-      {Object.keys(grouped).map(shopName => (
-
+      {Object.keys(grouped).map(shopName=>(
         <div key={shopName}>
 
-          <h3 className="shop-title">{shopName}</h3>
+          <h3 className="cat-shop-title">{shopName}</h3>
 
-          <div className="shop-list">
+          <div className="cat-grid">
+            {grouped[shopName]
+              .filter(p =>
+                p.itemName.toLowerCase().includes(search.toLowerCase())
+              )
+              .map(p=>(
+                <div key={p.id} className="cat-card">
 
-            {grouped[shopName].map(p => (
+                  <img src={p.image} className="cat-img" />
 
-              <div key={p.id} className="shop-card">
+                  <div className="cat-info">
+                    <h4>{p.itemName}</h4>
+                    <p>₹{p.price}</p>
 
-                <img src={p.image} className="shop-img-top"/>
+                    <button
+                      className="cat-add"
+                      onClick={()=>addToCart(p, shopName)}
+                    >
+                      Add
+                      {cartState.find(i=>i.id===p.id)?.qty > 0 && (
+                        <span className="badge">
+                          {cartState.find(i=>i.id===p.id)?.qty}
+                        </span>
+                      )}
+                    </button>
+                  </div>
 
-                <div className="shop-info">
-                  <h4>{p.itemName}</h4>
-                  <p>₹{p.price}</p>
                 </div>
+              ))}
+          </div>
+        </div>
+      ))}
 
-              </div>
+      {/* ✅ MINI CART – FIXED BOTTOM ONLY */}
+      {showMiniCart && cartState.length > 0 && (
+        <div className="mini-cart">
 
-            ))}
-
+          <div className="mini-head">
+            🛒 Cart ({totalQty})
+            <span onClick={()=>setShowMiniCart(false)}>✖</span>
           </div>
 
-        </div>
+          {cartState.slice(0,3).map(i=>(
+            <div key={i.id} className="mini-item">
+              <img src={i.image} />
+              <div>
+                <p>{i.itemName}</p>
+                <small>x{i.qty}</small>
+              </div>
+            </div>
+          ))}
 
-      ))}
+          <div className="mini-total">
+            Total ₹{totalPrice}
+          </div>
+
+          <button
+            className="mini-btn"
+            onClick={()=>navigate("/cart")}
+          >
+            Go to Cart
+          </button>
+        </div>
+      )}
 
     </div>
   );

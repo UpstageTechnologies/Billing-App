@@ -17,6 +17,8 @@ export default function CustomerDashboard() {
   const [index,setIndex] = useState(0);
   const [loadingBanners,setLoadingBanners] = useState(true);
   const [loadingShops,setLoadingShops] = useState(false);
+  const [cartCount,setCartCount] = useState(0);
+
 
   if(!localStorage.getItem("customerLoggedIn")){
     navigate("/customer-login");
@@ -33,6 +35,18 @@ export default function CustomerDashboard() {
     };
     load();
   },[]);
+  
+  useEffect(()=>{
+  const loadCart = ()=>{
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCartCount(cart.reduce((s,i)=>s+i.qty,0));
+  };
+
+  loadCart();
+  window.addEventListener("cartUpdated",loadCart);
+  return ()=>window.removeEventListener("cartUpdated",loadCart);
+},[]);
+
 
   useEffect(()=>{
     if(banners.length===0) return;
@@ -96,6 +110,11 @@ const useMyLocation = () => {
 
 <div className="top-bar">
   <h3>👤 Customer</h3>
+
+  <div className="cart-icon" onClick={()=>navigate("/cart")}>
+    🛒
+    {cartCount>0 && <span className="cart-badge">{cartCount}</span>}
+  </div>
 </div>
 
 <input
@@ -174,7 +193,7 @@ const useMyLocation = () => {
 
 {(coords || true) && (
 
-<div className="shop-list">
+<div className="shop-listt">
 
 
 {loadingShops ? (
@@ -189,7 +208,7 @@ const useMyLocation = () => {
      s.name?.toLowerCase().includes(shopSearch.toLowerCase())
    )
    .map(s => (
-     <div key={s.id} className="shop-card">
+     <div key={s.id} className="shops-card">
 
       <img
         src={s.logo || "https://i.imgur.com/8Qf4M0C.png"}

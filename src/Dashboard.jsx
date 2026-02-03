@@ -143,7 +143,7 @@ export default function Dashboard() {
           {showMenu && (
             <div className="profile-menu">
               <label className="menu-item">
-                Change Photo
+                Profile
                 <input type="file" hidden onChange={handleUpload} />
               </label>
               <div className="menu-item danger" onClick={() => {

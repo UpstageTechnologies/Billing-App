@@ -11,6 +11,14 @@ export default function ShopMenu() {
 
   const [items, setItems] = useState([]);
 
+  // 🔥 cart state
+  const [cartState, setCartState] = useState(
+    JSON.parse(localStorage.getItem("cart")) || []
+  );
+
+  const [showMiniCart, setShowMiniCart] = useState(false);
+
+  /* LOAD INVENTORY */
   useEffect(() => {
     if (!shopId) return;
 
@@ -23,32 +31,42 @@ export default function ShopMenu() {
     return () => unsub();
   }, [shopId]);
 
-  // ✅ ADD TO CART
+  /* SYNC CART */
+  useEffect(() => {
+    const sync = () => {
+      setCartState(JSON.parse(localStorage.getItem("cart")) || []);
+    };
+
+    window.addEventListener("cartUpdated", sync);
+    return () => window.removeEventListener("cartUpdated", sync);
+  }, []);
+
+  /* ✅ ADD TO CART */
   const addToCart = (item) => {
 
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const updated = [...cartState];
 
-    const existing = cart.find(c => c.id === item.id);
+    const exist = updated.find(c => c.id === item.id);
 
-    if (existing) {
-      existing.qty += 1;
+    if (exist) {
+      exist.qty += 1;
     } else {
-      cart.push({ ...item, qty: 1 });
+      updated.push({
+        id: item.id,
+        itemName: item.itemName,
+        price: Number(item.price),
+        image: item.image,
+        shopName: item.shopName || "Shop",
+        qty: 1
+      });
     }
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Added to cart ✅");
-  };
+    setCartState(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
 
-  // ✅ BUY NOW
-  const buyNow = (item) => {
+    window.dispatchEvent(new Event("cartUpdated"));
 
-    localStorage.setItem(
-      "buyItem",
-      JSON.stringify({ ...item, qty: 1 })
-    );
-
-    navigate("/checkout");   // create later
+    setShowMiniCart(true);   // 🔥 show popup
   };
 
   return (
@@ -63,6 +81,7 @@ export default function ShopMenu() {
       <div className="product-list">
 
         {items.map(i => (
+
           <div key={i.id} className="product-card">
 
             {i.image && <img src={i.image} alt={i.itemName} />}
@@ -71,28 +90,58 @@ export default function ShopMenu() {
             <p>₹{i.price}</p>
             <span>Stock: {i.quantity}</span>
 
-            <div className="action-row">
-
-              <button
-                className="cart-btn"
-                onClick={() => addToCart(i)}
-              >
-                🛒 Add Cart
-              </button>
-
-              <button
-                className="buy-btn"
-                onClick={() => buyNow(i)}
-              >
-                💰 Buy
-              </button>
-
-            </div>
+            <button
+              className="cart-btn"
+              onClick={() => addToCart(i)}
+            >
+              Add Cart
+              {cartState.find(c => c.id === i.id)?.qty > 0 && (
+                <span className="badge">
+                  {cartState.find(c => c.id === i.id)?.qty}
+                </span>
+              )}
+            </button>
 
           </div>
         ))}
 
       </div>
+
+{/* ================= MINI CART POPUP ================= */}
+
+{showMiniCart && cartState.length > 0 && (
+  <div className="mini-cart">
+
+    <div className="mini-head">
+      🛒 Cart ({cartState.reduce((s,i)=>s+i.qty,0)})
+      <span onClick={() => setShowMiniCart(false)}>✖</span>
+    </div>
+
+    {cartState.slice(0,3).map(i => (
+      <div key={i.id} className="mini-item">
+        <img src={i.image} />
+        <div>
+          <p>{i.itemName}</p>
+          <small>x{i.qty}</small>
+        </div>
+      </div>
+    ))}
+
+    <div className="mini-total">
+      Total ₹{cartState.reduce((s,i)=>s+i.price*i.qty,0)}
+    </div>
+
+    <button
+      className="mini-btn"
+      onClick={() => navigate("/cart")}
+    >
+      Go to Cart
+    </button>
+
+  </div>
+)}
+
+{/* ==================================================== */}
 
     </div>
   );
