@@ -200,6 +200,7 @@
       overflow:hidden;
       box-shadow:0 14px 30px rgba(0,0,0,.15);
       transition:.3s;
+      color: #0f172a;
     }
 
     .shops-card:hover{
@@ -341,3 +342,145 @@
   font-size:11px;
 }
 
+/* ================= RESPONSIVE FIXES ================= */
+
+/* Large screens (TV / Big Monitor) */
+@media (min-width:1400px){
+  .customer-app{
+    max-width:1400px;
+    margin:auto;
+  }
+
+  .shop-listt{
+    gap:50px;
+  }
+}
+
+/* Tablets */
+@media (max-width:1024px){
+
+  .hero-banner{
+    height:360px;
+  }
+
+  .category-row{
+    gap:24px;
+  }
+
+  .category-card{
+    min-width:220px;
+    min-height:260px;
+  }
+
+  .shops-card{
+    width:220px;
+  }
+
+  .view-btn{
+    margin-left:auto;
+    margin-right:auto;
+    display:block;
+  }
+}
+
+/* Small tablets */
+@media (max-width:768px){
+
+  .top-bar{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+
+  .cart-icon{
+    align-self:flex-end;
+  }
+
+  .hero-banner{
+    height:280px;
+  }
+
+  .category-row{
+    justify-content:flex-start;
+  }
+
+  .category-card{
+    min-width:180px;
+    min-height:230px;
+  }
+
+  .category-card img{
+    width:150px;
+    height:120px;
+  }
+
+  .shops-card{
+    width:46%;
+  }
+}
+
+/* Mobile */
+@media (max-width:480px){
+
+  .customer-app{
+    padding:12px;
+  }
+
+  .section-title{
+    font-size:18px;
+  }
+
+  .hero-banner{
+    height:220px;
+  }
+
+  .search-input{
+    padding:12px;
+  }
+
+  .category-card{
+    min-width:150px;
+    min-height:210px;
+    padding:14px;
+  }
+
+  .category-card img{
+    width:120px;
+    height:100px;
+  }
+
+  .category-card span{
+    font-size:15px;
+  }
+
+  .shops-card{
+    width:100%;
+  }
+
+  .shop-img-top{
+    height:140px;
+  }
+
+  .view-btn{
+    width:90%;
+    margin:auto;
+    margin-bottom:14px;
+    display:block;
+  }
+}
+
+/* Extra small phones */
+@media (max-width:360px){
+
+  .hero-banner{
+    height:190px;
+  }
+
+  .category-card{
+    min-width:130px;
+  }
+
+  .top-bar h3{
+    font-size:16px;
+  }
+}

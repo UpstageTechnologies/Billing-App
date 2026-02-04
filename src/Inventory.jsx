@@ -15,7 +15,7 @@ import JsBarcode from "jsbarcode";
 
 export default function Inventory({ setActivePage }) {
 
-  const [items, setItems] = useState([]);
+const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [barcodeImg, setBarcodeImg] = useState("");
@@ -118,7 +118,22 @@ const handleSubmit=async(e)=>{
     );
   }
 
-  setForm({...form,itemNo:"",itemName:"",price:"",quantity:"",barcode:"",image:""});
+setForm({
+  itemNo:"",
+  itemName:"",
+  price:"",
+  quantity:"",
+  barcode:"",
+  gst:"0",
+  image:"",
+  category:"",
+  shopName: form.shopName,
+  shopAddress: form.shopAddress,
+  lat: form.lat,
+  lng: form.lng
+});
+
+setBarcodeImg("");
 };
 
 /* DELETE */
@@ -267,9 +282,17 @@ JsBarcode("#barcode",e.target.value);
 saveBarcodeImage();
 }}/>
 
+<input type="file" accept="image/*" onChange={handleImage}/>
+{form.image && (
+  <img
+    src={form.image}
+    style={{ width:80, marginTop:10, borderRadius:6 }}
+  />
+)}
+
+
 <button type="button" onClick={generateBarcode}>Generate Barcode</button>
 
-<input type="file" accept="image/*" onChange={handleImage}/>
 
 {form.barcode && <svg id="barcode"></svg>}
 
@@ -279,6 +302,7 @@ saveBarcodeImage();
 <table className="account-table">
 <thead>
 <tr>
+<th>item.No</th>
 <th>Image</th>
 <th>Name</th>
 <th>Price</th>
@@ -290,18 +314,26 @@ saveBarcodeImage();
 </thead>
 
 <tbody>
-{items.filter(i =>
-  i.itemName.toLowerCase().includes(search.toLowerCase())
-).map(i => (
-<tr key={i.id}>
+  
+{items
+  .filter(i =>
+    i.itemName.toLowerCase().includes(search.toLowerCase())
+  )
+  .sort((a,b)=> a.itemName.localeCompare(b.itemName))
+  .map((i,index) => (
 
-<td>
-{i.image && (
-  <img 
-    src={i.image}
-    style={{ width:40, height:40, objectFit:"cover" }}
-  />
-)}
+<tr key={i.id}>
+<td>{index + 1}</td>
+                <td>
+<div style={{ display:"flex", gap:6, alignItems:"center" }}>
+
+    {i.image && (
+      <img
+        src={i.image}
+        style={{ width:70, height:70, objectFit:"contain" }}
+      />
+    )}
+  </div>
 </td>
 
 <td>{i.itemName}</td>

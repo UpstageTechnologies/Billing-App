@@ -38,7 +38,11 @@ export default function CategoryProducts(){
         invSnap.forEach(p=>{
           if(p.data().category === name){
             if(!temp[shop.data().name]) temp[shop.data().name] = [];
-            temp[shop.data().name].push({...p.data(), id:p.id});
+          temp[shop.data().name].push({
+            ...p.data(),
+            id:p.id,
+            shopName: shop.data().name
+          });
           }
         });
       }
@@ -85,7 +89,11 @@ export default function CategoryProducts(){
 
   return(
     <div className="cat-page">
-
+       
+   <button className="back-btn" onClick={() => navigate(-1)}>
+        ⬅ Back
+      </button>
+      <br></br><br></br><br></br>
       <h2 className="cat-title">{name}</h2>
 
       <input
@@ -120,7 +128,7 @@ export default function CategoryProducts(){
                     >
                       Add
                       {cartState.find(i=>i.id===p.id)?.qty > 0 && (
-                        <span className="badge">
+                        <span className="Cat-badge">
                           {cartState.find(i=>i.id===p.id)?.qty}
                         </span>
                       )}
@@ -133,37 +141,19 @@ export default function CategoryProducts(){
         </div>
       ))}
 
-      {/* ✅ MINI CART – FIXED BOTTOM ONLY */}
-      {showMiniCart && cartState.length > 0 && (
-        <div className="mini-cart">
+    {/* ================= MINI CART POPUP ================= */}
 
-          <div className="mini-head">
-            🛒 Cart ({totalQty})
-            <span onClick={()=>setShowMiniCart(false)}>✖</span>
-          </div>
-
-          {cartState.slice(0,3).map(i=>(
-            <div key={i.id} className="mini-item">
-              <img src={i.image} />
-              <div>
-                <p>{i.itemName}</p>
-                <small>x{i.qty}</small>
-              </div>
-            </div>
-          ))}
-
-          <div className="mini-total">
-            Total ₹{totalPrice}
-          </div>
-
-          <button
-            className="mini-btn"
-            onClick={()=>navigate("/cart")}
-          >
-            Go to Cart
-          </button>
-        </div>
-      )}
+{showMiniCart && cartState.length > 0 && (
+  <div
+    className="mini-cart-icon-only"
+    onClick={() => navigate("/cart")}
+  >
+    🛒
+    <span className="mini-count">
+      {cartState.reduce((s,i)=>s+i.qty,0)}
+    </span>
+  </div>
+)}
 
     </div>
   );

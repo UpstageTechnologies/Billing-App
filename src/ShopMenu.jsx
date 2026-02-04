@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "./services/firebase";
 import "./ShopMenu.css";
 
@@ -9,7 +9,11 @@ export default function ShopMenu() {
   const { shopId } = useParams();
   const navigate = useNavigate();
 
-  const [items, setItems] = useState([]);
+ const [items, setItems] = useState([]);
+const [shopName, setShopName] = useState("");
+const [grouped, setGrouped] = useState({});
+
+
 
   // 🔥 cart state
   const [cartState, setCartState] = useState(
@@ -19,17 +23,46 @@ export default function ShopMenu() {
   const [showMiniCart, setShowMiniCart] = useState(false);
 
   /* LOAD INVENTORY */
-  useEffect(() => {
-    if (!shopId) return;
+useEffect(() => {
+ if (!shopId) return;
 
-    const ref = collection(db, "users", shopId, "inventory");
+ const loadShop = async()=>{
+ const shopRef = doc(db,"users",shopId,"settings","shopProfile");
+   const shopSnap = await getDoc(shopRef);
+   if(shopSnap.exists()){
+     setShopName(
+       shopSnap.data().shopName || shopSnap.data().name || "Shop"
+     );
+   }
+ };
+ loadShop();
 
-    const unsub = onSnapshot(ref, (snap) => {
-      setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
+ const ref = collection(db, "users", shopId, "inventory");
 
-    return () => unsub();
-  }, [shopId]);
+const unsub = onSnapshot(ref, (snap) => {
+
+  const list = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
+
+  setItems(list);
+
+  // 🔥 group by category
+  const temp = {};
+  list.forEach(p=>{
+    if(!temp[p.category]) temp[p.category]=[];
+    temp[p.category].push(p);
+  });
+
+  setGrouped(temp);
+});
+
+
+ return ()=>unsub();
+
+},[shopId]);
+
 
   /* SYNC CART */
   useEffect(() => {
@@ -52,13 +85,14 @@ export default function ShopMenu() {
       exist.qty += 1;
     } else {
       updated.push({
-        id: item.id,
-        itemName: item.itemName,
-        price: Number(item.price),
-        image: item.image,
-        shopName: item.shopName || "Shop",
-        qty: 1
-      });
+  id: item.id,
+  itemName: item.itemName,
+  price: Number(item.price),
+  image: item.image,
+  shopName: shopName,
+  qty: 1
+});
+
     }
 
     setCartState(updated);
@@ -75,71 +109,66 @@ export default function ShopMenu() {
       <button className="back-btn" onClick={() => navigate(-1)}>
         ⬅ Back
       </button>
+      <br></br><br></br><br></br>
 
+      
       <h2>Shop Products</h2>
 
-      <div className="product-list">
+   {Object.keys(grouped).map(cat=>(
+  <div key={cat}>
 
-        {items.map(i => (
+    <h3 style={{margin:"20px 0 10px"}}>
+      {cat}
+    </h3>
 
-          <div key={i.id} className="product-card">
+    <div className="product-list">
 
-            {i.image && <img src={i.image} alt={i.itemName} />}
+      {grouped[cat].map(i=>(
 
-            <h4>{i.itemName}</h4>
-            <p>₹{i.price}</p>
-            <span>Stock: {i.quantity}</span>
+        <div key={i.id} className="product-card">
 
-            <button
-              className="cart-btn"
-              onClick={() => addToCart(i)}
-            >
-              Add Cart
-              {cartState.find(c => c.id === i.id)?.qty > 0 && (
-                <span className="badge">
-                  {cartState.find(c => c.id === i.id)?.qty}
-                </span>
-              )}
-            </button>
+          {i.image && <img src={i.image} alt={i.itemName} />}
 
-          </div>
-        ))}
+          <h4>{i.itemName}</h4>
+          <p>₹{i.price}</p>
+          <span>Stock: {i.quantity}</span>
 
-      </div>
+          <button
+            className="cart-btn"
+            onClick={() => addToCart(i)}
+          >
+            Add Cart
+            {cartState.find(c => c.id === i.id)?.qty > 0 && (
+              <span className="badge">
+                {cartState.find(c => c.id === i.id)?.qty}
+              </span>
+            )}
+          </button>
+
+        </div>
+
+      ))}
+
+    </div>
+
+  </div>
+))}
+
 
 {/* ================= MINI CART POPUP ================= */}
 
 {showMiniCart && cartState.length > 0 && (
-  <div className="mini-cart">
-
-    <div className="mini-head">
-      🛒 Cart ({cartState.reduce((s,i)=>s+i.qty,0)})
-      <span onClick={() => setShowMiniCart(false)}>✖</span>
-    </div>
-
-    {cartState.slice(0,3).map(i => (
-      <div key={i.id} className="mini-item">
-        <img src={i.image} />
-        <div>
-          <p>{i.itemName}</p>
-          <small>x{i.qty}</small>
-        </div>
-      </div>
-    ))}
-
-    <div className="mini-total">
-      Total ₹{cartState.reduce((s,i)=>s+i.price*i.qty,0)}
-    </div>
-
-    <button
-      className="mini-btn"
-      onClick={() => navigate("/cart")}
-    >
-      Go to Cart
-    </button>
-
+  <div
+    className="mini-cart-icon-only"
+    onClick={() => navigate("/cart")}
+  >
+    🛒
+    <span className="mini-count">
+      {cartState.reduce((s,i)=>s+i.qty,0)}
+    </span>
   </div>
 )}
+
 
 {/* ==================================================== */}
 
