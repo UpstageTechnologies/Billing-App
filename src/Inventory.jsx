@@ -19,6 +19,8 @@ const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [barcodeImg, setBarcodeImg] = useState("");
+  const [shopLogo,setShopLogo] = useState("");
+
 
   const [form, setForm] = useState({
     itemNo:"",
@@ -62,6 +64,19 @@ useEffect(()=>{
     );
   });
   return ()=>unsub();
+},[]);
+
+useEffect(()=>{
+  if(!auth.currentUser) return;
+
+  onSnapshot(
+    doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
+    snap=>{
+      if(snap.exists()){
+        setShopLogo(snap.data().logo || "");
+      }
+    }
+  );
 },[]);
 
 /* BARCODE */
@@ -156,83 +171,22 @@ const editItem = (i) => {
 
 
 return(
+
 <div className="content-card">
+  
+<div className="inv-header">
 
-<button onClick={()=>setActivePage("home")}>⬅ Back</button>
+  {shopLogo && (
+    <img
+      src={shopLogo}
+      className="shop-logo"
+    />
+  )}
 
-{/* 🏪 SHOP PROFILE */}
-<div className="shop-profile">
-<h3>🏪 Shop Profile</h3>
-
-<input
-  placeholder="Shop Name"
-  value={form.shopName}
-  onChange={e=>setForm({...form,shopName:e.target.value})}
-/>
-
-<input
-  placeholder="Shop Address"
-  value={form.shopAddress}
-  onChange={e=>setForm({...form,shopAddress:e.target.value})}
-/>
-
-<input
-type="file"
-accept="image/*"
-onChange={async(e)=>{
-
-const file=e.target.files[0];
-if(!file) return;
-
-const reader=new FileReader();
-
-reader.onloadend=async()=>{
-
-// 👉 capture latest form values
-const shopName = form.shopName;
-const shopAddress = form.shopAddress;
-
-// 👉 get live location
-navigator.geolocation.getCurrentPosition(
-async(pos)=>{
-
-const shopData={
- name: shopName,
- address: shopAddress,
- logo: reader.result,
- lat: form.lat,
- lng: form.lng
-};
-
-
-// SAVE USER SIDE
-await setDoc(
- doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
- shopData,
- {merge:true}
-);
-
-// SAVE PUBLIC SIDE
-await setDoc(
- doc(db,"public_shops",auth.currentUser.uid),
- shopData,
- {merge:true}
-);
-
-alert("Shop Profile Saved Successfully ✅");
-
-},
-()=>alert("Please allow location access")
-);
-
-};
-
-reader.readAsDataURL(file);
-}}
-/>
-
+  <button onClick={()=>setActivePage("home")}>⬅ Back</button>
 
 </div>
+
 
 {/* 🔍 SEARCH */}
 <input placeholder="Search"

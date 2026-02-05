@@ -181,3 +181,213 @@ input[placeholder="Search"]{
   from {opacity: 0; transform: translateY(6px);}
   to {opacity: 1;}
 }
+/* ================= MOBILE RESPONSIVE FIX ================= */
+
+@media (max-width: 768px) {
+
+  /* CARD */
+  .content-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  /* TITLES */
+  h3 {
+    font-size: 18px;
+  }
+
+  /* FORM -> SINGLE COLUMN */
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  /* FILE INPUT */
+  input[type="file"] {
+    grid-column: span 1;
+  }
+
+  /* BARCODE INPUT */
+  input[placeholder="Barcode"] {
+    grid-column: span 1;
+  }
+
+  /* BUTTONS FULL WIDTH */
+  button,
+  button[type="submit"],
+  button[type="button"] {
+    grid-column: span 1;
+    width: 100%;
+    font-size: 14px;
+    padding: 11px;
+  }
+
+  /* BARCODE IMAGE */
+  #barcode {
+    grid-column: span 1;
+    max-width: 100%;
+  }
+
+  table img {
+    width: 34px;
+    height: 34px;
+  }
+
+  table button {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
+}
+
+/* SMALL PHONES */
+
+@media (max-width: 400px) {
+
+  h3 {
+    font-size: 16px;
+  }
+
+  input {
+    font-size: 13px;
+    padding: 9px;
+  }
+
+  button {
+    font-size: 13px;
+  }
+}
+/* ================= MOBILE CARD TABLE VIEW ================= */
+
+@media (max-width: 768px) {
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead {
+    display: none;   /* hide header */
+  }
+
+  tr {
+    background: #fff;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+    border: none;
+  }
+
+  td::before {
+    font-weight: 600;
+    color: #475569;
+  }
+
+  td:nth-child(1)::before { content: "No"; }
+  td:nth-child(2)::before { content: "Image"; }
+  td:nth-child(3)::before { content: "Name"; }
+  td:nth-child(4)::before { content: "Price"; }
+  td:nth-child(5)::before { content: "Qty"; }
+  td:nth-child(6)::before { content: "Barcode"; }
+  td:nth-child(7)::before { content: "Edit"; }
+  td:nth-child(8)::before { content: "Delete"; }
+
+  table img {
+    width: 40px;
+    height: 40px;
+  }
+
+  td img {
+    width: 90px;
+  }
+
+  table button {
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+}
+/* ================= MOBILE CARD TABLE ALIGNMENT FIX ================= */
+@media (max-width: 768px) {
+
+  tr {
+    padding: 12px;
+  }
+
+  td {
+    display: grid;
+    grid-template-columns: 110px 1fr;   /* label | value */
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+
+  td::before {
+    font-weight: 600;
+    color: #475569;
+    text-align: left;
+  }
+
+  td > * {
+    justify-self: end;      /* value to right */
+    text-align: right;
+  }
+
+  /* IMAGE CENTER */
+  td:nth-child(2) img {
+    justify-self: end;
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+  }
+
+  /* BARCODE IMAGE */
+  td:nth-child(6) img {
+    width: 120px;
+    height: auto;
+  }
+
+  /* EDIT & DELETE BUTTON CENTER */
+  td:nth-child(7),
+  td:nth-child(8) {
+    grid-template-columns: 110px auto;
+  }
+
+  td:nth-child(7) button,
+  td:nth-child(8) button {
+    justify-self: end;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+/* ===== INVENTORY HEADER (LOGO + BACK) ===== */
+
+.inv-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+/* Bigger shop logo */
+.shop-logo{
+  width:85px;
+  height:85px;
+  object-fit:cover;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+}
+
+/* Mobile tweak */
+@media (max-width:768px){
+  .shop-logo{
+    width:70px;
+    height:70px;
+  }
+}
+

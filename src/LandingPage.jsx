@@ -38,7 +38,7 @@ export default function LandingPage() {
         </h1>
 
         <Link to="/">
-          <button className="btn-primary large">Get Started</button>
+          <button className="start-btn large">Get Started</button>
         </Link>
       </div>
 

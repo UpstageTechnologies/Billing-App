@@ -92,6 +92,31 @@ body {
   font-size: 15px;
 }
 
+/* ================= FIX JSX BUTTON CLASSES ================= */
+
+/* Get Started button */
+.start-btn{
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 14px 26px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 15px;
+}
+
+.start-btn:hover{
+  background: var(--primary-dark);
+}
+
+/* When large class combined */
+.start-btn.large{
+  padding: 14px 26px;
+  font-size: 15px;
+}
+
+
 /* ================= HERO ================= */
 
 .hero-text {
@@ -311,7 +336,7 @@ footer {
   /* LOGO */
 
   .logo {
-    width: 60px;
+    width: 100px;
     height: 28px;
     flex-shrink: 0;
   }
@@ -363,5 +388,18 @@ footer {
   }
 
 }
+/* ================= FIX GET STARTED BUTTON WIDTH (360px–767px) ================= */
 
+@media (max-width: 767px) {
+
+  .start-btn,
+  .start-btn.large {
+    width: auto;            /* remove full width */
+    min-width: unset;
+    padding: 10px 22px;     /* compact size */
+    font-size: 14px;
+    display: inline-block;  /* prevent stretching */
+  }
+
+}
 

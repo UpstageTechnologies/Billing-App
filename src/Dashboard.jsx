@@ -12,21 +12,30 @@ import { collection, onSnapshot } from "firebase/firestore";
 import Invoices from "./Invoices";
 import CustomerUISetup from "./CustomerUISetup";
 
-
 export default function Dashboard() {
+
   const [user, setUser] = useState(null);
   const [photo, setPhoto] = useState("");
   const [activePage, setActivePage] = useState("home");
   const [userName, setUserName] = useState("user");
   const [plan, setPlan] = useState("basic");
   const [todaySales, setTodaySales] = useState(0);
+
   const [showMenu, setShowMenu] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const [showShopProfile, setShowShopProfile] = useState(false);
+
+  const [shopProfile, setShopProfile] = useState({
+    name:"",
+    address:"",
+    logo:""
+  });
 
   const navigate = useNavigate();
   const menuRef = useRef();
 
-  // Close dropdown on outside click
+  /* CLOSE DROPDOWN */
   useEffect(() => {
     const handler = e => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -37,6 +46,7 @@ export default function Dashboard() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  /* TODAY SALES */
   useEffect(() => {
     if (!auth.currentUser) return;
     const ref = collection(db, "users", auth.currentUser.uid, "sales");
@@ -47,12 +57,14 @@ export default function Dashboard() {
     });
   }, []);
 
+  /* AUTH */
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (u) => {
       if (!u) {
         navigate("/login");
         return;
       }
+
       setUser(u);
 
       const userRef = doc(db, "users", u.uid);
@@ -67,12 +79,13 @@ export default function Dashboard() {
         setUserName(data.name || googleName || "User");
         setPlan(data.plan || "basic");
       } else {
-        await setDoc(userRef, {
+        await setDoc(userRef,{
           name: googleName,
           photo: googlePhoto || "",
           plan: "basic",
           createdAt: new Date()
         });
+
         setPhoto(googlePhoto || "");
         setUserName(googleName || "User");
       }
@@ -80,26 +93,37 @@ export default function Dashboard() {
 
     return () => unsub();
   }, []);
+
+  /* LOAD SHOP PROFILE */
+  useEffect(()=>{
+    if(!user) return;
+
+    getDoc(
+      doc(db,"users",user.uid,"settings","shopProfile")
+    ).then(snap=>{
+      if(snap.exists()){
+        setShopProfile(snap.data());
+      }
+    });
+  },[user]);
+
+  /* SAVE LOCATION */
   useEffect(() => {
-  if (!auth.currentUser) return;
+    if (!auth.currentUser) return;
 
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      await setDoc(
-        doc(db, "users", auth.currentUser.uid, "settings", "shopProfile"),
-        {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude
-        },
-        { merge: true }
-      );
-    },
-    (err) => {
-      console.log("Location denied by shop owner");
-    }
-  );
-}, []);
-
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        await setDoc(
+          doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
+          {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          },
+          { merge:true }
+        );
+      }
+    );
+  }, []);
 
   const confirmLogout = async () => {
     localStorage.clear();
@@ -107,91 +131,199 @@ export default function Dashboard() {
     navigate("/login");
   };
 
+  /* USER PROFILE IMAGE UPLOAD */
   const handleUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
     const reader = new FileReader();
     reader.onloadend = async () => {
-      await setDoc(doc(db, "users", user.uid), { photo: reader.result }, { merge: true });
+      await setDoc(
+        doc(db,"users",user.uid),
+        { photo: reader.result },
+        { merge:true }
+      );
       setPhoto(reader.result);
     };
     reader.readAsDataURL(file);
   };
 
   return (
-    <div className="dash-wrapper">
-      <div className="dash-topbar">
-        <h2>📊 Dashboard</h2>
+<div className="dash-wrapper">
 
-        <div className="profile" ref={menuRef}>
-          <div
-            className={`plan-badge ${plan}`}
-            onClick={() => setActivePage("payment")}
-          >
-            {plan === "basic" && "Basic"}
-            {plan === "premium" && "Premium"}
-            {plan === "lifetime" && "Onetime Access"}
-          </div>
+{/* TOP BAR */}
+<div className="dash-topbar">
+<h2>📊 Dashboard</h2>
 
-          <img
-            src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
-            className="profile-img"
-            onClick={() => setShowMenu(!showMenu)}
-          />
+<div className="profile" ref={menuRef}>
 
-          {showMenu && (
-            <div className="profile-menu">
-              <label className="menu-item">
-                Profile
-                <input type="file" hidden onChange={handleUpload} />
-              </label>
-              <div className="menu-item danger" onClick={() => {
-                setShowConfirm(true);
-                setShowMenu(false);
-              }}>
-                Logout
-              </div>
-            </div>
-          )}
-        </div>
+  <div
+    className={`plan-badge ${plan}`}
+    onClick={()=>setActivePage("payment")}
+  >
+    {plan==="basic" && "Basic"}
+    {plan==="premium" && "Premium"}
+    {plan==="lifetime" && "Onetime Access"}
+  </div>
+
+  <img
+    src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
+    className="profile-img"
+    onClick={()=>setShowMenu(!showMenu)}
+  />
+
+  {showMenu && (
+    <div className="profile-menu">
+
+      <label className="menu-item">
+        Profile
+        <input type="file" hidden onChange={handleUpload}/>
+      </label>
+
+      {/* ✅ SHOP PROFILE INSIDE DROPDOWN */}
+      <div
+        className="menu-item"
+        onClick={()=>{
+          setShowShopProfile(true);
+          setShowMenu(false);
+        }}
+      >
+        Shop Profile
       </div>
 
-      {activePage === "home" && (
-        <div className="dashboard-grid">
-          <div className="dash-card" onClick={() => setActivePage("account")}>👤<h3>Account Creation</h3></div>
-          <div className="dash-card" onClick={() => setActivePage("invoices")}>📄<h3>Invoices</h3></div>
-          <div className="dash-card" onClick={() => setActivePage("inventory")}>📦<h3>Inventory</h3></div>
-          <div className="dash-card" onClick={() => setActivePage("scan")}>📷<h3>Scan</h3></div>
-          <div className="dash-card" onClick={() => setActivePage("sales")}>💰<h3>Sales</h3><p>₹{todaySales}</p></div>
-          <div className="dash-card" onClick={() => setActivePage("customerUI")}>🖼️<h3>Customer Dashboard</h3></div>
-
-        </div>
-      )}
-
-      {activePage === "account" && <AccountSection setActivePage={setActivePage} />}
-      {activePage === "inventory" && <Inventory setActivePage={setActivePage} />}
-      {activePage === "scan" && <Scan setActivePage={setActivePage} />}
-      {activePage === "payment" && <Payment setActivePage={setActivePage} />}
-      {activePage === "sales" && <Sales setActivePage={setActivePage} />}
-      {activePage === "invoices" && <Invoices setActivePage={setActivePage} />}
-      {activePage==="customerUI" && <CustomerUISetup setActivePage={setActivePage} />}
-
-
-      {/* Confirm Logout */}
-      {showConfirm && (
-        <div className="confirm-overlay">
-          <div className="confirm-box">
-            <h3>Are you sure?</h3>
-            <p>You want to logout?</p>
-            <div className="confirm-actions">
-              <button onClick={() => setShowConfirm(false)}>Cancel</button>
-              <button className="danger" onClick={confirmLogout}>Logout</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div
+        className="menu-item danger"
+        onClick={()=>{
+          setShowConfirm(true);
+          setShowMenu(false);
+        }}
+      >
+        Logout
+      </div>
 
     </div>
-  );
+  )}
+
+</div>
+</div>
+
+{/* HOME */}
+{activePage==="home" && (
+<div className="dashboard-grid">
+
+<div className="dash-card" onClick={()=>setActivePage("account")}>
+👤<h3>Account Creation</h3>
+</div>
+
+<div className="dash-card" onClick={()=>setActivePage("invoices")}>
+📄<h3>Invoices</h3>
+</div>
+
+<div className="dash-card" onClick={()=>setActivePage("inventory")}>
+📦<h3>Inventory</h3>
+</div>
+
+<div className="dash-card" onClick={()=>setActivePage("scan")}>
+📷<h3>Scan</h3>
+</div>
+
+<div className="dash-card" onClick={()=>setActivePage("sales")}>
+💰<h3>Sales</h3>
+<p>₹{todaySales}</p>
+</div>
+
+<div className="dash-card" onClick={()=>setActivePage("customerUI")}>
+🖼️<h3>Customer Dashboard</h3>
+</div>
+
+</div>
+)}
+
+{activePage==="account" && <AccountSection setActivePage={setActivePage}/>}
+{activePage==="inventory" && <Inventory setActivePage={setActivePage}/>}
+{activePage==="scan" && <Scan setActivePage={setActivePage}/>}
+{activePage==="payment" && <Payment setActivePage={setActivePage}/>}
+{activePage==="sales" && <Sales setActivePage={setActivePage}/>}
+{activePage==="invoices" && <Invoices setActivePage={setActivePage}/>}
+{activePage==="customerUI" && <CustomerUISetup setActivePage={setActivePage}/>}
+
+{/* LOGOUT CONFIRM */}
+{showConfirm && (
+<div className="confirm-overlay">
+<div className="confirm-box">
+
+<h3>Are you sure?</h3>
+<p>You want to logout?</p>
+
+<div className="confirm-actions">
+<button onClick={()=>setShowConfirm(false)}>Cancel</button>
+<button className="danger" onClick={confirmLogout}>Logout</button>
+</div>
+
+</div>
+</div>
+)}
+
+{/* SHOP PROFILE POPUP */}
+{showShopProfile && (
+<div className="confirm-overlay">
+<div className="confirm-box">
+
+<h3>Shop Profile</h3>
+
+<input
+placeholder="Shop Name"
+value={shopProfile.name}
+onChange={e=>setShopProfile({...shopProfile,name:e.target.value})}
+/>
+
+<input
+placeholder="Shop Address"
+value={shopProfile.address}
+onChange={e=>setShopProfile({...shopProfile,address:e.target.value})}
+/>
+
+<input
+type="file"
+accept="image/*"
+onChange={(e)=>{
+const file=e.target.files[0];
+if(!file) return;
+const reader=new FileReader();
+reader.onloadend=()=>setShopProfile(
+{...shopProfile,logo:reader.result}
+);
+reader.readAsDataURL(file);
+}}
+/>
+
+<div className="confirm-actions">
+
+<button onClick={()=>setShowShopProfile(false)}>
+Cancel
+</button>
+
+<button
+className="danger"
+onClick={async()=>{
+await setDoc(
+doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
+shopProfile,
+{merge:true}
+);
+setShowShopProfile(false);
+alert("Shop Profile Saved ✅");
+}}
+>
+Save
+</button>
+
+</div>
+
+</div>
+</div>
+)}
+
+</div>
+);
 }

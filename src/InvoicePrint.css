@@ -152,11 +152,112 @@
   box-shadow: 0 0 25px rgba(239,68,68,.55);
 }
 
-/* ================= MOBILE ================= */
-@media (max-width: 600px) {
+/* ================= RESPONSIVE INVOICE ================= */
+
+/* Tablet */
+@media (max-width: 900px) {
   .invoice-box {
-    max-width: 100%;
-    height: 100vh;
-    border-radius: 0;
+    max-width: 420px;
+    padding: 24px;
+  }
+
+  .invoice-box h2 {
+    font-size: 21px;
+  }
+
+  .invoice-total {
+    font-size: 19px;
   }
 }
+/* Small Phones */
+@media (max-width: 380px) {
+
+  .invoice-box {
+    padding: 16px;
+  }
+
+  .invoice-box h2 {
+    font-size: 18px;
+  }
+
+  .invoice-box table {
+    font-size: 11px;
+  }
+
+  .invoice-total {
+    font-size: 17px;
+  }
+
+  .invoice-buttons {
+    flex-direction: column;
+  }
+
+  .invoice-buttons button {
+    padding: 11px;
+    font-size: 14px;
+  }
+}
+/* ================= MOBILE INVOICE FINAL FIX ================= */
+
+@media (max-width: 768px) {
+
+  .invoice-overlay {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .invoice-box {
+    width: 92%;
+    max-width: 420px;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .invoice-box h2 {
+    font-size: 19px;
+  }
+
+  .invoice-meta {
+    font-size: 11px;
+  }
+
+  .invoice-box table {
+    font-size: 12px;
+  }
+
+  .invoice-total {
+    font-size: 18px;
+  }
+
+  .invoice-buttons {
+    display: flex;
+    gap: 10px;
+  }
+}
+
+/* Extra Small Phones */
+
+@media (max-width: 380px) {
+
+  .invoice-box {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .invoice-box table {
+    font-size: 11px;
+  }
+
+  .invoice-buttons {
+    flex-direction: column;
+  }
+
+  .invoice-buttons button {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+
