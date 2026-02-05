@@ -9,20 +9,24 @@ export default function LandingPage() {
       <nav className="nav">
         <div className="logo">BillPro</div>
 
-        <ul className="menu">
-          <li>Features</li>
-          <li>Pricing</li>
-          <li>Contact</li>
-        </ul>
+        {/* RIGHT SIDE GROUP */}
+        <div className="nav-right">
+          <ul className="menu">
+            <li>Features</li>
+            <li>Pricing</li>
+            <li>Contact</li>
+          </ul>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <Link to="/login">
-            <button className="btn-outline">Login</button>
-          </Link>
+          <div className="nav-buttons">
+            <Link to="/login">
+              <button className="btn-outline">Login</button>
+            </Link>
 
-          <Link to="/customer-login">
-            <button className="btn-primary">Customer Login</button>
-          </Link>
+            <Link to="/customer-login">
+              <button className="btn-primary">Customer<br></br>
+                Login</button>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -33,8 +37,8 @@ export default function LandingPage() {
           <span>Built for Businesses</span>
         </h1>
 
-        <Link to="/register">
-          <button className="btn-primary">Get Started</button>
+        <Link to="/">
+          <button className="btn-primary large">Get Started</button>
         </Link>
       </div>
 
