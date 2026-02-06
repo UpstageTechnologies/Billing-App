@@ -15,7 +15,6 @@ export default function CategoryProducts(){
   const [cartState, setCartState] = useState(
     JSON.parse(localStorage.getItem("cart")) || []
   );
-  const [showMiniCart, setShowMiniCart] = useState(false);
 
   /* 🔐 LOGIN CHECK */
   useEffect(()=>{
@@ -37,12 +36,15 @@ export default function CategoryProducts(){
 
         invSnap.forEach(p=>{
           if(p.data().category === name){
-            if(!temp[shop.data().name]) temp[shop.data().name] = [];
-          temp[shop.data().name].push({
-            ...p.data(),
-            id:p.id,
-            shopName: shop.data().name
-          });
+            if(!temp[shop.data().name]){
+              temp[shop.data().name] = [];
+            }
+
+            temp[shop.data().name].push({
+              ...p.data(),
+              id:p.id,
+              shopName: shop.data().name
+            });
           }
         });
       }
@@ -81,19 +83,24 @@ export default function CategoryProducts(){
     setCartState(updated);
     localStorage.setItem("cart", JSON.stringify(updated));
     window.dispatchEvent(new Event("cartUpdated"));
-    setShowMiniCart(true);
   };
 
-  const totalQty = cartState.reduce((s,i)=>s+i.qty,0);
-  const totalPrice = cartState.reduce((s,i)=>s+i.price*i.qty,0);
+  /* 🧾 GROUP CART BY SHOP */
+  const shopCart = {};
+  cartState.forEach(i=>{
+    if(!shopCart[i.shopName]){
+      shopCart[i.shopName] = [];
+    }
+    shopCart[i.shopName].push(i);
+  });
 
   return(
     <div className="cat-page">
-       
-   <button className="back-btn" onClick={() => navigate(-1)}>
+
+      <button className="back-btn" onClick={() => navigate(-1)}>
         ⬅ Back
       </button>
-      <br></br><br></br><br></br>
+
       <h2 className="cat-title">{name}</h2>
 
       <input
@@ -109,6 +116,7 @@ export default function CategoryProducts(){
           <h3 className="cat-shop-title">{shopName}</h3>
 
           <div className="cat-grid">
+
             {grouped[shopName]
               .filter(p =>
                 p.itemName.toLowerCase().includes(search.toLowerCase())
@@ -127,33 +135,50 @@ export default function CategoryProducts(){
                       onClick={()=>addToCart(p, shopName)}
                     >
                       Add
+
                       {cartState.find(i=>i.id===p.id)?.qty > 0 && (
                         <span className="Cat-badge">
                           {cartState.find(i=>i.id===p.id)?.qty}
                         </span>
                       )}
+
                     </button>
                   </div>
 
                 </div>
               ))}
+
           </div>
+
         </div>
       ))}
 
-    {/* ================= MINI CART POPUP ================= */}
+{/* ================= FLOATING SHOP CART ICONS ================= */}
 
-{showMiniCart && cartState.length > 0 && (
-  <div
-    className="mini-cart-icon-only"
-    onClick={() => navigate("/cart")}
-  >
-    🛒
-    <span className="mini-count">
-      {cartState.reduce((s,i)=>s+i.qty,0)}
-    </span>
-  </div>
-)}
+<div className="floating-carts">
+
+{Object.keys(shopCart).map(shop => {
+
+  const count =
+    shopCart[shop].reduce((s,i)=>s+i.qty,0);
+
+  return(
+    <div
+      key={shop}
+      className="shop-cart-float"
+      onClick={()=>navigate(`/shop-cart/${shop}`)}
+    >
+      🛒
+      <span className="float-badge">{count}</span>
+      <small>{shop}</small>
+    </div>
+  );
+
+})}
+
+</div>
+
+{/* ============================================================ */}
 
     </div>
   );

@@ -11,6 +11,7 @@ import Sales from "./Sales";
 import { collection, onSnapshot } from "firebase/firestore";
 import Invoices from "./Invoices";
 import CustomerUISetup from "./CustomerUISetup";
+import Orders from "./Orders";   // ✅ NEW
 
 export default function Dashboard() {
 
@@ -180,7 +181,6 @@ export default function Dashboard() {
         <input type="file" hidden onChange={handleUpload}/>
       </label>
 
-      {/* ✅ SHOP PROFILE INSIDE DROPDOWN */}
       <div
         className="menu-item"
         onClick={()=>{
@@ -232,6 +232,11 @@ export default function Dashboard() {
 <p>₹{todaySales}</p>
 </div>
 
+{/* ✅ NEW ORDERS CARD */}
+<div className="dash-card" onClick={()=>setActivePage("orders")}>
+📦<h3>Orders</h3>
+</div>
+
 <div className="dash-card" onClick={()=>setActivePage("customerUI")}>
 🖼️<h3>Customer Dashboard</h3>
 </div>
@@ -245,6 +250,7 @@ export default function Dashboard() {
 {activePage==="payment" && <Payment setActivePage={setActivePage}/>}
 {activePage==="sales" && <Sales setActivePage={setActivePage}/>}
 {activePage==="invoices" && <Invoices setActivePage={setActivePage}/>}
+{activePage==="orders" && <Orders />}   {/* ✅ NEW */}
 {activePage==="customerUI" && <CustomerUISetup setActivePage={setActivePage}/>}
 
 {/* LOGOUT CONFIRM */}
@@ -307,10 +313,21 @@ Cancel
 className="danger"
 onClick={async()=>{
 await setDoc(
-doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
-shopProfile,
-{merge:true}
+  doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
+  shopProfile,
+  { merge:true }
 );
+
+await setDoc(
+  doc(db,"public_shops",auth.currentUser.uid),
+  {
+    name: shopProfile.name,
+    address: shopProfile.address,
+    logo: shopProfile.logo
+  },
+  { merge:true }
+);
+
 setShowShopProfile(false);
 alert("Shop Profile Saved ✅");
 }}

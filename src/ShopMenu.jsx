@@ -1,177 +1,181 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
-import { db } from "./services/firebase";
-import "./ShopMenu.css";
+  import React, { useEffect, useState } from "react";
+  import { useParams, useNavigate } from "react-router-dom";
+  import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
+  import { db } from "./services/firebase";
+  import "./ShopMenu.css";
 
-export default function ShopMenu() {
+  export default function ShopMenu() {
 
-  const { shopId } = useParams();
-  const navigate = useNavigate();
+    const { shopId } = useParams();
+    const navigate = useNavigate();
 
- const [items, setItems] = useState([]);
-const [shopName, setShopName] = useState("");
-const [grouped, setGrouped] = useState({});
+  const [items, setItems] = useState([]);
+  const [shopName, setShopName] = useState("");
+  const [grouped, setGrouped] = useState({});
 
 
 
-  // 🔥 cart state
-  const [cartState, setCartState] = useState(
-    JSON.parse(localStorage.getItem("cart")) || []
-  );
+    // 🔥 cart state
+    const [cartState, setCartState] = useState(
+      JSON.parse(localStorage.getItem("cart")) || []
+    );
 
-  const [showMiniCart, setShowMiniCart] = useState(false);
+    const [showMiniCart, setShowMiniCart] = useState(false);
 
-  /* LOAD INVENTORY */
-useEffect(() => {
- if (!shopId) return;
+    /* LOAD INVENTORY */
+  useEffect(() => {
+  if (!shopId) return;
 
- const loadShop = async()=>{
- const shopRef = doc(db,"users",shopId,"settings","shopProfile");
-   const shopSnap = await getDoc(shopRef);
-   if(shopSnap.exists()){
-     setShopName(
-       shopSnap.data().shopName || shopSnap.data().name || "Shop"
-     );
-   }
- };
- loadShop();
+  const loadShop = async()=>{
+  const shopRef = doc(db,"users",shopId,"settings","shopProfile");
+    const shopSnap = await getDoc(shopRef);
+    if(shopSnap.exists()){
+      setShopName(
+        shopSnap.data().shopName || shopSnap.data().name || "Shop"
+      );
+    }
+  };
+  loadShop();
 
- const ref = collection(db, "users", shopId, "inventory");
+  const ref = collection(db, "users", shopId, "inventory");
 
-const unsub = onSnapshot(ref, (snap) => {
+  const unsub = onSnapshot(ref, (snap) => {
 
-  const list = snap.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
+    const list = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
 
-  setItems(list);
+    setItems(list);
 
-  // 🔥 group by category
-  const temp = {};
-  list.forEach(p=>{
-    if(!temp[p.category]) temp[p.category]=[];
-    temp[p.category].push(p);
+    // 🔥 group by category
+    const temp = {};
+    list.forEach(p=>{
+      if(!temp[p.category]) temp[p.category]=[];
+      temp[p.category].push(p);
+    });
+
+    setGrouped(temp);
   });
 
-  setGrouped(temp);
-});
+
+  return ()=>unsub();
+
+  },[shopId]);
 
 
- return ()=>unsub();
+    /* SYNC CART */
+    useEffect(() => {
+      const sync = () => {
+        setCartState(JSON.parse(localStorage.getItem("cart")) || []);
+      };
 
-},[shopId]);
+      window.addEventListener("cartUpdated", sync);
+      return () => window.removeEventListener("cartUpdated", sync);
+    }, []);
 
+    /* ✅ ADD TO CART */
+    const addToCart = (item) => {
 
-  /* SYNC CART */
-  useEffect(() => {
-    const sync = () => {
-      setCartState(JSON.parse(localStorage.getItem("cart")) || []);
+      const updated = [...cartState];
+
+      const exist = updated.find(c => c.id === item.id);
+
+      if (exist) {
+        exist.qty += 1;
+      } else {
+        updated.push({
+    id: item.id,
+    itemName: item.itemName,
+    price: Number(item.price),
+    image: item.image,
+    shopName: shopName,
+    qty: 1
+  });
+
+      }
+
+      setCartState(updated);
+      localStorage.setItem("cart", JSON.stringify(updated));
+
+      window.dispatchEvent(new Event("cartUpdated"));
+
+      setShowMiniCart(true);   // 🔥 show popup
     };
 
-    window.addEventListener("cartUpdated", sync);
-    return () => window.removeEventListener("cartUpdated", sync);
-  }, []);
+    return (
+      <div className="shopmenu">
 
-  /* ✅ ADD TO CART */
-  const addToCart = (item) => {
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          ⬅ Back
+        </button>
+        <br></br><br></br><br></br>
 
-    const updated = [...cartState];
+        
+        <h2>Shop Products</h2>
 
-    const exist = updated.find(c => c.id === item.id);
+    {Object.keys(grouped).map(cat=>(
+    <div key={cat}>
 
-    if (exist) {
-      exist.qty += 1;
-    } else {
-      updated.push({
-  id: item.id,
-  itemName: item.itemName,
-  price: Number(item.price),
-  image: item.image,
-  shopName: shopName,
-  qty: 1
-});
+      <h3 style={{margin:"20px 0 10px"}}>
+        {cat}
+      </h3>
 
-    }
+      <div className="product-list">
 
-    setCartState(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
+        {grouped[cat].map(i=>(
 
-    window.dispatchEvent(new Event("cartUpdated"));
+          <div key={i.id} className="product-card">
 
-    setShowMiniCart(true);   // 🔥 show popup
-  };
+            {i.image && <img src={i.image} alt={i.itemName} />}
 
-  return (
-    <div className="shopmenu">
+            <h4>{i.itemName}</h4>
+            <p>₹{i.price}</p>
+            <span>Stock: {i.quantity}</span>
 
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ⬅ Back
-      </button>
-      <br></br><br></br><br></br>
+            <button
+              className="cart-btn"
+              onClick={() => addToCart(i)}
+            >
+              Add Cart
+              {cartState.find(c => c.id === i.id)?.qty > 0 && (
+                <span className="badge">
+                  {cartState.find(c => c.id === i.id)?.qty}
+                </span>
+              )}
+            </button>
 
-      
-      <h2>Shop Products</h2>
+          </div>
 
-   {Object.keys(grouped).map(cat=>(
-  <div key={cat}>
+        ))}
 
-    <h3 style={{margin:"20px 0 10px"}}>
-      {cat}
-    </h3>
-
-    <div className="product-list">
-
-      {grouped[cat].map(i=>(
-
-        <div key={i.id} className="product-card">
-
-          {i.image && <img src={i.image} alt={i.itemName} />}
-
-          <h4>{i.itemName}</h4>
-          <p>₹{i.price}</p>
-          <span>Stock: {i.quantity}</span>
-
-          <button
-            className="cart-btn"
-            onClick={() => addToCart(i)}
-          >
-            Add Cart
-            {cartState.find(c => c.id === i.id)?.qty > 0 && (
-              <span className="badge">
-                {cartState.find(c => c.id === i.id)?.qty}
-              </span>
-            )}
-          </button>
-
-        </div>
-
-      ))}
+      </div>
 
     </div>
+  ))}
 
-  </div>
-))}
+  {/* 🛒 PERMANENT SHOP CART ICON */}
+  {cartState.filter(i => i.shopName === shopName).length > 0 && (
 
-
-{/* ================= MINI CART POPUP ================= */}
-
-{showMiniCart && cartState.length > 0 && (
-  <div
-    className="mini-cart-icon-only"
-    onClick={() => navigate("/cart")}
-  >
-    🛒
-    <span className="mini-count">
-      {cartState.reduce((s,i)=>s+i.qty,0)}
-    </span>
-  </div>
-)}
-
-
-{/* ==================================================== */}
-
+    <div
+      className="shop-floating-cart"
+      onClick={() => navigate(`/shop-cart/${shopName}`)}
+    >
+      🛒
+      <span className="shop-cart-badge">
+        {
+          cartState
+            .filter(i => i.shopName === shopName)
+            .reduce((s,i)=>s+i.qty,0)
+        }
+      </span>
     </div>
-  );
-}
+
+  )}
+
+
+  {/* ==================================================== */}
+
+      </div>
+    );
+  }

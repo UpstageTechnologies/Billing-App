@@ -1,0 +1,156 @@
+/* Page */
+.orders-page{
+  padding:30px;
+  background:#f4f6fb;
+  min-height:100vh;
+  font-family: Arial, sans-serif;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.orders-page h2{
+  margin-bottom:25px;
+  font-size:26px;
+}
+
+/* Card */
+.order-card{
+  background:#ffffff;
+  padding:22px;
+  margin-bottom:20px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  transition:0.3s;
+
+  width:500px;   /* Card center size */
+}
+
+.order-card:hover{
+  transform:translateY(-3px);
+}
+
+/* Header */
+.order-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.order-header h4{
+  margin:0;
+  font-size:19px;
+}
+
+/* Status Badge */
+.status{
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:14px;
+  text-transform:capitalize;
+  font-weight:600;
+}
+
+.status.pending{
+  background:#fff3cd;
+  color:#856404;
+}
+
+.status.confirmed{
+  background:#d4edda;
+  color:#155724;
+}
+
+.status.cancelled{
+  background:#f8d7da;
+  color:#721c24;
+}
+
+/* Text */
+.address{
+  color:#555;
+  font-size:15px;
+  margin:8px 0;
+}
+
+.items{
+  margin-top:10px;
+}
+
+.items p{
+  margin:4px 0;
+  font-size:15px;
+}
+
+/* Total + Buttons Wrapper */
+.total-actions{
+  margin-top:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.total{
+  font-weight:700;
+  margin-bottom:10px;
+  font-size:16px;
+}
+
+/* Buttons Area */
+.actions{
+  display:flex;
+  gap:15px;
+}
+
+/* Confirm Button */
+.confirm-button{
+  background:#28a745;
+  color:white;
+  border:none;
+  padding:10px 22px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  width:120px;
+  transition:0.2s;
+}
+
+.confirm-button:hover{
+  background:#218838;
+}
+
+/* Cancel Button */
+.cancel-button{
+  background:#dc3545;
+  color:white;
+  border:none;
+  padding:10px 22px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  width:120px;
+  transition:0.2s;
+}
+
+.cancel-button:hover{
+  background:#c82333;
+}
+
+/* Mobile */
+@media(max-width:600px){
+
+  .order-card{
+    width:100%;
+  }
+
+  .order-header h4{
+    font-size:17px;
+  }
+
+  .confirm-button,
+  .cancel-button{
+    width:100px;
+    font-size:13px;
+  }
+}

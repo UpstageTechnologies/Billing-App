@@ -2,22 +2,40 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Checkout.css";
 
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "./services/firebase";
+
 export default function Checkout() {
 
   const navigate = useNavigate();
   const data = JSON.parse(localStorage.getItem("buyItem"));
+
+  const customer =
+    JSON.parse(localStorage.getItem("customer"));
 
   const [loading,setLoading] = useState(false);
   const [success,setSuccess] = useState(false);
 
   if(!data) return <h2>No order</h2>;
 
-  const placeOrder = () => {
+  const placeOrder = async () => {
 
-    setLoading(true);                                       
+    setLoading(true);
 
-    setTimeout(()=>{
+    try{
 
+      // 🔥 SAVE ORDER IN FIRESTORE
+      await addDoc(collection(db,"orders"),{
+        customerName: customer?.name || "Guest",
+        customerAddress: customer?.address || "",
+        shopName: data.items[0]?.shopName || "",
+        items: data.items,
+        total: data.total,
+        status: "pending",
+        createdAt: new Date()
+      });
+
+      // 🔥 ALSO SAVE IN LOCAL ORDER HISTORY
       const orders =
         JSON.parse(localStorage.getItem("orders")) || [];
 
@@ -28,17 +46,24 @@ export default function Checkout() {
       });
 
       localStorage.setItem("orders",JSON.stringify(orders));
+
+      // 🔥 CLEAR CART
       localStorage.removeItem("buyItem");
       localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("cartUpdated"));
 
-      setLoading(false);
       setSuccess(true);
 
       setTimeout(()=>{
         navigate("/customer-dashboard");
       },2000);
 
-    },1500);
+    }catch(err){
+      alert("Order failed");
+      console.log(err);
+    }
+
+    setLoading(false);
   };
 
   if(loading){

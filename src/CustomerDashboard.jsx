@@ -382,6 +382,52 @@ Save
 />
 )}
 
+{/* ================= FLOATING SHOP CARTS (DASHBOARD) ================= */}
+
+{(() => {
+
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  const shopGrouped = {};
+  cart.forEach(i=>{
+    if(!shopGrouped[i.shopName]) shopGrouped[i.shopName]=[];
+    shopGrouped[i.shopName].push(i);
+  });
+
+  return(
+    <div className="dashboard-floating-carts">
+
+      {Object.keys(shopGrouped).map(shop=>{
+
+        const count =
+          shopGrouped[shop].reduce((s,i)=>s+i.qty,0);
+
+        return(
+          <div
+            key={shop}
+            className="dashboard-cart-box"
+            onClick={()=>navigate(`/shop-cart/${shop}`)}
+          >
+
+            <span className="cart-emoji">🛒</span>
+
+            <div className="dash-cart-info">
+              <b>{shop}</b>
+            </div>
+
+            <span className="dash-badge">{count}</span>
+
+          </div>
+        );
+
+      })}
+
+    </div>
+  );
+
+})()}
+
+
 </div>
 );
 }

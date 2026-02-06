@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Cart.css";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "./services/firebase";
+
 
 export default function Cart(){
 
