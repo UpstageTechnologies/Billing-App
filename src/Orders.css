@@ -146,7 +146,7 @@
 
   .order-header h4{
     font-size:17px;
-  }
+  } 
 
   .confirm-button,
   .cancel-button{
@@ -154,3 +154,37 @@
     font-size:13px;
   }
 }
+.shipped-button{
+  background:#007bff;
+  color:white;
+  border:none;
+  padding:10px 22px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  width:120px;
+  transition:0.2s;
+}
+
+.shipped-button:hover{
+  background:#0069d9;
+}
+.back-btn{
+  position:fixed;
+  top:20px;
+  left:20px;
+
+  background:#6c63ff;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  z-index:1000;
+}
+
+.back-btn:hover{
+  background:#574fe8;
+}
+

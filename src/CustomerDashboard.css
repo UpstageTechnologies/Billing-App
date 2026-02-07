@@ -557,3 +557,68 @@
   font-size:12px;
   font-weight:700;
 }
+.location-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+  z-index: 999;
+}
+
+.location-modal {
+  background: #fff;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 12px;
+  padding: 18px;
+  color: #111;
+}
+
+.close-btn {
+  float: right;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.location-search {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.gps-btn {
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.gps-btn small {
+  display: block;
+  color: #666;
+}
+
+.location-error {
+  background: #5b8bd9;
+  color: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.recent-box {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.recent-item {
+  padding: 8px;
+  cursor: pointer;
+}

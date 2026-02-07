@@ -97,7 +97,7 @@ export default function CustomerUISetup({ setActivePage }) {
   return (
     <div className="customer-ui-wrapper">
 
-      <button onClick={()=>setActivePage("home")}>
+      <button className="back-btn" onClick={()=>setActivePage("home")}>
         ⬅ Back
       </button>
 

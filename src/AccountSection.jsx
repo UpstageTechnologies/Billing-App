@@ -139,23 +139,14 @@ const handleDelete = async (id) => {
 
 
   return (
-    <div className="content-card">
-            <button
-  onClick={() => setActivePage("home")}
-  style={{
-    marginBottom: 12,
-    padding: "8px 14px",
-    borderRadius: 8,
-    border: "none",
-    background: "#0f172a",
-    color: "white",
-    cursor: "pointer",
-    marginLeft:30,
-    marginTop:20
-  }}
->
+    
+  <div>
+               <button className="back-btn"
+  onClick={() => setActivePage("home")}>
   ⬅ Back 
 </button>
+    <div className="content-card">
+ 
       {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h3>
@@ -247,6 +238,7 @@ const handleDelete = async (id) => {
         </tbody>
       </table>
     </div>
+ </div>
   );
 }
 

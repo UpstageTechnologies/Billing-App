@@ -3,7 +3,7 @@ import { collection, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { db } from "./services/firebase";
 import "./Orders.css";
 
-export default function Orders() {
+export default function Orders({ setActivePage }) {
 
   const [orders, setOrders] = useState([]);
 
@@ -31,6 +31,9 @@ export default function Orders() {
   return (
     <div className="orders-page">
       <h2>Orders</h2>
+
+      <button className="back-btn" onClick={() => setActivePage("home")}>⬅ Back</button>
+
 
       {orders.map(o => (
         <div className="order-card" key={o.id}>

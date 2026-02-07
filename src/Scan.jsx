@@ -124,17 +124,7 @@ const image =
     return (
       <div style={{ padding: 20, textAlign: "center" }}>
         
-        <button
-    onClick={() => setActivePage("home")}
-    style={{
-      marginBottom: 10,
-      padding: "8px 14px",
-      borderRadius: 8,
-      border: "none",
-      background: "#0f172a",
-      color: "white",
-      cursor: "pointer"
-    }}
+        <button className="back-btn" onClick={() => setActivePage("home")}
   >
     ⬅ Back
   </button><br/>

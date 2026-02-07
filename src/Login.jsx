@@ -86,12 +86,6 @@ export default function Login() {
     <>
       <nav className="nav">
         <div className="logo">BillPro</div>
-
-        <ul className="menu">
-          <li>Features</li>
-          <li>Pricing</li>
-          <li>Contact</li>
-        </ul>
         <div>
          <Link to="/chooselogin">
          <button className="btn-outline" style={{ marginLeft: 10 }}>

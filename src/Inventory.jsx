@@ -172,7 +172,12 @@ const editItem = (i) => {
 
 return(
 
+<div>
+        <button className="back-btn" onClick={() => setActivePage("home")}>⬅ Back</button>
+
 <div className="content-card">
+    
+
   
 <div className="inv-header">
 
@@ -183,15 +188,11 @@ return(
     />
   )}
 
-  <button onClick={()=>setActivePage("home")}>⬅ Back</button>
 
 </div>
 
 
-{/* 🔍 SEARCH */}
-<input placeholder="Search"
-value={search}
-onChange={e=>setSearch(e.target.value)}/>
+
 
 <form onSubmit={handleSubmit}>
 
@@ -251,6 +252,11 @@ saveBarcodeImage();
 {form.barcode && <svg id="barcode"></svg>}
 
 <button type="submit">{editingId?"Update":"Add"} Item</button>
+
+{/* 🔍 SEARCH */}
+<input placeholder="Search"
+value={search}
+onChange={e=>setSearch(e.target.value)}/>
 
 </form>
 <table className="account-table">
@@ -319,6 +325,8 @@ saveBarcodeImage();
 ))}
 </tbody>
 </table>
+
+</div>
 
 </div>
 );

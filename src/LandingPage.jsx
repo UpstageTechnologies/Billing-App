@@ -8,15 +8,6 @@ export default function LandingPage() {
       {/* ===== NAVBAR ===== */}
       <nav className="nav">
         <div className="logo">BillPro</div>
-
-        {/* RIGHT SIDE GROUP */}
-        <div className="nav-right">
-          <ul className="menu">
-            <li>Features</li>
-            <li>Pricing</li>
-            <li>Contact</li>
-          </ul>
-
           <div className="nav-buttons">
             <Link to="/login">
               <button className="btn-outline">Login</button>
@@ -26,7 +17,6 @@ export default function LandingPage() {
               <button className="btn-primary">Customer<br></br>
                 Login</button>
             </Link>
-          </div>
         </div>
       </nav>
 
@@ -36,6 +26,7 @@ export default function LandingPage() {
           Smart Billing Software
           <span>Built for Businesses</span>
         </h1>
+        <br></br>
 
         <Link to="/">
           <button className="start-btn large">Get Started</button>

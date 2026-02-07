@@ -250,7 +250,7 @@ export default function Dashboard() {
 {activePage==="payment" && <Payment setActivePage={setActivePage}/>}
 {activePage==="sales" && <Sales setActivePage={setActivePage}/>}
 {activePage==="invoices" && <Invoices setActivePage={setActivePage}/>}
-{activePage==="orders" && <Orders />}   {/* ✅ NEW */}
+{activePage==="orders" && <Orders setActivePage={setActivePage} />}
 {activePage==="customerUI" && <CustomerUISetup setActivePage={setActivePage}/>}
 
 {/* LOGOUT CONFIRM */}

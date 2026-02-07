@@ -132,3 +132,93 @@
   font-weight: 500;
   color: #3c4043;
 }
+/* ================= RESPONSIVE LOGIN (ALL DEVICES) ================= */
+
+/* Small laptops / tablets */
+@media (max-width: 1024px) {
+  .login-card {
+    width: 360px;
+    padding: 28px 24px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .login-wrapper {
+    padding: 20px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 26px 22px;
+    border-radius: 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .login-wrapper {
+    padding: 16px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 340px;
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  /* Inputs bigger for touch */
+  .login-form input {
+    padding: 14px 14px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  /* Button bigger */
+  .login-btn {
+    padding: 14px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  /* Google button */
+  .google-btn {
+    height: 48px;
+    border-radius: 10px;
+  }
+
+  .google-text {
+    font-size: 14px;
+  }
+
+  /* Text */
+  .hint {
+    font-size: 12px;
+  }
+
+  .back {
+    font-size: 14px;
+  }
+}
+
+/* Very small phones (≤360px) */
+@media (max-width: 360px) {
+  .login-card {
+    max-width: 300px;
+    padding: 20px 16px;
+  }
+
+  .login-form input {
+    font-size: 13px;
+  }
+
+  .login-btn {
+    font-size: 14px;
+  }
+
+  .google-text {
+    font-size: 13px;
+  }
+}

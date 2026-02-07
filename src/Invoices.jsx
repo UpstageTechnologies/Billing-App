@@ -18,8 +18,12 @@ export default function Invoices({ setActivePage }) {
   }, []);
 
   return (
+
+    <div>
+          <button className="back-btn" onClick={() => setActivePage("home")}>⬅ Back</button>
+
     <div className="invoice-page">
-      <button className="back-btn" onClick={() => setActivePage("home")}>⬅ Back</button>
+
 
       <h2>🧾 Invoices</h2>
 
@@ -105,6 +109,9 @@ export default function Invoices({ setActivePage }) {
           </div>
         </div>
       )}
+    
     </div>
+ 
+ </div>
   );
 }

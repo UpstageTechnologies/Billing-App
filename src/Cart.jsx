@@ -14,6 +14,8 @@ const [cart,setCart] = useState(
 const [showConfirm, setShowConfirm] = useState(false);
 
 
+
+
 /* GROUP SHOP WISE */
 const grouped = {};
 cart.forEach(i=>{
@@ -44,6 +46,7 @@ const clearCart = ()=>{
 };
 /* TOTALS */
 const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+
 
 return(
 <div className="cart-page">
