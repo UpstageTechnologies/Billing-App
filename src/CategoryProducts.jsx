@@ -16,12 +16,7 @@ export default function CategoryProducts(){
     JSON.parse(localStorage.getItem("cart")) || []
   );
 
-  /* 🔐 LOGIN CHECK */
-  useEffect(()=>{
-    if(!localStorage.getItem("customerLoggedIn")){
-      navigate("/customer-login");
-    }
-  },[navigate]);
+  
 
   /* 📦 LOAD PRODUCTS */
   useEffect(()=>{

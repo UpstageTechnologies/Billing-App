@@ -1,8 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import LandingPage from "./LandingPage";
-
 import Login from "./Login";
 import Register from "./Register";
 import Dashboard from "./Dashboard";
@@ -22,13 +20,12 @@ import CustomerRegister from "./CustomerRegister";
 import CustomerDashboard from "./CustomerDashboard";
 import ShopCart from "./ShopCart";
 
-
 export default function App() {
   return (
     <Routes>
 
-      {/* ===== LANDING PAGE ===== */}
-      <Route path="/" element={<LandingPage />} />
+      {/* ===== LANDING ===== */}
+      <Route path="/" element={<CustomerDashboard />} />
 
       {/* ===== AUTH ===== */}
       <Route path="/login" element={<Login />} />
@@ -55,8 +52,7 @@ export default function App() {
       <Route path="/orders" element={<OrderHistory />} />
       <Route path="/category/:name" element={<CategoryProducts />} />
       <Route path="/shop-cart/:shop" element={<ShopCart />} />
+
     </Routes>
-
-
   );
 }

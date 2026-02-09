@@ -9,10 +9,6 @@ export default function CustomerLogin() {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
 
-  useEffect(() => {
-    localStorage.removeItem("customerLoggedIn");
-  }, []);
-
   const handleLogin = async (e) => {
   e.preventDefault();
 
@@ -50,13 +46,15 @@ export default function CustomerLogin() {
   }
 
   // ✅ Save session
-  localStorage.setItem(
-    "customer",
-    JSON.stringify(matchedCustomer)
-  );
-  localStorage.setItem("customerLoggedIn", "true");
+localStorage.setItem(
+  "customer",
+  JSON.stringify(matchedCustomer)
+);
+localStorage.setItem("customerLoggedIn", "true");
 
-  navigate("/customer-dashboard");
+// 🔥 IMPORTANT: popup login fix
+window.location.reload();
+
 };
 
 
