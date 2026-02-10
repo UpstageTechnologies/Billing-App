@@ -3,50 +3,47 @@
   --primary-dark: #4f46e5;
 }
 
-.register-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 20% -10%, #1f2a44, transparent),
-              radial-gradient(circle at 90% 10%, #1d3a6e, transparent),
-              #020617;
-}
+/* ================= POPUP REGISTER CARD ================= */
 
-/* CARD */
-.register-card {
-  width: 400px;
-  padding: 34px 30px;
+.popup-register-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 30px 26px;
   border-radius: 22px;
-  background: rgba(10, 18, 40, 0.85);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    180deg,
+    rgba(17, 24, 39, 0.96),
+    rgba(2, 6, 23, 0.96)
+  );
+  backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,.08);
   color: #e5e7eb;
   box-shadow: 0 30px 70px rgba(0,0,0,.55);
-  animation: pop .6s ease;
 }
 
-/* ANIMATION */
-@keyframes pop {
-  from { opacity: 0; transform: translateY(10px) scale(.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+/* TITLE */
+.popup-register-card h2 {
+  text-align: center;
+  margin-bottom: 22px;
+  font-size: 22px;
+  font-weight: 600;
 }
 
 /* FORM */
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
-/* INPUTS */
+/* INPUT */
 .register-form input {
   background: rgba(2, 6, 23, 0.9);
   border: 1px solid #334155;
   padding: 12px 14px;
   border-radius: 12px;
   color: #e5e7eb;
-  transition: .25s;
+  font-size: 14px;
 }
 
 .register-form input::placeholder {
@@ -56,19 +53,19 @@
 .register-form input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(109, 91, 255, .25);
+  box-shadow: 0 0 0 3px rgba(109,91,255,.25);
 }
 
 /* BUTTON */
 .register-btn {
-  margin-top: 4px;
+  margin-top: 8px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   border: none;
-  padding: 12px 14px;
+  padding: 12px;
   border-radius: 12px;
-  cursor: pointer;
   font-weight: 600;
+  cursor: pointer;
   transition: .25s;
 }
 
@@ -78,52 +75,38 @@
 }
 
 /* TEXT */
-.back {
+.hint {
+  margin-top: 16px;
   text-align: center;
-  margin-top: 10px;
-  cursor: pointer;
+  font-size: 13px;
+  color: #a1a1aa;
+}
+
+.hint a {
+  color: #c7d2fe;
+  text-decoration: none;
+}
+
+.hint a:hover {
+  color: #fff;
+}
+
+.back {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  font-size: 13px;
   color: #cbd5e1;
-  transition: .2s;
+  text-decoration: none;
 }
 
 .back:hover {
   color: #fff;
 }
 
-.hint {
-  text-align: center;
-  font-size: 12px;
-  color: #a1a1aa;
-}
-.google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: #fff;
-  color: #000;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  padding: 10px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s;
-}
-
-.google-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(0,0,0,.15);
-}
-
-.google-icon-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.google-icon {
-  width: 20px;
-}
-
-.google-text {
-  font-size: 14px;
+/* MOBILE */
+@media (max-width: 480px) {
+  .popup-register-card {
+    padding: 24px 20px;
+  }
 }

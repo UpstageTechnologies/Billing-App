@@ -1,42 +1,28 @@
 :root {
   --primary: #6d5bff;
   --primary-dark: #4f46e5;
-  --bg: #020617;
 }
 
-/* PAGE */
-.login-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 20% -10%, #1f2a44, transparent),
-    radial-gradient(circle at 90% 10%, #1d3a6e, transparent),
-    #020617;
-  font-family: "Inter", system-ui, sans-serif;
-}
+/* ================= POPUP LOGIN CARD ================= */
 
-/* CARD */
-.login-card {
-  width: 380px;
-  padding: 32px 28px;
+.popup-login-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 28px 24px;
   border-radius: 22px;
-  background: rgba(10, 18, 40, 0.88);
-  backdrop-filter: blur(14px);
+  background: linear-gradient(
+    180deg,
+    rgba(17, 24, 39, 0.96),
+    rgba(2, 6, 23, 0.96)
+  );
+  backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,.08);
   color: #e5e7eb;
   box-shadow: 0 30px 70px rgba(0,0,0,.55);
-  animation: pop .6s ease;
-}
-
-@keyframes pop {
-  from { opacity: 0; transform: translateY(12px) scale(.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* TITLE */
-.login-card h2 {
+.popup-login-card h2 {
   text-align: center;
   margin-bottom: 22px;
   font-size: 22px;
@@ -120,8 +106,7 @@
 
 /* MOBILE */
 @media (max-width: 480px) {
-  .login-card {
-    width: 92%;
-    padding: 26px 20px;
+  .popup-login-card {
+    padding: 24px 20px;
   }
 }

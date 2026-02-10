@@ -5,15 +5,26 @@ import { useNavigate } from "react-router-dom";
 import "./CustomerDashboard.css";
 import Login from "./Login";
 import CustomerLogin from "./CustomerLogin";
+import { useLocation } from "react-router-dom";
+
 
 export default function CustomerDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+
 
   /* ================= STATE ================= */
   const [showAuthMenu, setShowAuthMenu] = useState(false);
   const isLoggedIn = !!localStorage.getItem("customerLoggedIn");
   const [showSellerLogin, setShowSellerLogin] = useState(false);
   const [showCustomerLogin, setShowCustomerLogin] = useState(false);
+  const [allShops, setAllShops] = useState([]);
+  const [productResults, setProductResults] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [shopResults, setShopResults] = useState([]);
+
+
+
 
   const [coords, setCoords] = useState(null);
   const [shops, setShops] = useState([]);
@@ -34,6 +45,80 @@ export default function CustomerDashboard() {
 
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const [search, setSearch] = useState("");
+  const extractCity = address => {
+  if (!address) return "";
+
+  const knownCities = [
+    "sattur",
+    "sivakasi",
+    "virudhunagar",
+    "rajapalayam",
+    "srivilliputhur"
+  ];
+
+  const addr = address.toLowerCase();
+
+  return knownCities.find(city => addr.includes(city)) || "";
+};
+
+const searchProducts = async (query) => {
+  if (!query.trim()) {
+    setProductResults([]);
+    setShopResults([]);
+    return;
+  }
+
+  setLoadingProducts(true);
+
+  const shopSnap = await getDocs(collection(db, "public_shops"));
+
+  let products = [];
+  let shops = [];
+
+  for (const shop of shopSnap.docs) {
+    const shopData = shop.data();
+
+    // 🔥 SHOP NAME SEARCH
+    if (
+      shopData.name
+        ?.toLowerCase()
+        .includes(query.toLowerCase())
+    ) {
+      shops.push({
+        id: shop.id,
+        name: shopData.name,
+        logo: shopData.logo,
+        address: shopData.address
+      });
+    }
+
+    // 🔥 PRODUCT SEARCH
+    const invSnap = await getDocs(
+      collection(db, "users", shop.id, "inventory")
+    );
+
+    invSnap.forEach(p => {
+      if (
+        p.data().itemName
+          ?.toLowerCase()
+          .includes(query.toLowerCase())
+      ) {
+        products.push({
+          id: p.id,
+          ...p.data(),
+          shopId: shop.id,
+          shopName: shopData.name
+        });
+      }
+    });
+  }
+
+  setProductResults(products);
+  setShopResults(shops);
+  setLoadingProducts(false);
+};
+
 
   /* ================= LOGIN PROTECT ================= */
   useEffect(() => {
@@ -44,6 +129,12 @@ export default function CustomerDashboard() {
       navigate("/customer-login", { replace: true });
     }
   }, [navigate]);
+ 
+ 
+  useEffect(() => {
+  loadShops();
+}, [location.pathname]);
+
 
 useEffect(() => {
   const saved = localStorage.getItem("userCoords");
@@ -54,11 +145,21 @@ useEffect(() => {
     loadShops();
   }
 }, [customer]);
+const handleDpChange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-
-
-
-
+  const reader = new FileReader();
+  reader.onload = () => {
+    const updated = {
+      ...customer,
+      photo: reader.result
+    };
+    setCustomer(updated);
+    localStorage.setItem("customer", JSON.stringify(updated));
+  };
+  reader.readAsDataURL(file);
+};
   /* ================= LOGOUT ================= */
   const logout = () => {
     localStorage.removeItem("customerLoggedIn");
@@ -126,65 +227,128 @@ useEffect(() => {
     }
   }, [customer]);
 
-  const loadShops = async () => {
-    setLoadingShops(true);
-    const snap = await getDocs(collection(db, "public_shops"));
-    let list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+const loadShops = async (overrideAddress) => {
+  setLoadingShops(true);
 
-    if (customer?.address) {
-      list = list.filter(s =>
-        s.address?.toLowerCase().includes(customer.address.toLowerCase())
+  const snap = await getDocs(collection(db, "public_shops"));
+  let list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // ✅ STRICT CITY FILTER — ADD HERE
+const addressToUse = overrideAddress ?? customer?.address;
+
+if (addressToUse) {
+  const userCity = extractCity(addressToUse);
+
+
+  list = list.filter(s => {
+    const shopCity = extractCity(s.address);
+    return shopCity === userCity;
+  });
+}
+  setAllShops(list);   // 🔥 MASTER LIST
+  setShops(list);      // 🔥 DISPLAY LIST
+  setLoadingShops(false);
+};
+
+// ✅ 🔥 SEARCH FILTER useEffect — ADD IT HERE
+useEffect(() => {
+  if (!search) {
+    setShops(allShops);
+    return;
+  }
+
+  const q = search.toLowerCase();
+
+  const filtered = allShops.filter(s =>
+    s.name?.toLowerCase().includes(q) ||
+    s.address?.toLowerCase().includes(q)
+  );
+
+  setShops(filtered);
+}, [search, allShops]);
+
+
+const useMyLocation = () => {
+  if (!navigator.geolocation) {
+    setLocationError("Location not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const c = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      };
+      localStorage.setItem("userCoords", JSON.stringify(c));
+      setCoords(c);
+      setShowLocationModal(false);
+      loadShops();
+    },
+    err => {
+      console.log(err);
+      setLocationError(
+        "GPS unavailable. Please enter city manually"
       );
-    }
+    },
+    { timeout: 10000 }
+  );
+};
 
-    setShops(list);
-    setLoadingShops(false);
-  };
-
-  const useMyLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        localStorage.setItem("userCoords", JSON.stringify(c));
-        setCoords(c);
-        setShowLocationModal(false);
-        loadShops();
-      },
-      () => setLocationError("Enable location access")
-    );
-  };
 
   /* ================= SAVE PROFILE ================= */
-  const saveProfile = async () => {
-    if (!customer?.id) return;
+ const saveProfile = async () => {
+  if (!customer?.id) return;
 
-    const updated = { ...customer, name: editName, address: editAddress };
-    setCustomer(updated);
-    localStorage.setItem("customer", JSON.stringify(updated));
+  const normalizedAddress = editAddress.trim().toLowerCase();
 
-    await setDoc(
-      doc(db, "customers", customer.id),
-      { name: editName, address: editAddress },
-      { merge: true }
-    );
-
-    setEditProfile(false);
-    loadShops();
+  const updated = {
+    ...customer,
+    name: editName,
+    address: normalizedAddress
   };
+
+  setCustomer(updated);
+  localStorage.setItem("customer", JSON.stringify(updated));
+
+  await setDoc(
+    doc(db, "customers", customer.id),
+    {
+      name: editName,
+      address: normalizedAddress
+    },
+    { merge: true }
+  );
+
+  setEditProfile(false);
+
+  // 🔥 FIX: use new address immediately
+  loadShops(normalizedAddress);
+};
+
 
   /* ================= UI ================= */
   return (
     <div className="customer-app">
 
-      {/* ================= TOP BAR ================= */}
+      {/* ================= TOP BAR ==============  === */}
       <div className="top-bar">
 
         {/* LEFT */}
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <img
-            src={customer?.photo || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
-            style={{ width: 45, height: 45, borderRadius: "50%" }}
-          />
+       <div> 
+       <input
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        id="dpUpload"
+        onChange={handleDpChange}
+      />
+
+      <img
+        src={customer?.photo || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+        style={{ width: 45, height: 45, borderRadius: "50%", cursor: "pointer" }}
+        onClick={() => document.getElementById("dpUpload").click()}
+   />
 
           <div>
             {!editProfile ? (
@@ -295,22 +459,122 @@ useEffect(() => {
         </div>
       )}
 
-      {/* ================= BANNERS ================= */}
-      <h2 className="section-title">🔥 Special Offers</h2>
-      <div className="hero-banner">
-        <div
-          className="slider-track"
-          style={{ transform: `translateX(-${index * 100}%)` }}
-        >
-          {loadingBanners ? (
-            <div className="skeleton-banner" />
-          ) : (
-            banners.map((img, i) => (
-              <img key={i} src={img} className="hero-img" />
-            ))
-          )}
+      <input
+  className="search-input"
+  placeholder="Search city, shop, category, product..."
+  value={search}
+onChange={e => {
+  setSearch(e.target.value);
+  searchProducts(e.target.value);
+}}
+/>
+
+{/* ================= PRODUCT SEARCH RESULTS ================= */}
+{search && (
+  <div className="product-search-results">
+
+    {/* 🔍 SHOPS RESULT */}
+    {shopResults.length > 0 && (
+      <>
+        <h3>Shops</h3>
+
+        {shopResults.map(shop => (
+          <div
+            key={shop.id}
+            className="product-search-card"
+            onClick={() => navigate(`/shop/${shop.id}`)}
+          >
+            <img
+              src={shop.logo || "https://via.placeholder.com/80"}
+              className="ps-image"
+              alt={shop.name}
+            />
+
+            <div className="ps-info">
+              <h4>{shop.name}</h4>
+              <span className="ps-shop">
+                {shop.address}
+              </span>
+            </div>
+          </div>
+        ))}
+      </>
+    )}
+
+    {/* 🔍 PRODUCT RESULT */}
+    {productResults.length > 0 && (
+      <>
+        <h3>Products</h3>
+
+        {productResults.map(product => (
+          <div key={product.id} className="product-search-card">
+
+            <img
+              src={product.image || "https://via.placeholder.com/80"}
+              className="ps-image"
+              alt={product.itemName}
+            />
+
+            <div className="ps-info">
+              <h4>{product.itemName}</h4>
+              <p className="ps-price">₹{product.price}</p>
+              <span className="ps-shop">
+                🏪 {product.shopName}
+              </span>
+            </div>
+
+            <button
+              className="ps-add-btn"
+              onClick={() => {
+                const cart =
+                  JSON.parse(localStorage.getItem("cart")) || [];
+
+                const exist = cart.find(
+                  i =>
+                    i.id === product.id &&
+                    i.shopName === product.shopName
+                );
+
+                if (exist) {
+                  exist.qty += 1;
+                } else {
+                  cart.push({
+                    id: product.id,
+                    itemName: product.itemName,
+                    price: Number(product.price),
+                    image: product.image,
+                    shopName: product.shopName,
+                    qty: 1
+                  });
+                }
+
+                localStorage.setItem(
+                  "cart",
+                  JSON.stringify(cart)
+                );
+                window.dispatchEvent(
+                  new Event("cartUpdated")
+                );
+              }}
+            >
+              Add
+            </button>
+          </div>
+        ))}
+      </>
+    )}
+
+    {/* ❌ NOTHING FOUND */}
+    {productResults.length === 0 &&
+      shopResults.length === 0 &&
+      !loadingProducts && (
+        <div className="no-search-results">
+          ❌ Products or Shops not found
         </div>
-      </div>
+      )}
+  </div>
+)}
+
 
       {/* ================= CATEGORIES ================= */}
       <h2 className="section-title">🛒 Shop by Category</h2>
