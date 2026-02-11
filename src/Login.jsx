@@ -5,7 +5,7 @@ import { auth } from "./services/firebase";
 import { signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,getAdditionalUserInfo,sendPasswordResetEmail, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
 
-export default function Login() {
+export default function Login({ goRegister }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,13 +26,15 @@ export default function Login() {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+  await signInWithEmailAndPassword(auth, email, password);
 
-      setMessage("Login successful");
-      setLoading(false);
+  setMessage("Login successful");
+  setLoading(false);
 
-      setTimeout(() => navigate("/dashboard"), 800);
-    } catch (e) {
+  setTimeout(() => navigate("/dashboard"), 800);
+
+} catch (e) {
+
       setLoading(false);
       setError("Invalid email or password ❌");
     }
@@ -82,125 +84,111 @@ export default function Login() {
     }
   };
 
-  return (
-    <>
-      <nav className="nav">
-        <div className="logo">BillPro</div>
-        <div>
-         <Link to="/chooselogin">
-         <button className="btn-outline" style={{ marginLeft: 10 }}>
-               Other Login
-         </button>
-         </Link>
-         </div>
-      </nav>
+return (
+  <div className="popup-login-card">
+    <h2 style={{ marginBottom: 25 }}>Seller Login</h2>
 
-      <div className="login-wrapper">
-        <center>
-          <div className="login-card">
-            <h1 style={{ marginBottom: 40 }}>Login</h1>
+    <div className="login-form">
+      <input
+        type="email"
+        placeholder="Email address"
+        autoComplete="off"
+        onChange={(e) => setEmail(e.target.value)}
+      />
 
-            <div className="login-form">
-              <input
-                type="email"
-                placeholder="Email address"
-                autoComplete="off"
-                onChange={(e) => setEmail(e.target.value)}
-              />
+      <div style={{ position: "relative" }}>
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          autoComplete="new-password"
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ paddingRight: 45, width: "100%" }}
+        />
 
-              <div style={{ position: "relative" }}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  autoComplete="new-password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ paddingRight: 45, width: "100%" }}
-                />
-
-                <img
-                  src={
-                    showPassword
-                      ? "https://cdn-icons-png.flaticon.com/512/159/159604.png"
-                      : "https://cdn-icons-png.flaticon.com/512/709/709612.png"
-                  }
-                  alt="toggle password"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: 14,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    width: 18,
-                    height: 18,
-                    cursor: "pointer",
-                    opacity: 0.9,
-                  }}
-                />
-              </div>
-
-              {/* LOGIN BUTTON WITH LOADING */}
-              <button
-                className="login-btn"
-                onClick={handleLogin}
-                disabled={loading}
-                style={{
-                  filter: loading ? "blur(1px)" : "none",
-                  position: "relative",
-                }}
-              >
-                {loading ? "Processing..." : "Login"}
-              </button>
-
-              {/* GOOGLE LOGIN */}
-              <button className="google-btn" onClick={handleGoogleLogin}>
-                <div className="google-icon-wrapper">
-                  <img
-                    className="google-icon"
-                    src="https://developers.google.com/identity/images/g-logo.png"
-                    alt="google"
-                  />
-                </div>
-                <span className="google-text">Continue with Google</span>
-              </button>
-
-              {/* ERROR + SUCCESS MESSAGE BELOW BUTTON */}
-              {error && (
-                <p className="hint" style={{ color: "tomato" }}>
-                  {error}
-                </p>
-              )}
-
-              {message && (
-                <p className="hint" style={{ color: "lightgreen" }}>
-                  {message}
-                </p>
-              )}
-
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <p
-                  className="hint"
-                  style={{ cursor: "pointer" }}
-                  onClick={handleForgotPassword}
-                >
-                  Forgot password?
-                </p>
-
-                <Link to="/register">
-                  <p className="hint" style={{ cursor: "pointer" }}>
-                    Register →
-                  </p>
-                </Link>
-              </div>
-
-              <Link to="/">
-                <p className="back">← Back to Home</p>
-              </Link>
-             
-
-            </div>
-          </div>
-        </center>
+        <img
+          src={
+            showPassword
+              ? "https://cdn-icons-png.flaticon.com/512/159/159604.png"
+              : "https://cdn-icons-png.flaticon.com/512/709/709612.png"
+          }
+          alt="toggle password"
+          onClick={() => setShowPassword(!showPassword)}
+          style={{
+            position: "absolute",
+            right: 14,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 18,
+            height: 18,
+            cursor: "pointer",
+            opacity: 0.9,
+          }}
+        />
       </div>
-    </>
-  );
+
+      <button
+        className="customer-login-btn"
+        onClick={handleLogin}
+        disabled={loading}
+      >
+        {loading ? "Processing..." : "Login"}
+      </button>
+
+      <button
+        className="google-btn"
+        onClick={handleGoogleLogin}
+        style={{ marginTop: 10 }}
+      >
+        <div className="google-icon-wrapper">
+          <img
+            className="google-icon"
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="google"
+          />
+        </div>
+        <span className="google-text">Continue with Google</span>
+      </button>
+
+      {error && (
+        <p className="hint" style={{ color: "tomato" }}>
+          {error}
+        </p>
+      )}
+
+      {message && (
+        <p className="hint" style={{ color: "lightgreen" }}>
+          {message}
+        </p>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <p
+          className="hint"
+          style={{ cursor: "pointer" }}
+          onClick={handleForgotPassword}
+        >
+          Forgot password?
+        </p>
+
+        <p
+  className="hint"
+  style={{ cursor: "pointer" }}
+  onClick={goRegister}
+>
+  Register →
+</p>
+
+      </div>
+
+      <p
+        className="back"
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/")}
+      >
+        ← Back to Home
+      </p>
+    </div>
+  </div>
+);
+
 }

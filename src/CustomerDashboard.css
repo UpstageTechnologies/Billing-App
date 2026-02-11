@@ -831,6 +831,48 @@
     max-height: 300px;        /* mobile smaller */
   }
 }
+/* ===== POPUP OVERLAY ===== */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+/* ===== POPUP BOX ===== */
+.popup-box {
+  position: relative;
+  animation: pop .3s ease;
+}
+
+/* CLOSE BUTTON */
+.popup-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #111827;
+  border: 1px solid rgba(255,255,255,.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Animation */
+@keyframes pop {
+  from { opacity: 0; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 
 
 

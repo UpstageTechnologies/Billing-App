@@ -1,89 +1,240 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "./services/firebase";
-import "./CustomerRegister.css";
+import { Link } from "react-router-dom";
+import "./Register.css";
+import { useNavigate } from "react-router-dom";
 
-export default function CustomerRegister() {
+
+import { auth } from "./services/firebase";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  updateProfile,
+} from "firebase/auth";
+
+/* ⭐ FIRESTORE */
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "./services/firebase";
+
+export default function Register({ goLogin }) {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    address: "",
-    email: "",
-    mobile: ""
-  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [showPassword, setShowPassword] = useState(false);
 
-    const docRef = await addDoc(collection(db, "customers"), {
-      name: form.name.trim(),
-      address: form.address.trim(),
-      email: form.email.trim(),
-      mobile: String(form.mobile).trim(),
-      createdAt: serverTimestamp()
-    });
+  // ---------------- SIGNUP ----------------
+const handleSignup = async () => {
+  setError("");
+  setMessage("");
+  setLoading(true);
 
-    localStorage.setItem(
-      "customer",
-      JSON.stringify({ id: docRef.id, ...form })
+  if (!username.trim()) {
+    setLoading(false);
+    return setError("Please enter your username");
+  }
+
+  if (!email.trim()) {
+    setLoading(false);
+    return setError("Please enter your email");
+  }
+
+  if (!password.trim()) {
+    setLoading(false);
+    return setError("Please enter your password");
+  }
+
+  if (password !== confirmPassword) {
+    setLoading(false);
+    return setError("Passwords do not match ❌");
+  }
+
+  try {
+    const result = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
     );
 
-    alert("Registered successfully");
-    navigate("/customer-login");
-  };
+    // ✅ SET DISPLAY NAME (VERY IMPORTANT)
+    await updateProfile(result.user, {
+      displayName: username,
+    });
+
+    // ✅ SAVE MASTER USER
+    await setDoc(doc(db, "users", result.user.uid), {
+      uid: result.user.uid,
+      name: username,
+      email: result.user.email,
+      role: "master",       // ✅ DEFAULT ROLE
+      plan: "basic",
+      isActive: true,
+      createdAt: new Date(),
+    });
+
+    setMessage("Account created successfully 🎉");
+    setLoading(false);
+
+    // ✅ DIRECT DASHBOARD REDIRECT
+    setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 500);
+
+  } catch (e) {
+    console.error(e);
+    setLoading(false);
+    setError(e.message || "Could not create account ❌");
+  }
+};
+
+
+  // ---------------- GOOGLE SIGNUP ----------------
+  const handleGoogleSignup = async () => {
+  setError("");
+  setMessage("");
+  setLoading(true);
+
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    const result = await signInWithPopup(auth, provider);
+    const isNewUser = result._tokenResponse?.isNewUser;
+
+    if (!isNewUser) {
+      await auth.signOut();
+      setLoading(false);
+      return setError("This Google account is already registered. Please Login 👍");
+    }
+
+    await setDoc(doc(db, "users", result.user.uid), {
+      uid: result.user.uid,
+      name: result.user.displayName || "User",
+      email: result.user.email,
+      role: "master",     // ✅ DEFAULT ROLE
+      plan: "basic",
+      isActive: true,
+      createdAt: new Date(),
+    });
+
+    setMessage("Google account registered successfully 🎉");
+    setLoading(false);
+
+    // ✅ DASHBOARD REDIRECT
+    setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 500);
+
+  } catch (e) {
+    console.error(e);
+    setLoading(false);
+    setError("Google signup failed ❌");
+  }
+};
+
 
   return (
-    <div className="popup-register-card">
-      <h2>Create Account</h2>
+  <div className="popup-overlay">
+    <div className="popup-box">
+      <div className="popup-register-card">
 
-      <form className="register-form" onSubmit={handleSubmit}>
-        <input
-          placeholder="Name"
-          required
-          onChange={e =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
+        <h2 style={{ marginBottom: 30 }}>Register</h2>
 
-        <input
-          placeholder="Address"
-          required
-          onChange={e =>
-            setForm({ ...form, address: e.target.value })
-          }
-        />
+        <div className="register-form">
+          <input
+            type="text"
+            placeholder="Username"
+            autoComplete="off"
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-        <input
-          placeholder="Email"
-          required
-          onChange={e =>
-            setForm({ ...form, email: e.target.value })
-          }
-        />
+          <input
+            type="email"
+            placeholder="Email address"
+            autoComplete="off"
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <input
-          placeholder="Mobile"
-          required
-          onChange={e =>
-            setForm({ ...form, mobile: e.target.value })
-          }
-        />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              autoComplete="new-password"
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ paddingRight: 45, width: "100%" }}
+            />
+          </div>
 
-        <button className="register-btn">
-          Register
-        </button>
-      </form>
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              autoComplete="new-password"
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={{ paddingRight: 45, width: "100%" }}
+            />
+          </div>
 
-      <p className="hint">
-        Already registered?{" "}
-        <Link to="/customer-login">Login</Link>
+          <button
+            className="register-btn"
+            onClick={handleSignup}
+            disabled={loading}
+          >
+            {loading ? "Processing..." : "Register"}
+          </button>
+
+          <button className="google-btn" onClick={handleGoogleSignup}>
+            <div className="google-icon-wrapper">
+              <img
+                className="google-icon"
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="google"
+              />
+            </div>
+            <span className="google-text">Continue with Google</span>
+          </button>
+
+          {error && (
+            <p className="hint" style={{ color: "tomato" }}>
+              {error}
+            </p>
+          )}
+
+          {message && (
+            <p className="hint" style={{ color: "lightgreen" }}>
+              {message}
+            </p>
+          )}
+
+                  <p
+          className="back"
+          style={{ cursor: "pointer" }}
+          onClick={goLogin}
+        >
+          Already have an account? Login →
+        </p>
+
+
+           <p
+        className="back"
+        style={{ cursor: "pointer" }}
+onClick={() => navigate("/")}
+      >
+        ← Back to Home
       </p>
 
-      <Link className="back" to="/">
-        ← Back to Home
-      </Link>
+
+        </div>
+      </div>
     </div>
-  );
+  </div>
+);
+
 }

@@ -6,6 +6,10 @@ import "./CustomerDashboard.css";
 import Login from "./Login";
 import CustomerLogin from "./CustomerLogin";
 import { useLocation } from "react-router-dom";
+import CustomerRegister from "./CustomerRegister";
+import Register from "./Register";
+
+
 
 
 export default function CustomerDashboard() {
@@ -22,6 +26,7 @@ export default function CustomerDashboard() {
   const [productResults, setProductResults] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [shopResults, setShopResults] = useState([]);
+  const [authMode, setAuthMode] = useState(null);
 
 
 
@@ -389,29 +394,32 @@ const useMyLocation = () => {
                   Sign In ⬇
                 </button>
 
-                {showAuthMenu && (
-                  <div className="auth-dropdown">
-                    <div
-                      className="dropdown-item"
-                      onClick={() => {
-                        setShowAuthMenu(false);
-                        setShowSellerLogin(true);
-                      }}
-                    >
-                      🧑‍💼 Seller Login
-                    </div>
+            {showAuthMenu && (
+  <div className="auth-dropdown">
 
-                    <div
-                      className="dropdown-item"
-                      onClick={() => {
-                        setShowAuthMenu(false);
-                        setShowCustomerLogin(true);
-                      }}
-                    >
-                      🛒 Customer Login
-                    </div>
-                  </div>
-                )}
+    <div
+      className="dropdown-item"
+      onClick={() => {
+        setShowAuthMenu(false);
+        setAuthMode("seller-login");
+      }}
+    >
+      🧑‍💼 Seller Login
+    </div>
+
+    <div
+      className="dropdown-item"
+      onClick={() => {
+        setShowAuthMenu(false);
+        setAuthMode("customer-login");
+      }}
+    >
+      🛒 Customer Login
+    </div>
+
+  </div>
+)}
+
               </>
             ) : (
               <button className="logout-btn" onClick={logout}>
@@ -429,45 +437,41 @@ const useMyLocation = () => {
         </div>
       </div>
 
-      {/* ================= SELLER LOGIN POPUP ================= */}
-      {showSellerLogin && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <span
-              className="popup-close"
-              onClick={() => setShowSellerLogin(false)}
-            >
-              ✖
-            </span>
-            <Login />
-          </div>
-        </div>
+      {/* ================= AUTH POPUP ================= */}
+{authMode && (
+  <div className="popup-overlay">
+    <div className="popup-box">
+      <span
+        className="popup-close"
+        onClick={() => setAuthMode(null)}
+      >
+        ✖
+      </span>
+
+      {authMode === "customer-login" && (
+        <CustomerLogin
+          goRegister={() => setAuthMode("customer-register")}
+        />
       )}
 
-      {/* ================= CUSTOMER LOGIN POPUP ================= */}
-      {showCustomerLogin && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <span
-              className="popup-close"
-              onClick={() => setShowCustomerLogin(false)}
-            >
-              ✖
-            </span>
-            <CustomerLogin />
-          </div>
-        </div>
+      {authMode === "customer-register" && (
+        <CustomerRegister
+          goLogin={() => setAuthMode("customer-login")}
+        />
       )}
 
-      <input
-  className="search-input"
-  placeholder="Search city, shop, category, product..."
-  value={search}
-onChange={e => {
-  setSearch(e.target.value);
-  searchProducts(e.target.value);
-}}
-/>
+     {authMode === "seller-login" && (
+  <Login goRegister={() => setAuthMode("seller-register")} />
+)}
+
+{authMode === "seller-register" && (
+  <Register goLogin={() => setAuthMode("seller-login")} />
+)}
+
+    </div>
+  </div>
+)}
+
 
 {/* ================= PRODUCT SEARCH RESULTS ================= */}
 {search && (
@@ -574,6 +578,82 @@ onChange={e => {
       )}
   </div>
 )}
+
+  {/* ================= HERO SLIDER ================= */}
+
+<h2 className="section-title">🔥 Special Offers</h2>
+
+<div className="hero-banner">
+
+  {/* LEFT ARROW */}
+  {banners.length > 1 && (
+    <button
+      className="slider-arrow left"
+      onClick={() =>
+        setIndex(prev =>
+          prev === 0 ? banners.length - 1 : prev - 1
+        )
+      }
+    >
+      ‹
+    </button>
+  )}
+
+  {/* SLIDER TRACK */}
+  <div
+    className="slider-track"
+    style={{ transform: `translateX(-${index * 100}%)` }}
+  >
+    {loadingBanners ? (
+      <div className="skeleton-banner"></div>
+    ) : banners.length ? (
+      banners.map((img, i) => (
+        <img
+          key={i}
+          src={img}
+          className="hero-img"
+          alt="banner"
+        />
+      ))
+    ) : (
+      <img
+        src="https://via.placeholder.com/1200x500"
+        className="hero-img"
+        alt="placeholder"
+      />
+    )}
+  </div>
+
+  {/* RIGHT ARROW */}
+  {banners.length > 1 && (
+    <button
+      className="slider-arrow right"
+      onClick={() =>
+        setIndex(prev =>
+          prev === banners.length - 1 ? 0 : prev + 1
+        )
+      }
+    >
+      ›
+    </button>
+  )}
+
+  {/* DOTS */}
+  {banners.length > 1 && (
+    <div className="slider-dots">
+      {banners.map((_, i) => (
+        <div
+          key={i}
+          className={`slider-dot ${
+            index === i ? "active" : ""
+          }`}
+          onClick={() => setIndex(i)}
+        />
+      ))}
+    </div>
+  )}
+
+</div>
 
 
       {/* ================= CATEGORIES ================= */}

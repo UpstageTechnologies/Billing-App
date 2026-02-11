@@ -4,7 +4,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "./services/firebase";
 import "./CustomerLogin.css";
 
-export default function CustomerLogin() {
+export default function CustomerLogin({ goRegister }) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -76,13 +76,25 @@ export default function CustomerLogin() {
         </button>
       </form>
 
-      <p className="hint">
-        New user? <Link to="/customer-register">Register</Link>
-      </p>
+   <p className="hint">
+  New user?{" "}
+  <span
+    style={{ cursor: "pointer", color: "#c7d2fe" }}
+    onClick={goRegister}
+  >
+    Register
+  </span>
+</p>
 
-      <Link className="back" to="/">
-        ← Back to Home
-      </Link>
+
+<span
+  className="back"
+  style={{ cursor: "pointer" }}
+  onClick={() => window.location.reload()}
+>
+  ← Back to Home
+</span>
+
     </div>
   );
 }

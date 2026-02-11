@@ -5,7 +5,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "./services/firebase";
 
 
-export default function CustomerRegister() {
+export default function CustomerRegister({ goLogin }) {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -33,41 +33,63 @@ const handleSubmit = async (e) => {
   );
 
   alert("Registered successfully");
-  navigate("/customer-login");
+  goLogin();
 };
 
 
-  return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h2>Register</h2>
+return (
+  <div className="popup-login-card">
+    <h2>Register</h2>
 
-        <form onSubmit={handleSubmit}>
-          <input placeholder="Name" required
-            onChange={e => setForm({ ...form, name: e.target.value })} />
+    <form className="login-form" onSubmit={handleSubmit}>
+      <input
+        placeholder="Name"
+        required
+        onChange={e => setForm({ ...form, name: e.target.value })}
+      />
 
-          <input placeholder="Address" required
-            onChange={e => setForm({ ...form, address: e.target.value })} />
+      <input
+        placeholder="Address"
+        required
+        onChange={e => setForm({ ...form, address: e.target.value })}
+      />
 
-          <input placeholder="Email" required
-            onChange={e => setForm({ ...form, email: e.target.value })} />
+      <input
+        placeholder="Email"
+        required
+        onChange={e => setForm({ ...form, email: e.target.value })}
+      />
 
-          <input placeholder="Mobile" required
-            onChange={e => setForm({ ...form, mobile: e.target.value })}
- />
+      <input
+        placeholder="Mobile"
+        required
+        onChange={e => setForm({ ...form, mobile: e.target.value })}
+      />
 
-          <button>Register</button>
+      <button className="customer-login-btn">
+        Register
+      </button>
+    </form>
 
-        </form>
+  <p className="hint">
+  Back to{" "}
+  <span
+    style={{ cursor: "pointer", color: "#c7d2fe" }}
+    onClick={goLogin}
+  >
+    Login
+  </span>
+</p>
 
-           <p className="hint">
-          Back to  <Link to="/customer-login">Login</Link>
-        </p><b></b><b></b>
 
-         <Link className="back" to="/">
-                  ← Back to Home
-                </Link>
-      </div>
-    </div>
-  );
+    <span
+      className="back"
+      style={{ cursor: "pointer" }}
+      onClick={() => navigate("/")}
+    >
+      ← Back to Home
+    </span>
+  </div>
+);
+
 }
