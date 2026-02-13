@@ -35,11 +35,13 @@ export default function CategoryProducts(){
               temp[shop.data().name] = [];
             }
 
-            temp[shop.data().name].push({
-              ...p.data(),
-              id:p.id,
-              shopName: shop.data().name
-            });
+         temp[shop.data().name].push({
+            ...p.data(),
+            id: p.id,
+            shopName: shop.data().name,
+            shopId: shop.id   // ✅ comma added
+          });
+
           }
         });
       }

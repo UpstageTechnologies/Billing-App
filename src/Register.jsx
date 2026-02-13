@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Register.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
+
 
 
 import { auth } from "./services/firebase";
@@ -84,7 +87,7 @@ const handleSignup = async () => {
 
     // ✅ DIRECT DASHBOARD REDIRECT
     setTimeout(() => {
-      window.location.href = "/dashboard";
+    goLogin && goLogin();
     }, 500);
 
   } catch (e) {
@@ -128,9 +131,10 @@ const handleSignup = async () => {
     setLoading(false);
 
     // ✅ DASHBOARD REDIRECT
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 500);
+   setTimeout(() => {
+  navigate("/dashboard");   // ✅ correct navigation
+}, 500);
+
 
   } catch (e) {
     console.error(e);
@@ -139,102 +143,100 @@ const handleSignup = async () => {
   }
 };
 
+  
 
   return (
-  <div className="popup-overlay">
-    <div className="popup-box">
-      <div className="popup-register-card">
+  <div className="popup-register-card">
 
-        <h2 style={{ marginBottom: 30 }}>Register</h2>
+    <h2 style={{ marginBottom: 30 }}>Register</h2>
 
-        <div className="register-form">
-          <input
-            type="text"
-            placeholder="Username"
-            autoComplete="off"
-            onChange={(e) => setUsername(e.target.value)}
+    <div className="register-form">
+
+      <input
+        type="text"
+        placeholder="Username"
+        autoComplete="off"
+        onChange={(e) => setUsername(e.target.value)}
+      />
+
+      <input
+        type="email"
+        placeholder="Email address"
+        autoComplete="off"
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <div style={{ position: "relative" }}>
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          autoComplete="new-password"
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ paddingRight: 45, width: "100%" }}
+        />
+      </div>
+
+      <div style={{ position: "relative" }}>
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Confirm Password"
+          autoComplete="new-password"
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          style={{ paddingRight: 45, width: "100%" }}
+        />
+      </div>
+
+      <button
+        className="register-btn"
+        onClick={handleSignup}
+        disabled={loading}
+      >
+        {loading ? "Processing..." : "Register"}
+      </button>
+
+      <button className="google-btn" onClick={handleGoogleSignup}>
+        <div className="google-icon-wrapper">
+          <img
+            className="google-icon"
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="google"
           />
+        </div>
+        <span className="google-text">Continue with Google</span>
+      </button>
 
-          <input
-            type="email"
-            placeholder="Email address"
-            autoComplete="off"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <div style={{ position: "relative" }}>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              autoComplete="new-password"
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ paddingRight: 45, width: "100%" }}
-            />
-          </div>
-
-          <div style={{ position: "relative" }}>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Confirm Password"
-              autoComplete="new-password"
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              style={{ paddingRight: 45, width: "100%" }}
-            />
-          </div>
-
-          <button
-            className="register-btn"
-            onClick={handleSignup}
-            disabled={loading}
-          >
-            {loading ? "Processing..." : "Register"}
-          </button>
-
-          <button className="google-btn" onClick={handleGoogleSignup}>
-            <div className="google-icon-wrapper">
-              <img
-                className="google-icon"
-                src="https://developers.google.com/identity/images/g-logo.png"
-                alt="google"
-              />
-            </div>
-            <span className="google-text">Continue with Google</span>
-          </button>
-
-          {error && (
-            <p className="hint" style={{ color: "tomato" }}>
-              {error}
-            </p>
-          )}
-
-          {message && (
-            <p className="hint" style={{ color: "lightgreen" }}>
-              {message}
-            </p>
-          )}
-
-                  <p
-          className="back"
-          style={{ cursor: "pointer" }}
-          onClick={goLogin}
-        >
-          Already have an account? Login →
+      {error && (
+        <p className="hint" style={{ color: "tomato" }}>
+          {error}
         </p>
+      )}
 
+      {message && (
+        <p className="hint" style={{ color: "lightgreen" }}>
+          {message}
+        </p>
+      )}
 
-           <p
+      <p
         className="back"
         style={{ cursor: "pointer" }}
-onClick={() => navigate("/")}
+        onClick={goLogin}
+      >
+        Already have an account? Login →
+      </p>
+
+      <p
+        className="back"
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/")}
       >
         ← Back to Home
       </p>
 
-
-        </div>
-      </div>
     </div>
+
   </div>
 );
+
 
 }

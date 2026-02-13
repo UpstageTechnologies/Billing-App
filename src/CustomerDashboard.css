@@ -821,9 +821,14 @@
 
 /* Image slightly smaller (balanced look) */
 .ps-image{
-  width: 56px;
-  height: 56px;
+  width:60px;
+  height:60px;
+  border-radius:10px;
+  object-fit:cover;
+  background:#e5e7eb;
+  flex-shrink:0;
 }
+
 
 /* Mobile optimisation */
 @media (max-width: 480px){

@@ -11,7 +11,6 @@ import Register from "./Register";
 
 
 
-
 export default function CustomerDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,12 +19,9 @@ export default function CustomerDashboard() {
   /* ================= STATE ================= */
   const [showAuthMenu, setShowAuthMenu] = useState(false);
   const isLoggedIn = !!localStorage.getItem("customerLoggedIn");
-  const [showSellerLogin, setShowSellerLogin] = useState(false);
-  const [showCustomerLogin, setShowCustomerLogin] = useState(false);
   const [allShops, setAllShops] = useState([]);
   const [productResults, setProductResults] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
-  const [shopResults, setShopResults] = useState([]);
   const [authMode, setAuthMode] = useState(null);
 
 
@@ -51,6 +47,8 @@ export default function CustomerDashboard() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [search, setSearch] = useState("");
+  const [shopResults, setShopResults] = useState([]);
+
   const extractCity = address => {
   if (!address) return "";
 
@@ -70,35 +68,15 @@ export default function CustomerDashboard() {
 const searchProducts = async (query) => {
   if (!query.trim()) {
     setProductResults([]);
-    setShopResults([]);
     return;
   }
 
   setLoadingProducts(true);
 
   const shopSnap = await getDocs(collection(db, "public_shops"));
-
-  let products = [];
-  let shops = [];
+  let results = [];
 
   for (const shop of shopSnap.docs) {
-    const shopData = shop.data();
-
-    // 🔥 SHOP NAME SEARCH
-    if (
-      shopData.name
-        ?.toLowerCase()
-        .includes(query.toLowerCase())
-    ) {
-      shops.push({
-        id: shop.id,
-        name: shopData.name,
-        logo: shopData.logo,
-        address: shopData.address
-      });
-    }
-
-    // 🔥 PRODUCT SEARCH
     const invSnap = await getDocs(
       collection(db, "users", shop.id, "inventory")
     );
@@ -109,20 +87,39 @@ const searchProducts = async (query) => {
           ?.toLowerCase()
           .includes(query.toLowerCase())
       ) {
-        products.push({
+        results.push({
           id: p.id,
           ...p.data(),
           shopId: shop.id,
-          shopName: shopData.name
+          shopName: shop.data().name
         });
       }
+      
     });
   }
 
-  setProductResults(products);
-  setShopResults(shops);
+  setProductResults(results);
   setLoadingProducts(false);
 };
+
+useEffect(() => {
+  if (!search.trim()) {
+    setShopResults([]);
+    return;
+  }
+
+  const q = search.toLowerCase();
+
+  const filtered = allShops.filter(s =>
+    s.name?.toLowerCase().includes(q) ||
+    s.address?.toLowerCase().includes(q)
+  );
+
+  setShopResults(filtered);
+
+}, [search, allShops]);
+
+
 
 
   /* ================= LOGIN PROTECT ================= */
@@ -141,15 +138,6 @@ const searchProducts = async (query) => {
 }, [location.pathname]);
 
 
-useEffect(() => {
-  const saved = localStorage.getItem("userCoords");
-  if (!saved) {
-    setShowLocationModal(true);
-  } else {
-    setCoords(JSON.parse(saved));
-    loadShops();
-  }
-}, [customer]);
 const handleDpChange = e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -224,13 +212,21 @@ const handleDpChange = e => {
   }, []);
 
   /* ================= LOCATION ================= */
-  useEffect(() => {
-    const saved = localStorage.getItem("userCoords");
-    if (saved) {
-      setCoords(JSON.parse(saved));
-      loadShops();
-    }
-  }, [customer]);
+useEffect(() => {
+
+  const saved = localStorage.getItem("userCoords");
+
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    setCoords(parsed);
+    loadShops();
+  } else {
+    setShowLocationModal(true);
+  }
+
+}, []);
+
+
 
 const loadShops = async (overrideAddress) => {
   setLoadingShops(true);
@@ -274,31 +270,52 @@ useEffect(() => {
 
 
 const useMyLocation = () => {
+
   if (!navigator.geolocation) {
-    setLocationError("Location not supported");
+    setLocationError("Geolocation not supported by browser");
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      const c = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude
+    (position) => {
+
+      const coords = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
       };
-      localStorage.setItem("userCoords", JSON.stringify(c));
-      setCoords(c);
+
+      localStorage.setItem("userCoords", JSON.stringify(coords));
+
+      setCoords(coords);
       setShowLocationModal(false);
+      setLocationError("");
+
       loadShops();
+
     },
-    err => {
-      console.log(err);
-      setLocationError(
-        "GPS unavailable. Please enter city manually"
-      );
+    (error) => {
+
+      console.log("Location error:", error);
+
+      if (error.code === 1) {
+        setLocationError("Permission denied. Please allow location access.");
+      } else if (error.code === 2) {
+        setLocationError("Location unavailable.");
+      } else if (error.code === 3) {
+        setLocationError("Location request timed out.");
+      } else {
+        setLocationError("Unable to fetch location.");
+      }
+
     },
-    { timeout: 10000 }
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
   );
 };
+
 
 
   /* ================= SAVE PROFILE ================= */
@@ -329,6 +346,29 @@ const useMyLocation = () => {
 
   // 🔥 FIX: use new address immediately
   loadShops(normalizedAddress);
+};
+
+const addToCart = (item) => {
+
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  const exist = cart.find(c => c.id === item.id);
+
+  if (exist) {
+    exist.qty += 1;
+  } else {
+    cart.push({
+      id: item.id,
+      itemName: item.itemName,
+      price: Number(item.price),
+      image: item.image,
+      shopName: item.shopName,
+      qty: 1
+    });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  window.dispatchEvent(new Event("cartUpdated"));
 };
 
 
@@ -394,31 +434,29 @@ const useMyLocation = () => {
                   Sign In ⬇
                 </button>
 
-            {showAuthMenu && (
-  <div className="auth-dropdown">
+                        {showAuthMenu && (
+          <div className="auth-dropdown">
+            <div
+              className="dropdown-item"
+              onClick={() => {
+                setShowAuthMenu(false);
+                setAuthMode("seller-login");
+              }}
+            >
+              🧑‍💼 Seller Login
+            </div>
 
-    <div
-      className="dropdown-item"
-      onClick={() => {
-        setShowAuthMenu(false);
-        setAuthMode("seller-login");
-      }}
-    >
-      🧑‍💼 Seller Login
-    </div>
-
-    <div
-      className="dropdown-item"
-      onClick={() => {
-        setShowAuthMenu(false);
-        setAuthMode("customer-login");
-      }}
-    >
-      🛒 Customer Login
-    </div>
-
-  </div>
-)}
+            <div
+              className="dropdown-item"
+              onClick={() => {
+                setShowAuthMenu(false);
+                setAuthMode("customer-login");
+              }}
+            >
+              🛒 Customer Login
+            </div>
+          </div>
+        )}
 
               </>
             ) : (
@@ -436,8 +474,7 @@ const useMyLocation = () => {
 
         </div>
       </div>
-
-      {/* ================= AUTH POPUP ================= */}
+{/* ================= AUTH POPUP ================= */}
 {authMode && (
   <div className="popup-overlay">
     <div className="popup-box">
@@ -460,201 +497,99 @@ const useMyLocation = () => {
         />
       )}
 
-     {authMode === "seller-login" && (
-  <Login goRegister={() => setAuthMode("seller-register")} />
-)}
+      {authMode === "seller-login" && (
+        <Login
+          goRegister={() => setAuthMode("seller-register")}
+        />
+      )}
 
-{authMode === "seller-register" && (
-  <Register goLogin={() => setAuthMode("seller-login")} />
-)}
+      {authMode === "seller-register" && (
+        <Register
+          goLogin={() => setAuthMode("seller-login")}
+        />
+      )}
 
     </div>
   </div>
 )}
 
+
+      <input
+  className="search-input"
+  placeholder="Search city, shop, category, product..."
+  value={search}
+onChange={e => {
+  setSearch(e.target.value);
+  searchProducts(e.target.value);
+}}
+/>
 
 {/* ================= PRODUCT SEARCH RESULTS ================= */}
-{search && (
+{search && productResults.length > 0 && (
   <div className="product-search-results">
+  <h3>Products</h3>
 
-    {/* 🔍 SHOPS RESULT */}
-    {shopResults.length > 0 && (
-      <>
-        <h3>Shops</h3>
 
-        {shopResults.map(shop => (
-          <div
-            key={shop.id}
-            className="product-search-card"
-            onClick={() => navigate(`/shop/${shop.id}`)}
-          >
-            <img
-              src={shop.logo || "https://via.placeholder.com/80"}
-              className="ps-image"
-              alt={shop.name}
-            />
+  {productResults.map(product => (
+    <div
+  key={product.id}
+  className="product-search-card"
+  onClick={() => navigate(`/shop/${product.shopId}`)}
+  style={{ cursor: "pointer" }}
+>
 
-            <div className="ps-info">
-              <h4>{shop.name}</h4>
-              <span className="ps-shop">
-                {shop.address}
-              </span>
-            </div>
-          </div>
-        ))}
-      </>
-    )}
-
-    {/* 🔍 PRODUCT RESULT */}
-    {productResults.length > 0 && (
-      <>
-        <h3>Products</h3>
-
-        {productResults.map(product => (
-          <div key={product.id} className="product-search-card">
-
-            <img
-              src={product.image || "https://via.placeholder.com/80"}
-              className="ps-image"
-              alt={product.itemName}
-            />
-
-            <div className="ps-info">
-              <h4>{product.itemName}</h4>
-              <p className="ps-price">₹{product.price}</p>
-              <span className="ps-shop">
-                🏪 {product.shopName}
-              </span>
-            </div>
-
-            <button
-              className="ps-add-btn"
-              onClick={() => {
-                const cart =
-                  JSON.parse(localStorage.getItem("cart")) || [];
-
-                const exist = cart.find(
-                  i =>
-                    i.id === product.id &&
-                    i.shopName === product.shopName
-                );
-
-                if (exist) {
-                  exist.qty += 1;
-                } else {
-                  cart.push({
-                    id: product.id,
-                    itemName: product.itemName,
-                    price: Number(product.price),
-                    image: product.image,
-                    shopName: product.shopName,
-                    qty: 1
-                  });
-                }
-
-                localStorage.setItem(
-                  "cart",
-                  JSON.stringify(cart)
-                );
-                window.dispatchEvent(
-                  new Event("cartUpdated")
-                );
-              }}
-            >
-              Add
-            </button>
-          </div>
-        ))}
-      </>
-    )}
-
-    {/* ❌ NOTHING FOUND */}
-    {productResults.length === 0 &&
-      shopResults.length === 0 &&
-      !loadingProducts && (
-        <div className="no-search-results">
-          ❌ Products or Shops not found
-        </div>
-      )}
-  </div>
-)}
-
-  {/* ================= HERO SLIDER ================= */}
-
-<h2 className="section-title">🔥 Special Offers</h2>
-
-<div className="hero-banner">
-
-  {/* LEFT ARROW */}
-  {banners.length > 1 && (
-    <button
-      className="slider-arrow left"
-      onClick={() =>
-        setIndex(prev =>
-          prev === 0 ? banners.length - 1 : prev - 1
-        )
-      }
-    >
-      ‹
-    </button>
-  )}
-
-  {/* SLIDER TRACK */}
-  <div
-    className="slider-track"
-    style={{ transform: `translateX(-${index * 100}%)` }}
-  >
-    {loadingBanners ? (
-      <div className="skeleton-banner"></div>
-    ) : banners.length ? (
-      banners.map((img, i) => (
-        <img
-          key={i}
-          src={img}
-          className="hero-img"
-          alt="banner"
-        />
-      ))
-    ) : (
+      {/* Product Image */}
       <img
-        src="https://via.placeholder.com/1200x500"
-        className="hero-img"
-        alt="placeholder"
+        src={product.image || "https://via.placeholder.com/80"}
+        className="ps-image"
+        alt={product.itemName}
       />
-    )}
-  </div>
 
-  {/* RIGHT ARROW */}
-  {banners.length > 1 && (
-    <button
-      className="slider-arrow right"
-      onClick={() =>
-        setIndex(prev =>
-          prev === banners.length - 1 ? 0 : prev + 1
-        )
-      }
-    >
-      ›
-    </button>
-  )}
 
-  {/* DOTS */}
-  {banners.length > 1 && (
-    <div className="slider-dots">
-      {banners.map((_, i) => (
-        <div
-          key={i}
-          className={`slider-dot ${
-            index === i ? "active" : ""
-          }`}
-          onClick={() => setIndex(i)}
-        />
-      ))}
+      {/* Product Details */}
+      <div className="ps-info">
+        <h4>{product.itemName}</h4>
+        <p className="ps-price">₹{product.price}</p>
+        <span className="ps-shop">
+          🏪 {product.shopName}
+        </span>
+      </div>
+
+      {/* Add to Cart */}
+     <button
+  className="ps-add-btn"
+  onClick={(e) => {
+    e.stopPropagation();   // 🔥 prevent shop navigation
+    addToCart(product);
+  }}
+>
+  Add
+</button>
+
     </div>
-  )}
-
+  ))}
 </div>
 
+)}
+
+
+
+      {/* ================= BANNERS ================= */}
+      <h2 className="section-title">🔥 Special Offers</h2>
+      <div className="hero-banner">
+        <div
+          className="slider-track"
+          style={{ transform: `translateX(-${index * 100}%)` }}
+        >
+          {loadingBanners ? (
+            <div className="skeleton-banner" />
+          ) : (
+            banners.map((img, i) => (
+              <img key={i} src={img} className="hero-img" />
+            ))
+          )}
+        </div>
+      </div>
 
       {/* ================= CATEGORIES ================= */}
       <h2 className="section-title">🛒 Shop by Category</h2>
@@ -672,7 +607,7 @@ const useMyLocation = () => {
       </div>
 
   {/* ================= SHOPS ================= */}
-      {shops.length > 0 && (
+{isLoggedIn && shops.length > 0 && (
   <>
     <h2 className="section-title">🏪 Nearby Shops</h2>
     <div className="shop-listt">

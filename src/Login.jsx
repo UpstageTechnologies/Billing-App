@@ -14,31 +14,33 @@ export default function Login({ goRegister }) {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    setError("");
-    setMessage("");
-    setLoading(true);
+ const handleLogin = async () => {
+  setError("");
+  setMessage("");
+  setLoading(true);
 
-    if (!email || !password) {
-      setLoading(false);
-      setError("Please enter your email and password ⚠");
-      return;
-    }
+  if (!email || !password) {
+    setLoading(false);
+    setError("Please enter your email and password ⚠");
+    return;
+  }
 
-    try {
-  await signInWithEmailAndPassword(auth, email, password);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
 
-  setMessage("Login successful");
-  setLoading(false);
+    setMessage("Login successful");
+    setLoading(false);
 
-  setTimeout(() => navigate("/dashboard"), 800);
+    setTimeout(() => {
+      navigate("/dashboard");   // ✅ correct navigation
+    }, 500);
 
-} catch (e) {
+  } catch (e) {
+    setLoading(false);
+    setError("Invalid email or password ❌");
+  }
+};
 
-      setLoading(false);
-      setError("Invalid email or password ❌");
-    }
-  };
 
   const handleGoogleLogin = async () => {
     setError("");
@@ -180,13 +182,15 @@ return (
 
       </div>
 
-      <p
-        className="back"
-        style={{ cursor: "pointer" }}
-        onClick={() => navigate("/")}
-      >
-        ← Back to Home
-      </p>
+    <p
+  className="back"
+  style={{ cursor: "pointer" }}
+  onClick={() => navigate("/")}
+>
+  ← Back to Home
+</p>
+
+
     </div>
   </div>
 );

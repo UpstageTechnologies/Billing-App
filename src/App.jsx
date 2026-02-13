@@ -52,7 +52,6 @@ export default function App() {
       <Route path="/orders" element={<OrderHistory />} />
       <Route path="/category/:name" element={<CategoryProducts />} />
       <Route path="/shop-cart/:shop" element={<ShopCart />} />
-
     </Routes>
   );
 }

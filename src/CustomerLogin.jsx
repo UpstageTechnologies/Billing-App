@@ -36,20 +36,22 @@ export default function CustomerLogin({ goRegister }) {
       }
     });
 
-    if (!matchedCustomer) {
-      alert("Invalid details");
-      return;
-    }
+   if (!matchedCustomer) {
+  alert("Invalid details");
+  return;
+}
 
-    // ✅ Save session
-    localStorage.setItem(
-      "customer",
-      JSON.stringify(matchedCustomer)
-    );
-    localStorage.setItem("customerLoggedIn", "true");
+// ✅ Save session
+localStorage.setItem(
+  "customer",
+  JSON.stringify(matchedCustomer)
+);
 
-    // 🔥 popup login fix
-    window.location.reload();
+localStorage.setItem("customerLoggedIn", "true");
+
+// ✅ Close popup + refresh dashboard
+window.location.reload();
+
   };
 
   return (
@@ -76,16 +78,15 @@ export default function CustomerLogin({ goRegister }) {
         </button>
       </form>
 
-   <p className="hint">
+<p className="hint">
   New user?{" "}
   <span
-    style={{ cursor: "pointer", color: "#c7d2fe" }}
+    style={{ cursor: "pointer", color: "#6366f1", fontWeight: 600 }}
     onClick={goRegister}
   >
     Register
   </span>
 </p>
-
 
 <span
   className="back"
@@ -94,6 +95,7 @@ export default function CustomerLogin({ goRegister }) {
 >
   ← Back to Home
 </span>
+
 
     </div>
   );
