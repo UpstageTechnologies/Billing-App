@@ -133,9 +133,6 @@ useEffect(() => {
   }, [navigate]);
  
  
-  useEffect(() => {
-  loadShops();
-}, [location.pathname]);
 
 
 const handleDpChange = e => {
@@ -178,6 +175,14 @@ const handleDpChange = e => {
     }
   }, []);
 
+  /* 🔥 FIX: Load shops after customer is ready */
+useEffect(() => {
+  if (customer?.address) {
+    loadShops(customer.address);
+  }
+}, [customer]);
+
+
   /* ================= LOAD UI ================= */
   useEffect(() => {
     const load = async () => {
@@ -216,11 +221,12 @@ useEffect(() => {
 
   const saved = localStorage.getItem("userCoords");
 
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    setCoords(parsed);
-    loadShops();
-  } else {
+if (saved) {
+  const parsed = JSON.parse(saved);
+  setCoords(parsed);
+  // shops will load after customer loads
+}
+else {
     setShowLocationModal(true);
   }
 
@@ -277,7 +283,7 @@ const useMyLocation = () => {
   }
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    async (position) => {
 
       const coords = {
         lat: position.coords.latitude,
@@ -285,12 +291,34 @@ const useMyLocation = () => {
       };
 
       localStorage.setItem("userCoords", JSON.stringify(coords));
-
       setCoords(coords);
       setShowLocationModal(false);
       setLocationError("");
 
-      loadShops();
+      /* 🔥 REVERSE GEOCODING USING OpenStreetMap */
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`
+        );
+
+        const data = await res.json();
+
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          "";
+
+        if (city) {
+          loadShops(city.toLowerCase());
+        } else {
+          loadShops();
+        }
+
+      } catch (err) {
+        console.log("Reverse geocoding failed", err);
+        loadShops();
+      }
 
     },
     (error) => {
@@ -310,7 +338,7 @@ const useMyLocation = () => {
     },
     {
       enableHighAccuracy: true,
-      timeout: 15000,
+      timeout: 20000,
       maximumAge: 0
     }
   );
@@ -571,6 +599,33 @@ onChange={e => {
 </div>
 
 )}
+
+{/* ================= SHOP SEARCH RESULTS ================= */}
+{search && shopResults.length > 0 && (
+  <div className="shop-search-results">
+    <h3>Shops</h3>
+
+    {shopResults.map(shop => (
+      <div
+        key={shop.id}
+        className="shop-search-card"
+        onClick={() => navigate(`/shop/${shop.id}`)}
+      >
+        <img
+          src={shop.logo || "https://via.placeholder.com/80"}
+          className="ss-image"
+          alt={shop.name}
+        />
+
+        <div className="ss-info">
+          <h4>{shop.name}</h4>
+          <p>{shop.address}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
 
 
 
