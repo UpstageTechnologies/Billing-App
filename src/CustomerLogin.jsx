@@ -1,58 +1,81 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./services/firebase";
 import "./CustomerLogin.css";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "./services/firebase";
+import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
+
+
+
+
 
 export default function CustomerLogin({ goRegister }) {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    const cleanMobile = String(mobile).trim();
-    const cleanName = String(name).trim().toLowerCase();
-
-    const q = query(
-      collection(db, "customers"),
-      where("mobile", "==", cleanMobile)
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
     );
 
-    const snap = await getDocs(q);
+    const user = userCredential.user;
 
-    if (snap.empty) {
-      alert("Register first");
-      return;
-    }
+    localStorage.setItem("customerLoggedIn", "true");
+    localStorage.setItem("customer", JSON.stringify({
+      id: user.uid,
+      email: user.email
+    }));
 
-    let matchedCustomer = null;
+    alert("Login Success");
+    navigate("/customer-dashboard");
 
-    snap.forEach(d => {
-      const data = d.data();
-      if (data.name?.trim().toLowerCase() === cleanName) {
-        matchedCustomer = { id: d.id, ...data };
-      }
-    });
+  } catch (error) {
+    console.log(error);
+    alert("Invalid Email or Password");
+  }
+};
 
-   if (!matchedCustomer) {
-  alert("Invalid details");
-  return;
-}
 
-// ✅ Save session
-localStorage.setItem(
-  "customer",
-  JSON.stringify(matchedCustomer)
-);
+const handleGoogleLogin = async () => {
+  try {
+    setLoading(true);
 
-localStorage.setItem("customerLoggedIn", "true");
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
 
-// ✅ Close popup + refresh dashboard
-window.location.reload();
+    // Save customer locally
+    localStorage.setItem("customerLoggedIn", "true");
+    localStorage.setItem("customer", JSON.stringify({
+      id: result.user.uid,
+      name: result.user.displayName,
+      email: result.user.email,
+      photo: result.user.photoURL
+    }));
 
-  };
+    alert("Google Login Success 🎉");
+    window.location.reload();
+
+  } catch (error) {
+    console.log(error);
+    alert("Google login failed ❌");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="popup-login-card">
@@ -60,17 +83,17 @@ window.location.reload();
 
       <form className="login-form" onSubmit={handleLogin}>
         <input
-          placeholder="Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
+          type="email"
+          placeholder="Email"
           required
+          onChange={e => setEmail(e.target.value)}
         />
 
         <input
-          placeholder="Mobile"
-          value={mobile}
-          onChange={e => setMobile(e.target.value)}
+          type="password"
+          placeholder="Password"
           required
+          onChange={e => setPassword(e.target.value)}
         />
 
         <button className="customer-login-btn">
@@ -78,25 +101,30 @@ window.location.reload();
         </button>
       </form>
 
-<p className="hint">
-  New user?{" "}
-  <span
-    style={{ cursor: "pointer", color: "#6366f1", fontWeight: 600 }}
-    onClick={goRegister}
-  >
-    Register
-  </span>
-</p>
+           <button
+        className="google-btn"
+        onClick={handleGoogleLogin}
+        style={{ marginTop: 10 }}
+      >
+        <div className="google-icon-wrapper">
+          <img
+            className="google-icon"
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="google"
+          />
+        </div>
+        <span className="google-text">Continue with Google</span>
+      </button>
 
-<span
-  className="back"
-  style={{ cursor: "pointer" }}
-  onClick={() => window.location.reload()}
->
-  ← Back to Home
-</span>
-
-
+      <p className="hint">
+        New user?{" "}
+        <span
+          style={{ cursor: "pointer", color: "#c7d2fe" }}
+          onClick={goRegister}
+        >
+          Register
+        </span>
+      </p>
     </div>
   );
 }

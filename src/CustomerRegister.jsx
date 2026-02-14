@@ -1,8 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate,Link} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./CustomerRegister.css";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, setDoc } from "firebase/firestore";
 import { db } from "./services/firebase";
+
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "./services/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+
+
 
 
 export default function CustomerRegister({ goLogin }) {
@@ -12,84 +18,153 @@ export default function CustomerRegister({ goLogin }) {
     name: "",
     address: "",
     email: "",
-    mobile: ""
+    mobile: "",
+    password: ""
   });
-const handleSubmit = async (e) => {
+
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // 🔥 save to Firestore
-  const docRef = await addDoc(collection(db, "customers"), {
-  name: form.name.trim(),
-  address: form.address.trim(),
-  email: form.email.trim(),
-  mobile: String(form.mobile).trim(), // 🔥 IMPORTANT
-  createdAt: serverTimestamp()
-});
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      form.email,
+      form.password
+    );
 
-  // 🔥 keep id locally
-  localStorage.setItem(
-    "customer",
-    JSON.stringify({ id: docRef.id, ...form })
-  );
+    const user = userCredential.user;
 
-  alert("Registered successfully");
-  goLogin();
+    await setDoc(doc(db, "customers", user.uid), {
+      uid: user.uid,
+      name: form.name,
+      address: form.address,
+      email: form.email,
+      mobile: form.mobile,
+      createdAt: serverTimestamp()
+    });
+
+    localStorage.setItem("customerLoggedIn", "true");
+    localStorage.setItem("customer", JSON.stringify({
+      id: user.uid,
+      name: form.name,
+      email: form.email
+    }));
+
+    alert("Registered successfully");
+    goLogin();
+
+  } catch (error) {
+    console.log(error);
+    alert(error.message);
+  }
 };
 
 
-return (
-  <div className="popup-login-card">
-    <h2>Register</h2>
+  const handleGoogleSignup = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
 
-    <form className="login-form" onSubmit={handleSubmit}>
-      <input
-        placeholder="Name"
-        required
-        onChange={e => setForm({ ...form, name: e.target.value })}
-      />
+    // Save in Firestore
+    await setDoc(doc(db, "customers", result.user.uid), {
+      uid: result.user.uid,
+      name: result.user.displayName,
+      email: result.user.email,
+      photo: result.user.photoURL,
+      createdAt: new Date()
+    });
 
-      <input
-        placeholder="Address"
-        required
-        onChange={e => setForm({ ...form, address: e.target.value })}
-      />
+    // Save in localStorage
+    localStorage.setItem("customerLoggedIn", "true");
+    localStorage.setItem("customer", JSON.stringify({
+      id: result.user.uid,
+      name: result.user.displayName,
+      email: result.user.email,
+      photo: result.user.photoURL
+    }));
 
-      <input
-        placeholder="Email"
-        required
-        onChange={e => setForm({ ...form, email: e.target.value })}
-      />
+    alert("Google Signup Success");
+    window.location.reload();
 
-      <input
-        placeholder="Mobile"
-        required
-        onChange={e => setForm({ ...form, mobile: e.target.value })}
-      />
-
-      <button className="customer-login-btn">
-        Register
-      </button>
-    </form>
-
-  <p className="hint">
-  Back to{" "}
-  <span
-    style={{ cursor: "pointer", color: "#c7d2fe" }}
-    onClick={goLogin}
-  >
-    Login
-  </span>
-</p>
+  } catch (error) {
+    console.log(error);
+    alert("Google Signup Failed");
+  }
+};
 
 
-    <span
-      className="back"
-      style={{ cursor: "pointer" }}
-      onClick={() => navigate("/")}
+  return (
+    <div
+      className="auth-page"
+      onClick={() => goLogin()}
     >
-      ← Back to Home
-    </span>
-  </div>
-);
+      <div
+        className="auth-cardd"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2>Customer Register</h2>
 
+        <form onSubmit={handleSubmit}>
+
+          <input
+            placeholder="Name"
+            required
+            onChange={e => setForm({ ...form, name: e.target.value })}
+          />
+
+          <input
+            placeholder="Address"
+            required
+            onChange={e => setForm({ ...form, address: e.target.value })}
+          />
+
+          <input
+            type="email"
+            placeholder="Email"
+            required
+            onChange={e => setForm({ ...form, email: e.target.value })}
+          />
+
+          <input
+          placeholder="Mobile"
+          required
+          onChange={e => setForm({ ...form, mobile: e.target.value })}
+        />
+
+
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            onChange={e => setForm({ ...form, password: e.target.value })}
+          />
+
+          <button>
+            Register
+          </button>
+        </form>
+
+       <button className="google-btn" onClick={handleGoogleSignup}>
+        <div className="google-icon-wrapper">
+          <img
+            className="google-icon"
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="google"
+          />
+        </div>
+        <span className="google-text">Continue with Google</span>
+      </button>
+
+
+        {/* 🔥 Required for Firebase */}
+
+        <div
+          className="back-text"
+          onClick={goLogin}
+        >
+          Already have account? Login
+        </div>
+      </div>
+    </div>
+  );
 }

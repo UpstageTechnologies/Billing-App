@@ -27,6 +27,7 @@ export default function ChooseLogin() {
           >
             🧑 Staff Login
           </button>
+
           <Link to="/">
             <p className="back">← Back to Home</p>
           </Link>

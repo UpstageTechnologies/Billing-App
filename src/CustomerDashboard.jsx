@@ -8,6 +8,7 @@ import CustomerLogin from "./CustomerLogin";
 import { useLocation } from "react-router-dom";
 import CustomerRegister from "./CustomerRegister";
 import Register from "./Register";
+import { Navigate } from "react-router-dom";
 
 
 
@@ -123,14 +124,7 @@ useEffect(() => {
 
 
   /* ================= LOGIN PROTECT ================= */
-  useEffect(() => {
-    if (
-      !localStorage.getItem("customerLoggedIn") &&
-      window.location.pathname === "/customer-dashboard"
-    ) {
-      navigate("/customer-login", { replace: true });
-    }
-  }, [navigate]);
+ 
  
  
 
@@ -229,7 +223,7 @@ if (saved) {
 else {
     setShowLocationModal(true);
   }
-
+  
 }, []);
 
 
@@ -257,22 +251,7 @@ if (addressToUse) {
   setLoadingShops(false);
 };
 
-// ✅ 🔥 SEARCH FILTER useEffect — ADD IT HERE
-useEffect(() => {
-  if (!search) {
-    setShops(allShops);
-    return;
-  }
 
-  const q = search.toLowerCase();
-
-  const filtered = allShops.filter(s =>
-    s.name?.toLowerCase().includes(q) ||
-    s.address?.toLowerCase().includes(q)
-  );
-
-  setShops(filtered);
-}, [search, allShops]);
 
 
 const useMyLocation = () => {
@@ -504,42 +483,39 @@ const addToCart = (item) => {
       </div>
 {/* ================= AUTH POPUP ================= */}
 {authMode && (
-  <div className="popup-overlay">
-    <div className="popup-box">
-      <span
-        className="popup-close"
-        onClick={() => setAuthMode(null)}
-      >
-        ✖
-      </span>
+  <div
+    className="popup-overlay"
+    onClick={() => setAuthMode(null)}   // 👈 outside click close
+  >
 
-      {authMode === "customer-login" && (
-        <CustomerLogin
-          goRegister={() => setAuthMode("customer-register")}
-        />
-      )}
+        <div
+      className="auth-card"   // 👈 THIS FIXES SIZE
+      onClick={(e) => e.stopPropagation()}
+    >
 
-      {authMode === "customer-register" && (
-        <CustomerRegister
-          goLogin={() => setAuthMode("customer-login")}
-        />
-      )}
 
-      {authMode === "seller-login" && (
-        <Login
-          goRegister={() => setAuthMode("seller-register")}
-        />
-      )}
 
-      {authMode === "seller-register" && (
-        <Register
-          goLogin={() => setAuthMode("seller-login")}
-        />
-      )}
+    {authMode === "customer-login" && (
+      <CustomerLogin goRegister={() => setAuthMode("customer-register")} />
+    )}
 
-    </div>
+    {authMode === "customer-register" && (
+      <CustomerRegister goLogin={() => setAuthMode("customer-login")} />
+    )}
+
+    {authMode === "seller-login" && (
+      <Login goRegister={() => setAuthMode("seller-register")} />
+    )}
+
+    {authMode === "seller-register" && (
+      <Register goLogin={() => setAuthMode("seller-login")} />
+    )}
+
+  </div>
   </div>
 )}
+
+
 
 
       <input
@@ -609,7 +585,10 @@ onChange={e => {
       <div
         key={shop.id}
         className="shop-search-card"
-        onClick={() => navigate(`/shop/${shop.id}`)}
+onClick={() => {
+  navigate(`/shop/${shop.id}`);
+  setSearch("");
+}}
       >
         <img
           src={shop.logo || "https://via.placeholder.com/80"}
