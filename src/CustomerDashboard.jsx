@@ -19,7 +19,7 @@ export default function CustomerDashboard() {
 
   /* ================= STATE ================= */
   const [showAuthMenu, setShowAuthMenu] = useState(false);
-  const isLoggedIn = !!localStorage.getItem("customerLoggedIn");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [allShops, setAllShops] = useState([]);
   const [productResults, setProductResults] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -125,56 +125,82 @@ useEffect(() => {
 
   /* ================= LOGIN PROTECT ================= */
  
- 
- 
-
-
-const handleDpChange = e => {
+const handleDpChange = async (e) => {
   const file = e.target.files[0];
-  if (!file) return;
+  if (!file || !customer?.id) return;
 
   const reader = new FileReader();
-  reader.onload = () => {
+
+  reader.onload = async () => {
     const updated = {
       ...customer,
       photo: reader.result
     };
+
     setCustomer(updated);
     localStorage.setItem("customer", JSON.stringify(updated));
+
+    // 🔥 SAVE TO FIRESTORE ALSO
+    await setDoc(
+      doc(db, "customers", customer.id),
+      { photo: reader.result },
+      { merge: true }
+    );
   };
+
   reader.readAsDataURL(file);
 };
-  /* ================= LOGOUT ================= */
-  const logout = () => {
-    localStorage.removeItem("customerLoggedIn");
-    localStorage.removeItem("customer");
-    localStorage.removeItem("userCoords");
 
-    setCustomer(null);
-    setCoords(null);
-    setShops([]);
-    setShowAuthMenu(false);
+const logout = () => {
+  localStorage.removeItem("customerLoggedIn");
+  localStorage.removeItem("customer");
+  localStorage.removeItem("userCoords");
 
-    navigate("/", { replace: true });
-  };
+  setCustomer(null);
+  setCoords(null);
+  setShops([]);
+  setIsLoggedIn(false);   // 🔥 VERY IMPORTANT
+  setShowAuthMenu(false);
+
+  window.dispatchEvent(new Event("customerLogin")); // 🔥 force refresh
+
+  navigate("/", { replace: true });
+};
+
 
   /* ================= LOAD CUSTOMER ================= */
-  useEffect(() => {
+useEffect(() => {
+
+  const loadCustomer = () => {
     const saved = localStorage.getItem("customer");
+
     if (saved) {
       const data = JSON.parse(saved);
+
       setCustomer(data);
       setEditName(data.name || "");
       setEditAddress(data.address || "");
     }
-  }, []);
+  };
+
+  loadCustomer();
+
+  window.addEventListener("customerLogin", loadCustomer);
+
+  return () => {
+    window.removeEventListener("customerLogin", loadCustomer);
+  };
+
+}, []);
+
 
   /* 🔥 FIX: Load shops after customer is ready */
 useEffect(() => {
-  if (customer?.address) {
+  if (customer) {
     loadShops(customer.address);
   }
 }, [customer]);
+
 
 
   /* ================= LOAD UI ================= */
@@ -251,7 +277,36 @@ if (addressToUse) {
   setLoadingShops(false);
 };
 
+useEffect(() => {
+  const checkLogin = () => {
+    const status = localStorage.getItem("customerLoggedIn");
+    setIsLoggedIn(!!status);
+  };
 
+  // Initial check when component loads
+  checkLogin();
+
+  // Listen for custom login event (from CustomerLogin.jsx)
+  window.addEventListener("customerLogin", checkLogin);
+
+  return () => {
+    window.removeEventListener("customerLogin", checkLogin);
+  };
+}, []);
+
+useEffect(() => {
+  const handleLoginSuccess = () => {
+    console.log("Login Success");
+
+    setAuthMode(null);
+  };
+
+  window.addEventListener("customerLogin", handleLoginSuccess);
+
+  return () => {
+    window.removeEventListener("customerLogin", handleLoginSuccess);
+  };
+}, []);
 
 
 const useMyLocation = () => {
@@ -313,6 +368,9 @@ const useMyLocation = () => {
       } else {
         setLocationError("Unable to fetch location.");
       }
+      localStorage.getItem("customer")
+      JSON.parse(localStorage.getItem("customer"))
+
 
     },
     {
@@ -397,7 +455,11 @@ const addToCart = (item) => {
       />
 
       <img
-        src={customer?.photo || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+src={
+  customer?.photo && customer.photo !== ""
+    ? customer.photo
+    : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+}
         style={{ width: 45, height: 45, borderRadius: "50%", cursor: "pointer" }}
         onClick={() => document.getElementById("dpUpload").click()}
    />

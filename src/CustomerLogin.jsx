@@ -1,16 +1,11 @@
 import React, { useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./services/firebase";
 import "./CustomerLogin.css";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "./services/firebase";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-
-
-
-
-
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./services/firebase";
 
 export default function CustomerLogin({ goRegister }) {
 
@@ -18,9 +13,8 @@ export default function CustomerLogin({ goRegister }) {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  
+  // ✅ EMAIL LOGIN
 const handleLogin = async (e) => {
   e.preventDefault();
 
@@ -33,14 +27,29 @@ const handleLogin = async (e) => {
 
     const user = userCredential.user;
 
-    localStorage.setItem("customerLoggedIn", "true");
-    localStorage.setItem("customer", JSON.stringify({
-      id: user.uid,
-      email: user.email
-    }));
+    const snap = await getDoc(doc(db, "customers", user.uid));
 
-    alert("Login Success");
-    navigate("/customer-dashboard");
+    let customerData = {
+      id: user.uid,
+      email: user.email,
+      name: user.displayName || "",
+      photo: user.photoURL || ""
+    };
+
+    if (snap.exists()) {
+      customerData = {
+        id: user.uid,
+        ...snap.data(),
+        photo: user.photoURL || ""
+      };
+    }
+
+    localStorage.setItem("customerLoggedIn", "true");
+    localStorage.setItem("customer", JSON.stringify(customerData));
+
+    window.dispatchEvent(new Event("customerLogin"));
+
+    navigate("/customer-dashboard", { replace: true });
 
   } catch (error) {
     console.log(error);
@@ -49,24 +58,41 @@ const handleLogin = async (e) => {
 };
 
 
-const handleGoogleLogin = async () => {
+  //Google Login//
+
+  const handleGoogleLogin = async () => {
   try {
     setLoading(true);
 
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
 
-    // Save customer locally
-    localStorage.setItem("customerLoggedIn", "true");
-    localStorage.setItem("customer", JSON.stringify({
-      id: result.user.uid,
-      name: result.user.displayName,
-      email: result.user.email,
-      photo: result.user.photoURL
-    }));
+    const user = result.user;
 
-    alert("Google Login Success 🎉");
-    window.location.reload();
+    const snap = await getDoc(doc(db, "customers", user.uid));
+
+  let customerData = {
+  id: user.uid,
+  email: user.email,
+  name: user.displayName || "",
+  photo: user.photoURL || ""   
+};
+
+    if (snap.exists()) {
+  customerData = {
+    id: user.uid,
+    ...snap.data(),
+    photo: user.photoURL || snap.data().photo || ""
+  };
+}
+
+
+    localStorage.setItem("customerLoggedIn", "true");
+    localStorage.setItem("customer", JSON.stringify(customerData));
+
+    window.dispatchEvent(new Event("customerLogin"));
+
+    navigate("/customer-dashboard", { replace: true });
 
   } catch (error) {
     console.log(error);
@@ -101,7 +127,7 @@ const handleGoogleLogin = async () => {
         </button>
       </form>
 
-           <button
+      <button
         className="google-btn"
         onClick={handleGoogleLogin}
         style={{ marginTop: 10 }}

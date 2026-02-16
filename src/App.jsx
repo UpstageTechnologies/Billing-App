@@ -45,7 +45,7 @@ export default function App() {
       {/* ===== CUSTOMER ===== */}
       <Route path="/customer-login" element={<CustomerLogin />} />
       <Route path="/customer-register" element={<CustomerRegister />} />
-      <Route path="/customer-dashboard" element={localStorage.getItem("customerLoggedIn") ? <CustomerDashboard />: <Navigate to="/customer-login" /> }/>
+      <Route path="/customer-dashboard" element={<CustomerDashboard />} />
       <Route path="/shop/:shopId" element={<ShopMenu />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/cart" element={<Cart />} />
