@@ -5,7 +5,7 @@ import { auth } from "./services/firebase";
 import { signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,getAdditionalUserInfo,sendPasswordResetEmail, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
 
-export default function Login({ goRegister }) {
+export default function Login({ goRegister, title = "Seller Login" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -88,7 +88,7 @@ export default function Login({ goRegister }) {
 
 return (
   <div className="popup-login-card">
-    <h2 style={{ marginBottom: 25 }}>Seller Login</h2>
+<h2 style={{ marginBottom: 25 }}>{title}</h2>
 
     <div className="login-form">
       <input

@@ -19,6 +19,8 @@ import CustomerLogin from "./CustomerLogin";
 import CustomerRegister from "./CustomerRegister";
 import CustomerDashboard from "./CustomerDashboard";
 import ShopCart from "./ShopCart";
+import MasterLogin from "./MasterLogin";
+import MasterRegister from "./MasterRegister";
 
 export default function App() {
   return (
@@ -52,6 +54,8 @@ export default function App() {
       <Route path="/orders" element={<OrderHistory />} />
       <Route path="/category/:name" element={<CategoryProducts />} />
       <Route path="/shop-cart/:shop" element={<ShopCart />} />
+      <Route path="/master-login" element={<MasterLogin />} />
+      <Route path="/master-register" element={<MasterRegister />} />
     </Routes>
   );
 }

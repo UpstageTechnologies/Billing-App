@@ -7,7 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./services/firebase";
 
-export default function CustomerLogin({ goRegister }) {
+export default function Login({ goRegister, title = "Seller Login" }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

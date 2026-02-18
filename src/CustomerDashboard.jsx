@@ -171,15 +171,37 @@ const logout = () => {
   /* ================= LOAD CUSTOMER ================= */
 useEffect(() => {
 
-  const loadCustomer = () => {
+  const loadCustomer = async () => {
+
     const saved = localStorage.getItem("customer");
 
-    if (saved) {
-      const data = JSON.parse(saved);
+    if (!saved) return;
 
-      setCustomer(data);
-      setEditName(data.name || "");
-      setEditAddress(data.address || "");
+    const parsed = JSON.parse(saved);
+
+    if (!parsed?.id) return;
+
+    try {
+      // 🔥 ALWAYS FETCH LATEST DATA FROM FIRESTORE
+      const snap = await getDoc(doc(db, "customers", parsed.id));
+
+      if (snap.exists()) {
+
+        const freshData = {
+          id: parsed.id,
+          ...snap.data()
+        };
+
+        setCustomer(freshData);
+        setEditName(freshData.name || "");
+        setEditAddress(freshData.address || "");
+
+        // 🔥 Update localStorage again
+        localStorage.setItem("customer", JSON.stringify(freshData));
+      }
+
+    } catch (err) {
+      console.log("Error loading customer:", err);
     }
   };
 
@@ -192,6 +214,7 @@ useEffect(() => {
   };
 
 }, []);
+
 
 
   /* 🔥 FIX: Load shops after customer is ready */
@@ -502,30 +525,45 @@ src={
                 >
                   Sign In ⬇
                 </button>
+{showAuthMenu && (
+  <div className="auth-dropdown">
 
-                        {showAuthMenu && (
-          <div className="auth-dropdown">
-            <div
-              className="dropdown-item"
-              onClick={() => {
-                setShowAuthMenu(false);
-                setAuthMode("seller-login");
-              }}
-            >
-              🧑‍💼 Seller Login
-            </div>
+    <div
+      className="dropdown-item"
+      onClick={() => {
+        setShowAuthMenu(false);
+        setAuthMode("seller-login");
+      }}
+    >
+      🧑‍💼 Seller Login
+    </div>
 
-            <div
-              className="dropdown-item"
-              onClick={() => {
-                setShowAuthMenu(false);
-                setAuthMode("customer-login");
-              }}
-            >
-              🛒 Customer Login
-            </div>
-          </div>
-        )}
+    <div
+      className="dropdown-item"
+      onClick={() => {
+        setShowAuthMenu(false);
+        setAuthMode("customer-login");
+      }}
+    >
+      🛒 Customer Login
+    </div>
+
+    {/* 👑 MASTER LOGIN ADD HERE */}
+ <div
+  className="dropdown-item"
+  onClick={() => {
+    setShowAuthMenu(false);
+    setAuthMode("master-login");   // ✅ OPEN POPUP
+  }}
+>
+  👑 Master Login
+</div>
+
+
+  </div>
+)}
+
+
 
               </>
             ) : (
@@ -547,36 +585,50 @@ src={
 {authMode && (
   <div
     className="popup-overlay"
-    onClick={() => setAuthMode(null)}   // 👈 outside click close
+    onClick={() => setAuthMode(null)}
   >
-
-        <div
-      className="auth-card"   // 👈 THIS FIXES SIZE
+    <div
+      className="auth-card"
       onClick={(e) => e.stopPropagation()}
     >
 
-
-
-    {authMode === "customer-login" && (
-      <CustomerLogin goRegister={() => setAuthMode("customer-register")} />
-    )}
-
-    {authMode === "customer-register" && (
-      <CustomerRegister goLogin={() => setAuthMode("customer-login")} />
-    )}
-
-    {authMode === "seller-login" && (
-      <Login goRegister={() => setAuthMode("seller-register")} />
-    )}
-
-    {authMode === "seller-register" && (
-      <Register goLogin={() => setAuthMode("seller-login")} />
-    )}
-
-  </div>
-  </div>
+      {/* 👑 MASTER LOGIN */}
+      {authMode === "master-login" && (
+  <Login
+    title="👑 Master Login"
+    goRegister={() => setAuthMode("master-register")}
+  />
 )}
 
+
+      {/* 👑 MASTER REGISTER */}
+      {authMode === "master-register" && (
+        <Register goLogin={() => setAuthMode("master-login")} />
+      )}
+
+      {/* 🛒 CUSTOMER LOGIN */}
+      {authMode === "customer-login" && (
+        <CustomerLogin goRegister={() => setAuthMode("customer-register")} />
+      )}
+
+      {/* 🛒 CUSTOMER REGISTER */}
+      {authMode === "customer-register" && (
+        <CustomerRegister goLogin={() => setAuthMode("customer-login")} />
+      )}
+
+      {/* 🧑‍💼 SELLER LOGIN */}
+      {authMode === "seller-login" && (
+        <Login goRegister={() => setAuthMode("seller-register")} />
+      )}
+
+      {/* 🧑‍💼 SELLER REGISTER */}
+      {authMode === "seller-register" && (
+        <Register goLogin={() => setAuthMode("seller-login")} />
+      )}
+
+    </div>
+  </div>
+)}
 
 
 

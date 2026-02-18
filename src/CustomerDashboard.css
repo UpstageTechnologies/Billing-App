@@ -11,14 +11,15 @@ body{
   overflow-x:hidden;
 }
 
-/* ================= APP WRAPPER ================= */
+/* ================= APP WRAPPER FIX ================= */
 
 .customer-app{
   min-height:100vh;
-  padding:24px;
+  padding:24px 20px;
   font-family:system-ui,-apple-system,BlinkMacSystemFont;
-  max-width:1300px;
-  margin:auto;
+  width:100%;
+  max-width:1400px;   
+  margin:0 auto;      
 }
 
 /* ================= SECTION HEADERS ================= */
@@ -84,15 +85,16 @@ body{
   object-fit:cover;
 }
 
-/* ================= CATEGORY ROW ================= */
+/* ================= CATEGORY GRID PERFECT CENTER ================= */
 
 .category-row{
   margin-top:30px;
-  display:flex;
+  display:grid;
+  grid-template-columns:repeat(auto-fit, 240px);  /* fixed card width */
+  justify-content:center;                         /* 🔥 center grid */
   gap:28px;
-  overflow-x:auto;
-  padding-bottom:16px;
 }
+
 
 .category-row::-webkit-scrollbar{
   display:none;
@@ -100,14 +102,14 @@ body{
 
 .category-card{
   min-width:240px;
-  min-height:270px;
   background:white;
-  border-radius:24px;
-  padding:22px;
+  border-radius:20px;
+  padding:18px 18px 22px;
   text-align:center;
-  box-shadow:0 10px 24px rgba(0,0,0,.10);
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
   transition:.25s;
   cursor:pointer;
+
 }
 
 .category-card:hover{
@@ -130,14 +132,16 @@ body{
   color:#1e293b;
 }
 
-/* ================= SHOP LIST DESKTOP PERFECT GRID ================= */
+/* ================= SHOP GRID PERFECT CENTER ================= */
 
 .shop-listt{
   margin-top:40px;
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  grid-template-columns:repeat(auto-fit, 280px);  /* fixed card width */
+  justify-content:center;                         /* 🔥 center grid */
   gap:40px;
 }
+
 
 .shops-card{
   width:100%;
@@ -252,8 +256,7 @@ body{
 .dropdown-item:hover{
   background:#f1f5f9;
 }
-
-/* ================= POPUP ================= */
+/* ================= POPUP FIX (NO WHITE BOX) ================= */
 
 .popup-overlay{
   position:fixed;
@@ -267,95 +270,16 @@ body{
 }
 
 .auth-card{
-  width:400px;
-  padding:34px 30px;
-  border-radius:22px;
-  background:white;
+  background:transparent;     /* 🔥 remove white layer */
+  padding:0;                  /* 🔥 remove extra padding */
+  border-radius:0;
+  box-shadow:none;
+  width:100%;
+  max-width:420px;          /* 🔥 correct width */
 }
 
-/* ================= LOCATION MODAL ================= */
 
-.location-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding-top:60px;
-  z-index:999;
-}
-
-.location-modal{
-  background:#fff;
-  width:90%;
-  max-width:420px;
-  border-radius:12px;
-  padding:18px;
-}
-
-/* ================= MOBILE ================= */
-
-@media(max-width:768px){
-
-  .top-bar{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:12px;
-  }
-
-  .hero-banner{
-    height:260px;
-  }
-
-  /* 🔥 Horizontal Scroll Shops */
-  .shop-listt{
-    display:flex;
-    flex-wrap:nowrap;
-    overflow-x:auto;
-    gap:18px;
-    padding-bottom:10px;
-  }
-
-  .shop-listt::-webkit-scrollbar{
-    display:none;
-  }
-
-  .shops-card{
-    min-width:260px;
-  }
-
-  .category-card{
-    min-width:180px;
-  }
-
-  .category-card img{
-    width:140px;
-    height:110px;
-  }
-}
-
-/* ================= SMALL MOBILE ================= */
-
-@media(max-width:480px){
-
-  .customer-app{
-    padding:14px;
-  }
-
-  .section-title{
-    font-size:18px;
-  }
-
-  .hero-banner{
-    height:200px;
-  }
-
-  .auth-card{
-    width:95%;
-  }
-}
-/* ================= PRODUCT SEARCH RESULTS ================= */
+/* ================= PRODUCT SEARCH ================= */
 
 .product-search-results{
   margin-top:14px;
@@ -366,18 +290,6 @@ body{
   max-height:400px;
   overflow-y:auto;
 }
-
-/* Scrollbar clean */
-.product-search-results::-webkit-scrollbar{
-  width:6px;
-}
-
-.product-search-results::-webkit-scrollbar-thumb{
-  background:#cbd5e1;
-  border-radius:10px;
-}
-
-/* ================= PRODUCT CARD ================= */
 
 .product-search-card{
   display:flex;
@@ -394,20 +306,13 @@ body{
   background:#eef2ff;
 }
 
-/* ================= IMAGE FIX ================= */
-
 .ps-image{
   width:80px;
   height:80px;
   min-width:80px;
   border-radius:12px;
-  object-fit:cover;        /* 🔥 keeps ratio perfect */
-  object-position:center;
-  background:#e5e7eb;
-  flex-shrink:0;
+  object-fit:cover;
 }
-
-/* ================= PRODUCT INFO ================= */
 
 .ps-info{
   flex:1;
@@ -416,9 +321,6 @@ body{
 .ps-info h4{
   font-size:15px;
   font-weight:700;
-  margin-bottom:4px;
-  color:#111827;
-  line-height:1.3;
 }
 
 .ps-price{
@@ -430,11 +332,7 @@ body{
 .ps-shop{
   font-size:12px;
   color:#64748b;
-  display:block;
-  margin-top:2px;
 }
-
-/* ================= ADD BUTTON ================= */
 
 .ps-add-btn{
   background:linear-gradient(135deg,#6366f1,#22c55e);
@@ -444,112 +342,173 @@ body{
   border-radius:10px;
   font-weight:600;
   cursor:pointer;
-  white-space:nowrap;
 }
 
-.ps-add-btn:active{
-  transform:scale(.95);
-}
-
-/* ================= MOBILE FIX ================= */
-
-@media (max-width:480px){
-
-  .ps-image{
-    width:65px;
-    height:65px;
-    min-width:65px;
-  }
-
-  .product-search-results{
-    max-height:320px;
-  }
-
-}
-/* ================= SHOP SEARCH RESULTS ================= */
+/* ================= MINI SHOP SEARCH ================= */
 
 .shop-search-results{
-  margin-top:14px;
-  background:#ffffff;
-  border-radius:18px;
-  padding:16px;
-  box-shadow:0 12px 30px rgba(0,0,0,.12);
-  max-height:400px;
-  overflow-y:auto;
+  margin-top:12px;
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding:6px 2px 14px 2px;
 }
 
-/* Scrollbar clean */
 .shop-search-results::-webkit-scrollbar{
-  width:6px;
+  display:none;
 }
-
-.shop-search-results::-webkit-scrollbar-thumb{
-  background:#cbd5e1;
-  border-radius:10px;
-}
-
-/* ================= SHOP SEARCH CARD ================= */
 
 .shop-search-card{
+  min-width:170px;
   display:flex;
   align-items:center;
-  gap:16px;
-  padding:12px;
-  border-radius:14px;
-  background:#f8fafc;
-  margin-bottom:12px;
+  gap:10px;
+  padding:8px 10px;
+  border-radius:12px;
+  background:#ffffff;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
   cursor:pointer;
   transition:.2s ease;
-}
-
-.shop-search-card:hover{
-  background:#eef2ff;
-}
-
-/* ================= SHOP IMAGE FIX ================= */
-
-.ss-image{
-  width:80px;
-  height:80px;
-  min-width:80px;
-  border-radius:12px;
-  object-fit:cover;      /* 🔥 no stretch */
-  object-position:center;
-  background:#e5e7eb;
   flex-shrink:0;
 }
 
-/* ================= SHOP INFO ================= */
+.shop-search-card:hover{
+  transform:translateY(-3px);
+}
+
+.ss-image{
+  width:45px;
+  height:45px;
+  min-width:45px;
+  border-radius:8px;
+  object-fit:cover;
+}
 
 .ss-info{
   flex:1;
 }
 
 .ss-info h4{
-  font-size:15px;
-  font-weight:700;
-  margin-bottom:4px;
-  color:#111827;
+  font-size:13px;
+  font-weight:600;
 }
 
 .ss-info p{
-  font-size:13px;
+  font-size:11px;
   color:#64748b;
-  line-height:1.4;
+  line-height:1.2;
 }
 
-/* ================= MOBILE FIX ================= */
+/* ================= MOBILE ================= */
 
-@media (max-width:480px){
+@media(max-width:768px){
 
-  .ss-image{
-    width:65px;
-    height:65px;
-    min-width:65px;
+  .customer-app{
+    padding:24px;
   }
 
-  .shop-search-results{
-    max-height:320px;
+  .shop-listt{
+    display:flex;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    gap:18px;
+  }
+
+  .shop-listt::-webkit-scrollbar{
+    display:none;
+  }
+
+  .shops-card{
+    min-width:260px;
+  }
+
+  .hero-banner{
+    height:260px;
+  }
+}
+
+@media(max-width:480px){
+
+  .hero-banner{
+    height:200px;
+  }
+
+  .auth-card{
+    width:95%;
+  }
+}
+/* ================= LOCATION MODAL PERFECT FIX ================= */
+
+.location-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(4px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:5000;
+}
+
+.location-modal{
+  background:#ffffff;
+  width:100%;
+  max-width:420px;
+  padding:28px 24px;
+  border-radius:18px;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+  text-align:center;
+  position:relative;
+}
+
+/* Close button fix */
+.close-btn{
+  position:absolute;
+  top:12px;
+  right:16px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* GPS button style */
+.gps-btn{
+  margin-top:20px;
+  padding:14px;
+  border-radius:12px;
+  background:#f1f5f9;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
+}
+
+.gps-btn:hover{
+  background:#e2e8f0;
+}
+
+/* ================= MOBILE CATEGORY HORIZONTAL SCROLL FIX ================= */
+
+@media(max-width:768px){
+
+  .category-row{
+    display:flex !important;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    gap:18px;
+    padding-bottom:10px;
+    justify-content:flex-start;
+  }
+
+  .category-row::-webkit-scrollbar{
+    display:none;
+  }
+
+  .category-card{
+    min-width:220px;
+    flex-shrink:0;
   }
 
 }
+

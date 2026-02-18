@@ -1,0 +1,34 @@
+.analytics-page{
+  padding:30px;
+}
+
+.platform-card{
+  background:#111827;
+  color:white;
+  padding:25px;
+  border-radius:18px;
+  margin-bottom:30px;
+  text-align:center;
+  box-shadow:0 15px 35px rgba(0,0,0,.3);
+}
+
+.shops-analytics{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+.shop-card{
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+
+.shop-card h4{
+  margin-bottom:10px;
+}
+
+.back-btn{
+  margin-bottom:20px;
+}
