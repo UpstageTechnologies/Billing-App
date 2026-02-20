@@ -9,6 +9,8 @@ import { useLocation } from "react-router-dom";
 import CustomerRegister from "./CustomerRegister";
 import Register from "./Register";
 import { Navigate } from "react-router-dom";
+import MasterLogin from "./MasterLogin";
+import MasterRegister from "./MasterRegister";
 
 
 
@@ -302,9 +304,10 @@ if (addressToUse) {
 
 useEffect(() => {
   const checkLogin = () => {
-    const status = localStorage.getItem("customerLoggedIn");
-    setIsLoggedIn(!!status);
-  };
+  const saved = localStorage.getItem("customer");
+  setIsLoggedIn(!!saved);
+};
+
 
   // Initial check when component loads
   checkLogin();
@@ -583,45 +586,42 @@ src={
       </div>
 {/* ================= AUTH POPUP ================= */}
 {authMode && (
-  <div
-    className="popup-overlay"
-    onClick={() => setAuthMode(null)}
-  >
-    <div
-      className="auth-card"
-      onClick={(e) => e.stopPropagation()}
-    >
+  <div className="popup-overlay" onClick={() => setAuthMode(null)}>
+    <div className="auth-card" onClick={(e) => e.stopPropagation()}>
 
-      {/* 👑 MASTER LOGIN */}
       {authMode === "master-login" && (
-  <Login
-    title="👑 Master Login"
-    goRegister={() => setAuthMode("master-register")}
-  />
+        <Login
+          title="👑 Master Login"
+          role="master"
+          goRegister={() => setAuthMode("master-register")}
+        />
+      )}
+
+ {authMode === "master-register" && (
+  <div className="popup-register-card">
+    <MasterRegister goLogin={() => setAuthMode("master-login")} />
+  </div>
 )}
 
 
-      {/* 👑 MASTER REGISTER */}
-      {authMode === "master-register" && (
-        <Register goLogin={() => setAuthMode("master-login")} />
-      )}
 
-      {/* 🛒 CUSTOMER LOGIN */}
+
+
       {authMode === "customer-login" && (
         <CustomerLogin goRegister={() => setAuthMode("customer-register")} />
       )}
 
-      {/* 🛒 CUSTOMER REGISTER */}
       {authMode === "customer-register" && (
         <CustomerRegister goLogin={() => setAuthMode("customer-login")} />
       )}
 
-      {/* 🧑‍💼 SELLER LOGIN */}
       {authMode === "seller-login" && (
-        <Login goRegister={() => setAuthMode("seller-register")} />
+        <Login
+          role="seller"
+          goRegister={() => setAuthMode("seller-register")}
+        />
       )}
 
-      {/* 🧑‍💼 SELLER REGISTER */}
       {authMode === "seller-register" && (
         <Register goLogin={() => setAuthMode("seller-login")} />
       )}
@@ -629,6 +629,7 @@ src={
     </div>
   </div>
 )}
+
 
 
 
@@ -755,14 +756,17 @@ onClick={() => {
       </div>
 
   {/* ================= SHOPS ================= */}
-{isLoggedIn && shops.length > 0 && (
+{isLoggedIn ? (
   <>
     <h2 className="section-title">🏪 Nearby Shops</h2>
-    <div className="shop-listt">
-      {loadingShops ? (
-        <div>Loading...</div>
-      ) : (
-        shops.map(s => (
+
+    {loadingShops ? (
+      <div>Loading...</div>
+    ) : shops.length === 0 ? (
+      <div style={{ padding: 20 }}>No shops found in your city</div>
+    ) : (
+      <div className="shop-listt">
+        {shops.map(s => (
           <div key={s.id} className="shops-card">
             <img src={s.logo} className="shop-img-top" />
             <div className="shop-info">
@@ -776,12 +780,11 @@ onClick={() => {
               View Menu
             </button>
           </div>
-        ))
-      )}
-    </div>
+        ))}
+      </div>
+    )}
   </>
-)}
-
+) : null}
 
       {/* ================= LOCATION MODAL ================= */}
       {showLocationModal && (

@@ -5,6 +5,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import "./MasterLogin.css";
 
+
+
 export default function MasterLogin() {
 
   const [email, setEmail] = useState("");
@@ -14,37 +16,33 @@ export default function MasterLogin() {
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+const handleLogin = async () => {
 
-    setError("");
-    setLoading(true);
+  setError("");
+  setLoading(true);
 
-    if (!email || !password) {
+  try {
+
+    const result = await signInWithEmailAndPassword(auth, email, password);
+
+    const snap = await getDoc(doc(db, "users", result.user.uid));
+
+    if (!snap.exists() || snap.data().role !== "master") {
+      await auth.signOut();
+      setError("Not authorized as Master ❌");
       setLoading(false);
-      return setError("Enter email and password");
+      return;
     }
 
-    try {
+    navigate("/dashboard");
 
-      const result = await signInWithEmailAndPassword(auth, email, password);
+  } catch (err) {
+    setError("Invalid email or password");
+  }
 
-      // 🔥 Check role
-      const snap = await getDoc(doc(db, "users", result.user.uid));
+  setLoading(false);
+};
 
-      if (!snap.exists() || snap.data().role !== "master") {
-        await auth.signOut();
-        setLoading(false);
-        return setError("Not authorized as Master ❌");
-      }
-
-      navigate("/dashboard");
-
-    } catch (err) {
-      setError("Invalid email or password");
-    }
-
-    setLoading(false);
-  };
 
   return (
     <div className="master-auth-wrapper">

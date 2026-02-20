@@ -32,3 +32,47 @@
 .back-btn{
   margin-bottom:20px;
 }
+
+.growth-card-pro {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+.growth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.growth-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.growth-header span {
+  font-size: 13px;
+  color: #888;
+}
+
+.growth-percent {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.growth-percent.up {
+  color: #16a34a;
+}
+
+.growth-percent.down {
+  color: #dc2626;
+}
+
+.growth-chart {
+  width: 100%;
+  height: 120px;
+}

@@ -20,6 +20,8 @@ const [items, setItems] = useState([]);
   const [search, setSearch] = useState("");
   const [barcodeImg, setBarcodeImg] = useState("");
   const [shopLogo,setShopLogo] = useState("");
+  const [shopName, setShopName] = useState("");   // ✅ ADD THIS
+
 
 
   const [form, setForm] = useState({
@@ -69,15 +71,20 @@ useEffect(()=>{
 useEffect(()=>{
   if(!auth.currentUser) return;
 
-  onSnapshot(
-    doc(db,"users",auth.currentUser.uid,"settings","shopProfile"),
+  const unsub = onSnapshot(
+    doc(db,"users",auth.currentUser.uid),
     snap=>{
       if(snap.exists()){
-        setShopLogo(snap.data().logo || "");
+        const data = snap.data();
+        setShopLogo(data.shopLogo || "");
+        setShopName(data.shopName || "");
       }
     }
   );
+
+  return ()=>unsub();
 },[]);
+
 
 /* BARCODE */
 const generateBarcode = () => {
@@ -179,17 +186,26 @@ return(
     
 
   
-<div className="inv-header">
+<div className="inv-header" style={{display:"flex",alignItems:"center",gap:15}}>
 
   {shopLogo && (
     <img
       src={shopLogo}
-      className="shop-logo"
+      style={{
+        width:60,
+        height:60,
+        borderRadius:10,
+        objectFit:"cover"
+      }}
     />
   )}
 
+  <div>
+    <h3 style={{margin:0}}>{shopName}</h3>
+  </div>
 
 </div>
+
 
 
 

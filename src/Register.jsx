@@ -39,19 +39,9 @@ const handleSignup = async () => {
   setMessage("");
   setLoading(true);
 
-  if (!username.trim()) {
+  if (!username || !email || !password) {
     setLoading(false);
-    return setError("Please enter your username");
-  }
-
-  if (!email.trim()) {
-    setLoading(false);
-    return setError("Please enter your email");
-  }
-
-  if (!password.trim()) {
-    setLoading(false);
-    return setError("Please enter your password");
+    return setError("Fill all fields");
   }
 
   if (password !== confirmPassword) {
@@ -60,42 +50,32 @@ const handleSignup = async () => {
   }
 
   try {
-    const result = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const result = await createUserWithEmailAndPassword(auth, email, password);
 
-    // ✅ SET DISPLAY NAME (VERY IMPORTANT)
     await updateProfile(result.user, {
       displayName: username,
     });
 
-    // ✅ SAVE MASTER USER
+    // ✅ SAVE AS SELLER ONLY
     await setDoc(doc(db, "users", result.user.uid), {
       uid: result.user.uid,
       name: username,
       email: result.user.email,
-      role: "master",       // ✅ DEFAULT ROLE
+      role: "seller",   // 🔥 FIXED HERE
       plan: "basic",
       isActive: true,
       createdAt: new Date(),
     });
 
-    setMessage("Account created successfully 🎉");
-    setLoading(false);
-
-    // ✅ DIRECT DASHBOARD REDIRECT
-    setTimeout(() => {
-    goLogin && goLogin();
-    }, 500);
+    navigate("/dashboard");
 
   } catch (e) {
-    console.error(e);
-    setLoading(false);
-    setError(e.message || "Could not create account ❌");
+    setError(e.message);
   }
+
+  setLoading(false);
 };
+
 
 
   // ---------------- GOOGLE SIGNUP ----------------
@@ -121,7 +101,7 @@ const handleSignup = async () => {
       uid: result.user.uid,
       name: result.user.displayName || "User",
       email: result.user.email,
-      role: "master",     // ✅ DEFAULT ROLE
+      role: "seller",     // ✅ DEFAULT ROLE
       plan: "basic",
       isActive: true,
       createdAt: new Date(),

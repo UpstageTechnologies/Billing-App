@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { auth, db } from "./services/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import "./MasterRegister.css";
 
-export default function MasterRegister() {
+export default function MasterRegister({ goLogin }) {
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -14,18 +12,20 @@ export default function MasterRegister() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
-
   const handleRegister = async () => {
 
     setError("");
     setLoading(true);
 
-    if (!username || !email || !password)
+    if (!username || !email || !password) {
+      setLoading(false);
       return setError("Fill all fields");
+    }
 
-    if (password !== confirm)
+    if (password !== confirm) {
+      setLoading(false);
       return setError("Passwords do not match");
+    }
 
     try {
 
@@ -39,8 +39,8 @@ export default function MasterRegister() {
         displayName: username,
       });
 
-      // 🔥 Save as MASTER
-      await setDoc(doc(db, "users", result.user.uid), {
+      // ✅ SAVE AS MASTER
+         await setDoc(doc(db, "users", result.user.uid), {
         uid: result.user.uid,
         name: username,
         email: email,
@@ -49,7 +49,9 @@ export default function MasterRegister() {
         createdAt: new Date(),
       });
 
-      navigate("/dashboard");
+      // ✅ Redirect to Dashboard after success
+      window.location.href = "/dashboard";
+
 
     } catch (err) {
       setError(err.message);
@@ -59,9 +61,10 @@ export default function MasterRegister() {
   };
 
   return (
-    <div className="master-auth-wrapper">
-      <div className="master-auth-card">
-        <h2>👑 Master Register</h2>
+    <>
+      <h2 style={{ marginBottom: 25 }}>👑 Master Register</h2>
+
+      <div className="register-form">
 
         <input
           type="text"
@@ -91,12 +94,27 @@ export default function MasterRegister() {
           {loading ? "Processing..." : "Register"}
         </button>
 
-        {error && <p className="auth-error">{error}</p>}
+        {error && (
+          <p className="hint" style={{ color: "tomato" }}>
+            {error}
+          </p>
+        )}
 
-        <p className="switch-link" onClick={() => navigate("/master-login")}>
-          Already Master? Login →
+        {/* ✅ LOGIN POPUP LINK */}
+        <p
+          style={{
+            marginTop: 15,
+            textAlign: "center",
+            cursor: "pointer",
+            color: "#7c5cff",
+            fontWeight: 500
+          }}
+          onClick={goLogin}
+        >
+          Already have an account? Login →
         </p>
+
       </div>
-    </div>
+    </>
   );
 }

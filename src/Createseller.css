@@ -1,0 +1,96 @@
+/* ===== WRAPPER ===== */
+.cs-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea, #22c55e);
+  padding: 30px;
+}
+
+/* ===== CARD ===== */
+.cs-card {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 45px 35px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  position: relative;
+  animation: slideUp 0.4s ease;
+}
+
+/* ===== BACK BUTTON ===== */
+.cs-back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #f3f4f6;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.cs-back:hover {
+  background: #e5e7eb;
+}
+
+/* ===== TITLE ===== */
+.cs-title {
+  text-align: center;
+  margin-bottom: 35px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ===== INPUT ===== */
+.cs-input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.cs-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  outline: none;
+}
+
+/* ===== BUTTON ===== */
+.cs-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366f1, #22c55e);
+  color: white;
+  transition: 0.3s;
+}
+
+.cs-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* ===== ANIMATION ===== */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

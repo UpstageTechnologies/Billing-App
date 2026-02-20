@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { auth } from "./services/firebase";
 import { signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,getAdditionalUserInfo,sendPasswordResetEmail, signInWithRedirect, getRedirectResult } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./services/firebase";
 
 
-export default function Login({ goRegister, title = "Seller Login" }) {
+export default function Login({ goRegister,title = "Seller Login",role = "seller"}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,60 +16,83 @@ export default function Login({ goRegister, title = "Seller Login" }) {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
- const handleLogin = async () => {
+const handleLogin = async () => {
+  setError("");
+  setLoading(true);
+
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+
+    const snap = await getDoc(doc(db, "users", result.user.uid));
+
+    if (!snap.exists()) {
+      await auth.signOut();
+      setError("User not registered ❌");
+      setLoading(false);
+      return;
+    }
+
+    const userData = snap.data();
+
+    console.log("Logged role:", userData.role);
+    console.log("Required role:", role);
+
+    if (userData.role !== role) {
+      await auth.signOut();
+      setError("Access denied ❌");
+      setLoading(false);
+      return;
+    }
+
+    navigate("/dashboard");
+
+  } catch (error) {
+    setError("Invalid email or password ❌");
+  }
+
+  setLoading(false);
+};
+
+
+
+
+
+const handleGoogleLogin = async () => {
   setError("");
   setMessage("");
   setLoading(true);
 
-  if (!email || !password) {
-    setLoading(false);
-    setError("Please enter your email and password ⚠");
-    return;
-  }
-
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+
+    const snap = await getDoc(doc(db, "users", result.user.uid));
+
+    if (!snap.exists()) {
+      await auth.signOut();
+      setLoading(false);
+      return setError("Please register first ❌");
+    }
+
+    const userData = snap.data();
+
+  if (userData.role !== role) {
+      await auth.signOut();
+      setLoading(false);
+      return setError("Invalid email or password ❌");
+    }
 
     setMessage("Login successful");
     setLoading(false);
 
-    setTimeout(() => {
-      navigate("/dashboard");   // ✅ correct navigation
-    }, 500);
+    setTimeout(() => navigate("/dashboard"), 500);
 
   } catch (e) {
     setLoading(false);
-    setError("Invalid email or password ❌");
+    setError("Google login failed ❌");
   }
 };
-
-
-  const handleGoogleLogin = async () => {
-    setError("");
-    setMessage("");
-    setLoading(true);
-
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const info = getAdditionalUserInfo(result);
-
-      if (info?.isNewUser) {
-        await auth.signOut();
-        setLoading(false);
-        setError("This Google account is not registered. Please register 👍");
-        return;
-      }
-
-      setMessage("Login successful");
-      setLoading(false);
-
-      setTimeout(() => navigate("/dashboard"), 800);
-    } catch (e) {
-      setLoading(false);
-      setError("Google login failed ❌");
-    }
-  };
+  
 
   const handleForgotPassword = async () => {
     setError("");

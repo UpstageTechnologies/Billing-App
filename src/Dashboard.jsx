@@ -3,6 +3,8 @@ import { auth, db } from "./services/firebase";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc, collection, onSnapshot } from "firebase/firestore";
 import "./Dashboard.css";
+import CreateSeller from "./CreateSeller";
+
 
 import AccountSection from "./AccountSection";
 import Inventory from "./Inventory";
@@ -26,6 +28,8 @@ export default function Dashboard() {
   const [showMenu, setShowMenu] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showShopProfile, setShowShopProfile] = useState(false);
+  const [userRole, setUserRole] = useState("seller");
+
 
   const [shopProfile, setShopProfile] = useState({
     name:"",
@@ -59,54 +63,71 @@ export default function Dashboard() {
   }, []);
 
   /* AUTH */
-  useEffect(() => {
-    const unsub = auth.onAuthStateChanged(async (u) => {
-      if (!u) {
+useEffect(() => {
+  const unsub = auth.onAuthStateChanged(async (u) => {
+
+    if (!u) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const snap = await getDoc(doc(db, "users", u.uid));
+
+      if (!snap.exists()) {
+        await auth.signOut();
         navigate("/login");
         return;
       }
 
+      const data = snap.data();
+
       setUser(u);
 
-      const userRef = doc(db, "users", u.uid);
-      const snap = await getDoc(userRef);
+      // ✅ IMPORTANT FIX HERE
+      setUserName(
+        data.name?.trim() ||
+        u.displayName?.trim() ||
+        u.email?.split("@")[0] ||
+        "User"
+      );
 
-      const googlePhoto = u.photoURL || "";
-      const googleName = u.displayName || "";
+      setPhoto(data.photo || u.photoURL || "");
+      setPlan(data.plan || "basic");
+      setUserRole(data.role || "seller");
 
-      if (snap.exists()) {
-        const data = snap.data();
-        setPhoto(data.photo || googlePhoto || "");
-        setUserName(data.name || googleName || "User");
-        setPlan(data.plan || "basic");
-      } else {
-        await setDoc(userRef,{
-          name: googleName,
-          photo: googlePhoto || "",
-          plan: "basic",
-          createdAt: new Date()
-        });
+    } catch (err) {
+      console.log("User load error:", err);
+    }
 
-        setPhoto(googlePhoto || "");
-        setUserName(googleName || "User");
-      }
-    });
+  });
 
-    return () => unsub();
-  }, []);
+  return () => unsub();
+}, []);
+
+
+
+
 
   /* LOAD SHOP PROFILE */
-  useEffect(()=>{
-    if(!user) return;
+ useEffect(() => {
+  if (!user) return;
 
-    getDoc(
-      doc(db,"users",user.uid,"settings","shopProfile")
-    ).then(snap=>{
-      if(snap.exists()){
-        setShopProfile(snap.data());
-      }
-    });
-  },[user]);
+  getDoc(doc(db, "users", user.uid)).then(snap => {
+    if (snap.exists()) {
+      const data = snap.data();
+      setShopProfile({
+        name: data.shopName || "",
+        address: data.shopAddress || "",
+        logo: data.shopLogo || "",
+        phone: data.shopPhone || "",
+        gst: data.shopGST || ""
+      });
+    }
+  });
+
+}, [user]);
+
 
   /* SAVE LOCATION */
   useEffect(() => {
@@ -126,27 +147,52 @@ export default function Dashboard() {
     );
   }, []);
 
-  const confirmLogout = async () => {
+ const confirmLogout = async () => {
+  try {
+    // Close modals first
+    setShowConfirm(false);
+    setShowMenu(false);
+
+    // Clear all local storage
     localStorage.clear();
+
+    // Reset all states manually
+    setUser(null);
+    setUserRole(null);
+    setPhoto("");
+    setActivePage("home");
+
+    // Firebase logout
     await auth.signOut();
-    navigate("/login");
+
+    // Hard redirect (IMPORTANT)
+    window.location.replace("/login");
+
+  } catch (err) {
+    console.log("Logout error:", err);
+  }
+};
+
+const handleUpload = (e) => {
+  const file = e.target.files?.[0];
+  if (!file || !user) return;
+
+  const reader = new FileReader();
+
+  reader.onloadend = async () => {
+    await setDoc(
+      doc(db, "users", user.uid),
+      { photo: reader.result },
+      { merge: true }
+    );
+
+    setPhoto(reader.result);
   };
 
-  const handleUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
+  reader.readAsDataURL(file);
+};
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      await setDoc(
-        doc(db,"users",user.uid),
-        { photo: reader.result },
-        { merge:true }
-      );
-      setPhoto(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
+
 
   return (
 <div className="dash-wrapper">
@@ -166,11 +212,20 @@ export default function Dashboard() {
     {plan==="lifetime" && "Onetime Access"}
   </div>
 
+  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+  
+  <span style={{ fontWeight: 600 }}>
+    {userName}
+  </span>
+
   <img
     src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
     className="profile-img"
     onClick={()=>setShowMenu(!showMenu)}
   />
+
+</div>
+
 
   {showMenu && (
     <div className="profile-menu">
@@ -182,10 +237,11 @@ export default function Dashboard() {
 
       <div
         className="menu-item"
-        onClick={()=>{
-          setShowShopProfile(true);
-          setShowMenu(false);
-        }}
+       onClick={()=>{
+  setActivePage("shopProfile");   // 🔥 IMPORTANT
+  setShowMenu(false);
+}}
+
       >
         Shop Profile
       </div>
@@ -207,46 +263,147 @@ export default function Dashboard() {
 </div>
 
 {/* HOME */}
-{activePage==="home" && (
-<div className="dashboard-grid">
+{/* SHOP PROFILE PAGE */}
+{activePage === "shopProfile" && (
+  <div className="shop-profile-page">
+    <button onClick={() => setActivePage("home")}>⬅ Back</button>
 
-<div className="dash-card" onClick={()=>setActivePage("account")}>
-👤<h3>Account Creation</h3>
-</div>
+    <h2>🏪 Shop Profile</h2>
 
-<div className="dash-card" onClick={()=>setActivePage("invoices")}>
-📄<h3>Invoices</h3>
-</div>
+    <input
+      placeholder="Shop Name"
+      value={shopProfile.name}
+      onChange={(e) =>
+        setShopProfile({ ...shopProfile, name: e.target.value })
+      }
+    />
 
-<div className="dash-card" onClick={()=>setActivePage("inventory")}>
-📦<h3>Inventory</h3>
-</div>
+    <input
+      placeholder="Address"
+      value={shopProfile.address}
+      onChange={(e) =>
+        setShopProfile({ ...shopProfile, address: e.target.value })
+      }
+    />
 
-<div className="dash-card" onClick={()=>setActivePage("scan")}>
-📷<h3>Scan</h3>
-</div>
+    <input
+      placeholder="Phone"
+      value={shopProfile.phone || ""}
+      onChange={(e) =>
+        setShopProfile({ ...shopProfile, phone: e.target.value })
+      }
+    />
 
-<div className="dash-card" onClick={()=>setActivePage("sales")}>
-💰<h3>Sales</h3>
-<p>₹{todaySales}</p>
-</div>
+    <input
+      placeholder="GST Number"
+      value={shopProfile.gst || ""}
+      onChange={(e) =>
+        setShopProfile({ ...shopProfile, gst: e.target.value })
+      }
+    />
+    <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-<div className="dash-card" onClick={()=>setActivePage("orders")}>
-📦<h3>Orders</h3>
-</div>
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setShopProfile({
+        ...shopProfile,
+        logo: reader.result
+      });
+    };
+    reader.readAsDataURL(file);
+  }}
+/>
 
-<div className="dash-card" onClick={()=>setActivePage("customerUI")}>
-🖼️<h3>Customer Dashboard</h3>
-</div>
-
-{/* ✅ ANALYTICS CARD */}
-<div className="dash-card" onClick={()=>setActivePage("analytics")}>
-📊<h3>Analytics</h3>
-</div>
-
-</div>
+{shopProfile.logo && (
+  <img
+    src={shopProfile.logo}
+    style={{ width: 100, marginTop: 10, borderRadius: 8 }}
+  />
 )}
 
+
+    <button
+      onClick={async () => {
+        await setDoc(
+          doc(db, "users", user.uid),
+          {
+            shopName: shopProfile.name,
+            shopAddress: shopProfile.address,
+            shopPhone: shopProfile.phone || "",
+            shopGST: shopProfile.gst || "",
+            shopLogo: shopProfile.logo || ""
+
+          },
+          { merge: true }
+        );
+        alert("Shop Profile Updated ✅");
+      }}
+    >
+      Save
+    </button>
+  </div>
+)}
+
+{activePage === "home" && (
+
+  
+  <div className="dashboard-grid">
+
+    {/* ================= MASTER VIEW ================= */}
+  {userRole === "master" && (
+  <>
+    <div className="dash-card" onClick={() => setActivePage("createSeller")}>
+      👑<h3>Create Shop Owner</h3>
+    </div>
+
+    <div className="dash-card" onClick={() => setActivePage("analytics")}>
+      📊<h3>Platform Analytics</h3>
+    </div>
+  </>
+)}
+
+{userRole === "seller" && (
+  <>
+    <div className="dash-card" onClick={() => setActivePage("account")}>
+      👤<h3>Account Creation</h3>
+    </div>
+
+    <div className="dash-card" onClick={() => setActivePage("invoices")}>
+      📄<h3>Invoices</h3>
+    </div>
+
+    <div className="dash-card" onClick={() => setActivePage("inventory")}>
+      📦<h3>Inventory</h3>
+    </div>
+
+    <div className="dash-card" onClick={() => setActivePage("scan")}>
+      📷<h3>Scan</h3>
+    </div>
+
+    <div className="dash-card" onClick={() => setActivePage("sales")}>
+      💰<h3>Sales</h3>
+    </div>
+
+    <div className="dash-card" onClick={() => setActivePage("orders")}>
+      📦<h3>Orders</h3>
+    </div>
+
+    <div className="dash-card" onClick={() => setActivePage("customerUI")}>
+      🖼️<h3>Customer Dashboard</h3>
+    </div>
+  </>
+)}
+
+
+  </div>
+)}
+
+{activePage === "createSeller" && ( <CreateSeller setActivePage={setActivePage} />)}
 {activePage==="account" && <AccountSection setActivePage={setActivePage}/>}
 {activePage==="inventory" && <Inventory setActivePage={setActivePage}/>}
 {activePage==="scan" && <Scan setActivePage={setActivePage}/>}
@@ -259,7 +416,7 @@ export default function Dashboard() {
 
 {/* LOGOUT CONFIRM */}
 {showConfirm && (
-<div className="confirm-overlay">
+<div className="confirm-overlay"> 
 <div className="confirm-box">
 <h3>Are you sure?</h3>
 <p>You want to logout?</p>
