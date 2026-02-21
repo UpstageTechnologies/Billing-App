@@ -33,15 +33,17 @@ const handleLogin = async (e) => {
       id: user.uid,
       email: user.email,
       name: user.displayName || "",
-      photo: user.photoURL || ""
+      photo: ""
     };
 
     if (snap.exists()) {
       customerData = {
         id: user.uid,
         ...snap.data(),
-        photo: user.photoURL || ""
+        photo: snap.data().photo || user.photoURL || ""
       };
+    } else {
+      customerData.photo = user.photoURL || "";
     }
 
     localStorage.setItem("customerLoggedIn", "true");
@@ -71,21 +73,22 @@ const handleLogin = async (e) => {
 
     const snap = await getDoc(doc(db, "customers", user.uid));
 
-  let customerData = {
-  id: user.uid,
-  email: user.email,
-  name: user.displayName || "",
-  photo: user.photoURL || ""   
-};
+    let customerData = {
+      id: user.uid,
+      email: user.email,
+      name: user.displayName || "",
+      photo: ""
+    };
 
     if (snap.exists()) {
-  customerData = {
-    id: user.uid,
-    ...snap.data(),
-    photo: user.photoURL || snap.data().photo || ""
-  };
-}
-
+      customerData = {
+        id: user.uid,
+        ...snap.data(),
+        photo: snap.data().photo || user.photoURL || ""
+      };
+    } else {
+      customerData.photo = user.photoURL || "";
+    }
 
     localStorage.setItem("customerLoggedIn", "true");
     localStorage.setItem("customer", JSON.stringify(customerData));
@@ -101,7 +104,6 @@ const handleLogin = async (e) => {
     setLoading(false);
   }
 };
-
 
   return (
     <div className="popup-login-card">

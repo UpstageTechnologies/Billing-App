@@ -206,10 +206,6 @@ return(
 
 </div>
 
-
-
-
-
 <form onSubmit={handleSubmit}>
 
 <input placeholder="Item No"  

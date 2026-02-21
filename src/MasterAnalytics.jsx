@@ -10,85 +10,77 @@ export default function MasterAnalytics({ setActivePage }) {
   const [totalPlatformSales, setTotalPlatformSales] = useState(0);
   const [loading, setLoading] = useState(true);
   const [growthPercent, setGrowthPercent] = useState(0);
+  const [totalPlatformOrders, setTotalPlatformOrders] = useState(0);
 
 
-  useEffect(() => {
+useEffect(() => {
 
-    const loadAnalytics = async () => {
+  const loadAnalytics = async () => {
 
-      try {
+    try {
 
-        let platformTotal = 0;
-        let shopsData = [];
+      let platformTotal = 0;
+      let platformOrders = 0;
+      let shopsData = [];
 
-        const usersSnap = await getDocs(collection(db, "users"));
+      const usersSnap = await getDocs(collection(db, "users"));
 
-        for (const userDoc of usersSnap.docs) {
+      for (const userDoc of usersSnap.docs) {
 
-          const userData = userDoc.data();
+        const userData = userDoc.data();
 
-          if (userData.role === "seller") {
+        if (userData.role === "seller") {
 
-            const salesSnap = await getDocs(
-              collection(db, "users", userDoc.id, "sales")
-            );
+          const salesSnap = await getDocs(
+            collection(db, "users", userDoc.id, "sales")
+          );
 
-            let shopTotal = 0;
-            let orderCount = 0;
-
-          let salesArray = [];
+          let shopTotal = 0;
+          let orderCount = salesSnap.size;   // ✅ COUNT DIRECTLY
 
           salesSnap.forEach((sale) => {
             const total = sale.data().total || 0;
             shopTotal += total;
-            orderCount++;
-            salesArray.push(total);
           });
 
-          // Simple growth logic (last half vs first half)
-          if (salesArray.length > 1) {
-            const mid = Math.floor(salesArray.length / 2);
+          platformTotal += shopTotal;
+          platformOrders += orderCount;
 
-            const firstHalf = salesArray
-              .slice(0, mid)
-              .reduce((a, b) => a + b, 0);
-
-            const secondHalf = salesArray
-              .slice(mid)
-              .reduce((a, b) => a + b, 0);
-
-            if (firstHalf > 0) {
-              const growth = ((secondHalf - firstHalf) / firstHalf) * 100;
-              setGrowthPercent(growth.toFixed(1));
-            }
-          }
-
-
-            platformTotal += shopTotal;
-
-            shopsData.push({
-              shopId: userDoc.id,
-              shopName: userData.name || "Shop",
-              totalSales: shopTotal,
-              orders: orderCount
-            });
-          }
+      shopsData.push({
+  shopId: userDoc.id,
+  shopName: userData.shopName || "No Shop Name",
+  shopLogo: userData.shopLogo || "",
+  totalSales: shopTotal,
+  orders: orderCount
+});
         }
-
-        setShops(shopsData);
-        setTotalPlatformSales(platformTotal);
-        setLoading(false);
-
-      } catch (err) {
-        console.log("Analytics error:", err);
-        setLoading(false);
       }
-    };
 
-    loadAnalytics();
+      // ✅ Calculate percentage
+      shopsData = shopsData.map(shop => ({
+        ...shop,
+        percent: platformTotal > 0
+          ? ((shop.totalSales / platformTotal) * 100).toFixed(1)
+          : "0"
+      }));
 
-  }, []);
+      // ✅ Sort highest first
+      shopsData.sort((a, b) => b.totalSales - a.totalSales);
 
+      setShops(shopsData);
+      setTotalPlatformSales(platformTotal);
+      setTotalPlatformOrders(platformOrders);
+      setLoading(false);
+
+    } catch (err) {
+      console.log("Analytics error:", err);
+      setLoading(false);
+    }
+  };
+
+  loadAnalytics();
+
+}, []);
   return (
     <div className="analytics-page">
 
@@ -105,10 +97,22 @@ export default function MasterAnalytics({ setActivePage }) {
         <p>Loading analytics...</p>
       ) : (
         <>
-          <div className="platform-card">
-            <h3>Total Platform Sales</h3>
-            <h1>₹{totalPlatformSales}</h1>
-          </div>
+<div className="platform-card">
+
+  <div className="platform-metric">
+    <span className="metric-label">Total Sales</span>
+    <h1>₹{totalPlatformSales.toFixed(2)}</h1>
+  </div>
+
+  <div className="divider-line" />
+
+  <div className="platform-metric">
+    <span className="metric-label">Total Orders</span>
+    <h1>{totalPlatformOrders}</h1>
+  </div>
+
+</div>
+
 {/* 🔥 PROFESSIONAL BUSINESS GROWTH CARD */}
 <div className="growth-card-pro">
 
@@ -164,13 +168,45 @@ export default function MasterAnalytics({ setActivePage }) {
 
 
           <div className="shops-analytics">
-            {shops.map((shop) => (
-              <div className="shop-card" key={shop.shopId}>
-                <h4>{shop.shopName}</h4>
-                <p>Total Sales: ₹{shop.totalSales}</p>
-                <p>Total Orders: {shop.orders}</p>
-              </div>
-            ))}
+{shops.map((shop) => (
+  <div className="shop-card" key={shop.shopId}>
+
+  <div className="shop-left">
+
+  <div className="shop-header">
+    <img
+      src={
+        shop.shopLogo && shop.shopLogo !== ""
+          ? shop.shopLogo
+          : "https://via.placeholder.com/50"
+      }
+      className="shop-logo"
+      alt="logo"
+    />
+
+    <h4>{shop.shopName}</h4>
+  </div>
+
+  <p>Total Sales: ₹{shop.totalSales}</p>
+  <p>Total Orders: {shop.orders}</p>
+
+</div>
+
+    <div className="shop-right">
+      <div
+        className="percent-circle"
+        style={{
+          background: `conic-gradient(#4f46e5 ${shop.percent * 3.6}deg, #e5e7eb 0deg)`
+        }}
+      >
+        <div className="percent-inner">
+          {shop.percent}%
+        </div>
+      </div>
+    </div>
+
+  </div>
+))}
           </div>
         </>
       )}

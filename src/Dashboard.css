@@ -1,7 +1,12 @@
+html, body, #root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
 .dash-wrapper {
-  min-height: 100vh;
-  background: #f6f7fb;
-  color:#292d33;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Top bar */
@@ -164,4 +169,108 @@
 .confirm-actions .danger {
   background: #ef4444;
   color: white;
+}
+/* =====================================
+   GLOBAL SAFE WIDTH
+===================================== */
+
+.dash-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* =====================================
+   TABLET (768px - 1024px)
+===================================== */
+
+@media (max-width: 1024px) {
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 30px 24px;
+    gap: 20px;
+  }
+
+  .dash-card {
+    padding: 26px;
+    font-size: 34px;
+  }
+
+}
+
+/* =====================================
+   MOBILE (0 - 768px)
+===================================== */
+
+@media (max-width: 768px) {
+
+  .dash-topbar {
+    padding: 14px 16px;
+  }
+
+  .dash-topbar h2 {
+    font-size: 18px;
+  }
+
+  .profile {
+    gap: 8px;
+  }
+
+  .profile-img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .plan-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .dash-card {
+    padding: 22px;
+    font-size: 28px;
+  }
+
+  .dash-card h3 {
+    font-size: 15px;
+  }
+
+  .profile-menu {
+    width: 150px;
+    right: 5px;
+  }
+
+  .confirm-box {
+    width: 90%;
+    max-width: 320px;
+  }
+
+}
+
+/* =====================================
+   SMALL MOBILE (below 480px)
+===================================== */
+
+@media (max-width: 480px) {
+
+  .dash-topbar h2 {
+    font-size: 16px;
+  }
+
+  .dashboard-grid {
+    padding: 16px 12px;
+  }
+
+  .dash-card {
+    padding: 18px;
+    font-size: 24px;
+  }
+
 }

@@ -1,514 +1,435 @@
 /* ================= RESET ================= */
 
 *{
-  box-sizing:border-box;
   margin:0;
   padding:0;
+  box-sizing:border-box;
 }
 
 body{
   background:#f4f6fb;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+}
+
+html,body{
   overflow-x:hidden;
 }
 
-/* ================= APP WRAPPER FIX ================= */
+/* ================= APP WRAPPER ================= */
 
 .customer-app{
-  min-height:100vh;
-  padding:24px 20px;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont;
-  width:100%;
-  max-width:1400px;   
-  margin:0 auto;      
+  max-width:1300px;
+  margin:auto;
+  padding:30px 24px 80px;
+  position:relative;
+  overflow:visible; /* IMPORTANT */
 }
 
-/* ================= SECTION HEADERS ================= */
+/* ================= SECTION TITLE ================= */
 
 .section-title{
-  margin-top:40px;
-  margin-bottom:18px;
-  font-size:22px;
+  margin-top:45px;
+  margin-bottom:20px;
+  font-size:24px;
   font-weight:700;
   color:#0f172a;
 }
 
-/* ================= TOP BAR ================= */
+/* ======================================================
+   🔍 SEARCH BAR (BIG PREMIUM STYLE)
+====================================================== */
 
-.top-bar{
-  background:white;
-  padding:18px 22px;
-  border-radius:18px;
+.search-wrapper{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
-}
-
-.top-bar h3{
-  font-size:20px;
-}
-
-/* ================= SEARCH ================= */
-
-.search-input{
+  gap:24px;
   width:100%;
-  margin-top:16px;
-  padding:15px;
-  border-radius:14px;
+  background:#ffffff;
+  padding:22px 32px;
+  border-radius:60px;
+  box-shadow:0 20px 50px rgba(0,0,0,.12);
+  margin-bottom:40px;
+  position:relative;
+  z-index:500;
+}
+
+.search-location-icon{
+  width:26px;
+  height:26px;
+  cursor:pointer;
+}
+
+.search-input-new{
+  flex:1;
   border:none;
   outline:none;
-  font-size:15px;
-  box-shadow:0 5px 14px rgba(0,0,0,.08);
+  font-size:19px;
+  font-weight:500;
+  background:transparent;
 }
 
-/* ================= HERO SLIDER ================= */
+.search-right-section{
+  display:flex;
+  align-items:center;
+  gap:24px;
+}
+
+/* ================= PROFILE ================= */
+
+.search-profile-box{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.search-profile-icon{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #e5e7eb;
+}
+
+.search-profile-info{
+  display:flex;
+  flex-direction:column;
+}
+
+.profile-name{
+  font-size:15px;
+  font-weight:600;
+}
+
+.profile-location{
+  font-size:13px;
+  color:#64748b;
+}
+
+/* ================= CART ================= */
+
+.search-cart-icon{
+  position:relative;
+  font-size:26px;
+  cursor:pointer;
+}
+
+.cart-badge-new{
+  position:absolute;
+  top:-8px;
+  right:-12px;
+  background:#ef4444;
+  color:white;
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:50%;
+}
+
+/* ======================================================
+   🔍 SEARCH DROPDOWN (PERFECT ALIGN FIX)
+====================================================== */
+
+.search-dropdown{
+  position:absolute;
+  top:calc(100% + 12px);
+  left:0;
+  width:100%;
+  background:#ffffff;
+  border-radius:28px;
+  box-shadow:0 35px 90px rgba(0,0,0,.18);
+  padding:26px;
+  z-index:400;
+  max-height:520px;
+  overflow-y:auto;
+}
+
+/* Heading */
+.search-heading{
+  font-size:17px;
+  font-weight:700;
+  margin:20px 0 14px;
+  color:#334155;
+}
+
+/* ================= PRODUCT ITEM ================= */
+
+.search-item{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:16px;
+  border-radius:18px;
+  transition:.2s;
+  cursor:pointer;
+}
+
+.search-item:hover{
+  background:#f1f5f9;
+}
+
+.search-thumb{
+  width:75px;
+  height:75px;
+  border-radius:16px;
+  object-fit:cover;
+}
+
+.search-details{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.search-title{
+  font-size:17px;
+  font-weight:600;
+}
+
+.search-sub{
+  font-size:13px;
+  color:#64748b;
+}
+
+/* Add Button */
+.mini-add-btn{
+  background:linear-gradient(135deg,#6366f1,#22c55e);
+  border:none;
+  color:white;
+  padding:9px 16px;
+  border-radius:16px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+/* ======================================================
+   🏪 SHOP HORIZONTAL RECTANGLE CARDS
+====================================================== */
+
+.shop-horizontal-scroll{
+  display:flex;
+  gap:18px;
+  overflow-x:auto;
+  padding-bottom:10px;
+}
+
+.shop-horizontal-scroll::-webkit-scrollbar{
+  display:none;
+}
+
+.mini-shop-card{
+  min-width:220px;
+  height:100px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:#f8fafc;
+  border-radius:20px;
+  padding:14px;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.mini-shop-card:hover{
+  background:#eef2ff;
+  transform:translateY(-4px);
+}
+
+.mini-shop-img{
+  width:80px;
+  height:70px;
+  object-fit:cover;
+  border-radius:14px;
+}
+
+.mini-shop-name{
+  font-size:15px;
+  font-weight:600;
+}
+
+/* ======================================================
+   🎯 HERO BANNER
+====================================================== */
 
 .hero-banner{
-  margin-top:26px;
-  height:480px;
-  border-radius:26px;
+  height:420px;
+  border-radius:30px;
   overflow:hidden;
-  position:relative;
-  background:black;
-  box-shadow:0 14px 30px rgba(0,0,0,.25);
+  margin-top:25px;
+  box-shadow:0 25px 60px rgba(0,0,0,.18);
 }
 
 .slider-track{
   display:flex;
   height:100%;
-  transition:transform .7s ease-in-out;
+  transition:.7s ease;
 }
 
 .hero-img{
   min-width:100%;
-  height:100%;
   object-fit:cover;
 }
 
-/* ================= CATEGORY GRID PERFECT CENTER ================= */
+/* ======================================================
+   🛒 CATEGORY
+====================================================== */
 
 .category-row{
-  margin-top:30px;
+  margin-top:35px;
   display:grid;
-  grid-template-columns:repeat(auto-fit, 240px);  /* fixed card width */
-  justify-content:center;                         /* 🔥 center grid */
-  gap:28px;
-}
-
-
-.category-row::-webkit-scrollbar{
-  display:none;
+  grid-template-columns:repeat(auto-fit,220px);
+  justify-content:center;
+  gap:30px;
 }
 
 .category-card{
-  min-width:240px;
   background:white;
-  border-radius:20px;
-  padding:18px 18px 22px;
+  border-radius:22px;
+  padding:18px;
   text-align:center;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
-  transition:.25s;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+  transition:.3s;
   cursor:pointer;
-
 }
 
 .category-card:hover{
-  transform:translateY(-6px);
+  transform:translateY(-8px);
 }
 
 .category-card img{
-  width:180px;
-  height:140px;
+  width:140px;
+  height:100px;
   object-fit:contain;
-  margin:auto;
-  display:block;
 }
 
-.category-card span{
-  display:block;
-  margin-top:14px;
-  font-weight:700;
-  font-size:17px;
-  color:#1e293b;
-}
-
-/* ================= SHOP GRID PERFECT CENTER ================= */
+/* ======================================================
+   🏪 SHOP CARDS
+====================================================== */
 
 .shop-listt{
-  margin-top:40px;
+  margin-top:35px;
   display:grid;
-  grid-template-columns:repeat(auto-fit, 280px);  /* fixed card width */
-  justify-content:center;                         /* 🔥 center grid */
-  gap:40px;
+  grid-template-columns:repeat(auto-fit,260px);
+  justify-content:center;
+  gap:35px;
 }
 
-
 .shops-card{
-  width:100%;
-  max-width:280px;
-  margin:auto;
   background:white;
-  border-radius:22px;
+  border-radius:26px;
   overflow:hidden;
-  box-shadow:0 14px 30px rgba(0,0,0,.12);
-  transition:.3s;
+  box-shadow:0 18px 45px rgba(0,0,0,.15);
+  transition:.35s;
 }
 
 .shops-card:hover{
-  transform:translateY(-8px);
+  transform:translateY(-10px);
+  box-shadow:0 30px 70px rgba(0,0,0,.22);
 }
 
 .shop-img-top{
   width:100%;
-  height:170px;
+  height:180px;
   object-fit:cover;
 }
 
 .shop-info{
-  padding:16px;
+  padding:18px;
   text-align:center;
 }
 
 .shop-info h4{
-  font-size:16px;
-  font-weight:700;
+  font-size:17px;
+  margin-bottom:6px;
 }
 
 .shop-info p{
   font-size:13px;
   color:#64748b;
-  margin-top:6px;
 }
 
 .view-btn{
+  margin:16px auto 20px;
   display:block;
-  margin:16px auto;
   background:linear-gradient(135deg,#6366f1,#22c55e);
   border:none;
-  padding:12px 20px;
-  border-radius:14px;
+  padding:12px 22px;
+  border-radius:18px;
   color:white;
   font-weight:600;
   cursor:pointer;
 }
 
-/* ================= CART ================= */
+/* ======================================================
+   📍 LOCATION MODAL (CENTER FIX)
+====================================================== */
 
-.cart-icon{
-  position:relative;
-  font-size:24px;
-  cursor:pointer;
-}
-
-.cart-badge{
-  position:absolute;
-  top:-6px;
-  right:-10px;
-  background:red;
-  color:white;
-  border-radius:50%;
-  padding:2px 6px;
-  font-size:11px;
-}
-
-/* ================= AUTH ================= */
-
-.auth-wrapper{
-  position:relative;
-}
-
-.signin-btn{
-  background:#f1f5f9;
-  border:none;
-  padding:10px 16px;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.logout-btn{
-  background:#fee2e2;
-  color:#991b1b;
-  border:none;
-  padding:10px 16px;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.auth-dropdown{
-  position:absolute;
-  right:0;
-  top:46px;
-  background:white;
-  border-radius:14px;
-  box-shadow:0 12px 30px rgba(0,0,0,.15);
-  overflow:hidden;
-  min-width:180px;
-  z-index:999;
-}
-
-.dropdown-item{
-  padding:14px 18px;
-  cursor:pointer;
-}
-
-.dropdown-item:hover{
-  background:#f1f5f9;
-}
-/* ================= POPUP FIX (NO WHITE BOX) ================= */
-
-.popup-overlay{
+.location-overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.65);
-  backdrop-filter:blur(4px);
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(6px);
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:3000;
+  z-index:9999;
 }
 
-.auth-card{
-  background:transparent;     /* 🔥 remove white layer */
-  padding:0;                  /* 🔥 remove extra padding */
-  border-radius:0;
-  box-shadow:none;
-  width:100%;
-  max-width:420px;          /* 🔥 correct width */
+.location-modal{
+  background:white;
+  width:92%;
+  max-width:420px;
+  padding:35px;
+  border-radius:28px;
+  text-align:center;
+  position:relative;
+  box-shadow:0 40px 100px rgba(0,0,0,.3);
 }
 
-
-/* ================= PRODUCT SEARCH ================= */
-
-.product-search-results{
-  margin-top:14px;
-  background:#ffffff;
-  border-radius:18px;
-  padding:16px;
-  box-shadow:0 12px 30px rgba(0,0,0,.12);
-  max-height:400px;
-  overflow-y:auto;
-}
-
-.product-search-card{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:12px;
-  border-radius:14px;
-  background:#f8fafc;
-  margin-bottom:12px;
-  transition:.2s ease;
-}
-
-.product-search-card:hover{
-  background:#eef2ff;
-}
-
-.ps-image{
-  width:80px;
-  height:80px;
-  min-width:80px;
-  border-radius:12px;
-  object-fit:cover;
-}
-
-.ps-info{
-  flex:1;
-}
-
-.ps-info h4{
-  font-size:15px;
-  font-weight:700;
-}
-
-.ps-price{
-  font-size:14px;
-  font-weight:600;
-  color:#16a34a;
-}
-
-.ps-shop{
-  font-size:12px;
-  color:#64748b;
-}
-
-.ps-add-btn{
-  background:linear-gradient(135deg,#6366f1,#22c55e);
-  border:none;
-  color:#fff;
-  padding:8px 14px;
-  border-radius:10px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-/* ================= MINI SHOP SEARCH ================= */
-
-.shop-search-results{
-  margin-top:12px;
-  display:flex;
-  gap:12px;
-  overflow-x:auto;
-  padding:6px 2px 14px 2px;
-}
-
-.shop-search-results::-webkit-scrollbar{
-  display:none;
-}
-
-.shop-search-card{
-  min-width:170px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:8px 10px;
-  border-radius:12px;
-  background:#ffffff;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  cursor:pointer;
-  transition:.2s ease;
-  flex-shrink:0;
-}
-
-.shop-search-card:hover{
-  transform:translateY(-3px);
-}
-
-.ss-image{
-  width:45px;
-  height:45px;
-  min-width:45px;
-  border-radius:8px;
-  object-fit:cover;
-}
-
-.ss-info{
-  flex:1;
-}
-
-.ss-info h4{
-  font-size:13px;
-  font-weight:600;
-}
-
-.ss-info p{
-  font-size:11px;
-  color:#64748b;
-  line-height:1.2;
-}
-
-/* ================= MOBILE ================= */
+/* ======================================================
+   📱 MOBILE RESPONSIVE
+====================================================== */
 
 @media(max-width:768px){
 
   .customer-app{
-    padding:24px;
+    padding:20px 14px 60px;
+  }
+
+  .search-wrapper{
+    padding:16px 20px;
+    border-radius:40px;
+  }
+
+  .search-input-new{
+    font-size:16px;
+  }
+
+  .search-profile-icon{
+    width:44px;
+    height:44px;
+  }
+
+  .hero-banner{
+    height:220px;
+  }
+
+  .category-row{
+    display:flex;
+    overflow-x:auto;
+    gap:18px;
+  }
+
+  .category-card{
+    min-width:160px;
   }
 
   .shop-listt{
     display:flex;
-    flex-wrap:nowrap;
     overflow-x:auto;
-    gap:18px;
-  }
-
-  .shop-listt::-webkit-scrollbar{
-    display:none;
+    gap:20px;
   }
 
   .shops-card{
-    min-width:260px;
-  }
-
-  .hero-banner{
-    height:260px;
-  }
-}
-
-@media(max-width:480px){
-
-  .hero-banner{
-    height:200px;
-  }
-
-  .auth-card{
-    width:95%;
-  }
-}
-/* ================= LOCATION MODAL PERFECT FIX ================= */
-
-.location-overlay{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100vw;
-  height:100vh;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(4px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:5000;
-}
-
-.location-modal{
-  background:#ffffff;
-  width:100%;
-  max-width:420px;
-  padding:28px 24px;
-  border-radius:18px;
-  box-shadow:0 20px 50px rgba(0,0,0,.25);
-  text-align:center;
-  position:relative;
-}
-
-/* Close button fix */
-.close-btn{
-  position:absolute;
-  top:12px;
-  right:16px;
-  cursor:pointer;
-  font-size:18px;
-}
-
-/* GPS button style */
-.gps-btn{
-  margin-top:20px;
-  padding:14px;
-  border-radius:12px;
-  background:#f1f5f9;
-  cursor:pointer;
-  font-weight:600;
-  transition:.2s;
-}
-
-.gps-btn:hover{
-  background:#e2e8f0;
-}
-
-/* ================= MOBILE CATEGORY HORIZONTAL SCROLL FIX ================= */
-
-@media(max-width:768px){
-
-  .category-row{
-    display:flex !important;
-    flex-wrap:nowrap;
-    overflow-x:auto;
-    gap:18px;
-    padding-bottom:10px;
-    justify-content:flex-start;
-  }
-
-  .category-row::-webkit-scrollbar{
-    display:none;
-  }
-
-  .category-card{
-    min-width:220px;
-    flex-shrink:0;
+    min-width:230px;
   }
 
 }
-

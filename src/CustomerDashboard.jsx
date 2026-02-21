@@ -279,45 +279,65 @@ else {
 
 
 
+
+  // ✅ STRICT CITY FILTER — ADD HERE
 const loadShops = async (overrideAddress) => {
   setLoadingShops(true);
 
   const snap = await getDocs(collection(db, "public_shops"));
   let list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // ✅ STRICT CITY FILTER — ADD HERE
-const addressToUse = overrideAddress ?? customer?.address;
+  const addressToUse = overrideAddress ?? customer?.address;
 
-if (addressToUse) {
+  // 🔴 If no address → show nothing
+  if (!addressToUse || addressToUse.trim() === "") {
+    setAllShops([]);
+    setShops([]);
+    setLoadingShops(false);
+    return;
+  }
+
   const userCity = extractCity(addressToUse);
 
+  if (!userCity) {
+    setAllShops([]);
+    setShops([]);
+    setLoadingShops(false);
+    return;
+  }
 
   list = list.filter(s => {
     const shopCity = extractCity(s.address);
     return shopCity === userCity;
   });
-}
-  setAllShops(list);   // 🔥 MASTER LIST
-  setShops(list);      // 🔥 DISPLAY LIST
+
+  setAllShops(list);
+  setShops(list);
   setLoadingShops(false);
 };
-
 useEffect(() => {
+
   const checkLogin = () => {
-  const saved = localStorage.getItem("customer");
-  setIsLoggedIn(!!saved);
-};
+    const saved = localStorage.getItem("customer");
 
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setIsLoggedIn(true);
+      setCustomer(parsed);
+    } else {
+      setIsLoggedIn(false);
+      setCustomer(null);
+    }
+  };
 
-  // Initial check when component loads
   checkLogin();
 
-  // Listen for custom login event (from CustomerLogin.jsx)
   window.addEventListener("customerLogin", checkLogin);
 
   return () => {
     window.removeEventListener("customerLogin", checkLogin);
   };
+
 }, []);
 
 useEffect(() => {
@@ -467,123 +487,211 @@ const addToCart = (item) => {
   return (
     <div className="customer-app">
 
-      {/* ================= TOP BAR ==============  === */}
-      <div className="top-bar">
+   {/* ================= SEARCH BAR WITH ICONS ================= */}
+<div className="search-wrapper">
 
-        {/* LEFT */}
-       <div> 
-       <input
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        id="dpUpload"
-        onChange={handleDpChange}
-      />
+  {/* LOCATION ICON */}
+  <img
+    src="https://cdn-icons-png.flaticon.com/512/684/684908.png"
+    className="search-location-icon"
+    onClick={() => setShowLocationModal(true)}
+    alt=""
+  />
 
-      <img
-src={
-  customer?.photo && customer.photo !== ""
-    ? customer.photo
-    : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-}
-        style={{ width: 45, height: 45, borderRadius: "50%", cursor: "pointer" }}
-        onClick={() => document.getElementById("dpUpload").click()}
-   />
+  {/* SEARCH INPUT */}
+  <input
+    className="search-input-new"
+    placeholder="Search city, shop, category, product..."
+    value={search}
+    onChange={(e) => {
+      setSearch(e.target.value);
+      searchProducts(e.target.value);
+    }}
+  />
 
-          <div>
-            {!editProfile ? (
-              <>
-                <h3 onClick={() => setEditProfile(true)}>
-                  {customer?.name || "Customer"} ✏️
-                </h3>
-                <small>{customer?.address || ""}</small>
-              </>
-            ) : (
-              <>
-                <input value={editName} onChange={e => setEditName(e.target.value)} />
-                <input value={editAddress} onChange={e => setEditAddress(e.target.value)} />
-                <button onClick={saveProfile}>Save</button>
-              </>
-            )}
+  {/* 🔽 SEARCH DROPDOWN (INSIDE WRAPPER) 🔽 */}
+  {search && (productResults.length > 0 || shopResults.length > 0) && (
+    <div className="search-dropdown">
 
-            <span
-              style={{ cursor: "pointer", fontSize: 18 }}
-              onClick={() => setShowLocationModal(true)}
+      {/* PRODUCTS */}
+      {productResults.length > 0 && (
+        <>
+          <h4 className="search-heading">Products</h4>
+
+          {productResults.map(product => (
+            <div
+              key={product.id}
+              className="search-item"
+              onClick={() => navigate(`/shop/${product.shopId}`)}
             >
-              📍
-            </span>
+              <img
+                src={product.image || "https://via.placeholder.com/80"}
+                className="search-thumb"
+                alt=""
+              />
+
+              <div className="search-details">
+                <span className="search-title">
+                  {product.itemName}
+                </span>
+                <span className="search-sub">
+                  ₹{product.price} • {product.shopName}
+                </span>
+              </div>
+
+              <button
+                className="mini-add-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(product);
+                }}
+              >
+                Add
+              </button>
+            </div>
+          ))}
+        </>
+      )}
+
+      {/* SHOPS */}
+      {shopResults.length > 0 && (
+        <>
+          <h4 className="search-heading">Shops</h4>
+
+          <div className="shop-horizontal-scroll">
+            {shopResults.map(shop => (
+              <div
+                key={shop.id}
+                className="mini-shop-card"
+                onClick={() => {
+                  navigate(`/shop/${shop.id}`);
+                  setSearch("");
+                }}
+              >
+                <img
+                  src={shop.logo || "https://via.placeholder.com/80"}
+                  className="mini-shop-img"
+                  alt=""
+                />
+                <div className="mini-shop-name">
+                  {shop.name}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+    </div>
+  )}
+
+  {/* RIGHT SECTION */}
+  <div className="search-right-section">
+
+    {/* AUTH */}
+    <div className="auth-wrapper">
+      {!isLoggedIn ? (
+        <>
+          <button
+            className="signin-btn"
+            onClick={() => setShowAuthMenu(!showAuthMenu)}
+          >
+            Sign In ⬇
+          </button>
+
+          {showAuthMenu && (
+            <div className="auth-dropdown">
+              <div
+                className="dropdown-item"
+                onClick={() => {
+                  setShowAuthMenu(false);
+                  setAuthMode("seller-login");
+                }}
+              >
+                🧑‍💼 Seller Login
+              </div>
+
+              <div
+                className="dropdown-item"
+                onClick={() => {
+                  setShowAuthMenu(false);
+                  setAuthMode("customer-login");
+                }}
+              >
+                🛒 Customer Login
+              </div>
+
+              <div
+                className="dropdown-item"
+                onClick={() => {
+                  setShowAuthMenu(false);
+                  setAuthMode("master-login");
+                }}
+              >
+                👑 Master Login
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <button className="logout-btn" onClick={logout}>
+          Logout
+        </button>
+      )}
+    </div>
+
+    {/* PROFILE */}
+    {isLoggedIn && customer && (
+      <div className="search-profile-box">
+
+        <input
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          id="dpUpload"
+          onChange={handleDpChange}
+        />
+
+        <img
+          src={
+            customer.photo && customer.photo !== ""
+              ? customer.photo
+              : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+          }
+          className="search-profile-icon"
+          onClick={() => document.getElementById("dpUpload").click()}
+          alt=""
+        />
+
+        <div className="search-profile-info">
+          <div
+            className="profile-name"
+            onClick={() => setEditProfile(true)}
+          >
+            {customer.name || "Customer"} ✏️
+          </div>
+          <div className="profile-location">
+            {customer.address || ""}
           </div>
         </div>
 
-        {/* RIGHT */}
-        <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+      </div>
+    )}
 
-          {/* 🔐 SIGN IN / LOGOUT */}
-          <div className="auth-wrapper">
-            {!isLoggedIn ? (
-              <>
-                <button
-                  className="signin-btn"
-                  onClick={() => setShowAuthMenu(!showAuthMenu)}
-                >
-                  Sign In ⬇
-                </button>
-{showAuthMenu && (
-  <div className="auth-dropdown">
-
+    {/* CART */}
     <div
-      className="dropdown-item"
-      onClick={() => {
-        setShowAuthMenu(false);
-        setAuthMode("seller-login");
-      }}
+      className="search-cart-icon"
+      onClick={() => navigate("/cart")}
     >
-      🧑‍💼 Seller Login
+      🛒
+      {cartCount > 0 && (
+        <span className="cart-badge-new">{cartCount}</span>
+      )}
     </div>
-
-    <div
-      className="dropdown-item"
-      onClick={() => {
-        setShowAuthMenu(false);
-        setAuthMode("customer-login");
-      }}
-    >
-      🛒 Customer Login
-    </div>
-
-    {/* 👑 MASTER LOGIN ADD HERE */}
- <div
-  className="dropdown-item"
-  onClick={() => {
-    setShowAuthMenu(false);
-    setAuthMode("master-login");   // ✅ OPEN POPUP
-  }}
->
-  👑 Master Login
-</div>
-
 
   </div>
-)}
 
-
-
-              </>
-            ) : (
-              <button className="logout-btn" onClick={logout}>
-                Logout
-              </button>
-            )}
-          </div>
-
-          {/* 🛒 CART */}
-          <div className="cart-icon" onClick={() => navigate("/cart")}>
-            🛒
-            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-          </div>
-
-        </div>
-      </div>
+</div>
 {/* ================= AUTH POPUP ================= */}
 {authMode && (
   <div className="popup-overlay" onClick={() => setAuthMode(null)}>
@@ -630,99 +738,6 @@ src={
   </div>
 )}
 
-
-
-
-      <input
-  className="search-input"
-  placeholder="Search city, shop, category, product..."
-  value={search}
-onChange={e => {
-  setSearch(e.target.value);
-  searchProducts(e.target.value);
-}}
-/>
-
-{/* ================= PRODUCT SEARCH RESULTS ================= */}
-{search && productResults.length > 0 && (
-  <div className="product-search-results">
-  <h3>Products</h3>
-
-
-  {productResults.map(product => (
-    <div
-  key={product.id}
-  className="product-search-card"
-  onClick={() => navigate(`/shop/${product.shopId}`)}
-  style={{ cursor: "pointer" }}
->
-
-      {/* Product Image */}
-      <img
-        src={product.image || "https://via.placeholder.com/80"}
-        className="ps-image"
-        alt={product.itemName}
-      />
-
-
-      {/* Product Details */}
-      <div className="ps-info">
-        <h4>{product.itemName}</h4>
-        <p className="ps-price">₹{product.price}</p>
-        <span className="ps-shop">
-          🏪 {product.shopName}
-        </span>
-      </div>
-
-      {/* Add to Cart */}
-     <button
-  className="ps-add-btn"
-  onClick={(e) => {
-    e.stopPropagation();   // 🔥 prevent shop navigation
-    addToCart(product);
-  }}
->
-  Add
-</button>
-
-    </div>
-  ))}
-</div>
-
-)}
-
-{/* ================= SHOP SEARCH RESULTS ================= */}
-{search && shopResults.length > 0 && (
-  <div className="shop-search-results">
-    <h3>Shops</h3>
-
-    {shopResults.map(shop => (
-      <div
-        key={shop.id}
-        className="shop-search-card"
-onClick={() => {
-  navigate(`/shop/${shop.id}`);
-  setSearch("");
-}}
-      >
-        <img
-          src={shop.logo || "https://via.placeholder.com/80"}
-          className="ss-image"
-          alt={shop.name}
-        />
-
-        <div className="ss-info">
-          <h4>{shop.name}</h4>
-          <p>{shop.address}</p>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
-
-
-
-
       {/* ================= BANNERS ================= */}
       <h2 className="section-title">🔥 Special Offers</h2>
       <div className="hero-banner">
@@ -756,8 +771,7 @@ onClick={() => {
       </div>
 
   {/* ================= SHOPS ================= */}
-{isLoggedIn ? (
-  <>
+{isLoggedIn && customer?.address ? (  <>
     <h2 className="section-title">🏪 Nearby Shops</h2>
 
     {loadingShops ? (
@@ -806,7 +820,9 @@ onClick={() => {
           </div>
         </div>
       )}
+      
 
     </div>
   );
+
 }
