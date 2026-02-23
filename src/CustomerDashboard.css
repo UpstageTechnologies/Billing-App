@@ -15,6 +15,7 @@ html,body{
   overflow-x:hidden;
 }
 
+
 /* ================= APP WRAPPER ================= */
 
 .customer-app{
@@ -22,8 +23,8 @@ html,body{
   margin:auto;
   padding:30px 24px 80px;
   position:relative;
-  overflow:visible; /* IMPORTANT */
 }
+
 
 /* ================= SECTION TITLE ================= */
 
@@ -35,114 +36,164 @@ html,body{
   color:#0f172a;
 }
 
+
 /* ======================================================
-   🔍 SEARCH BAR (BIG PREMIUM STYLE)
+   🔍 PROFESSIONAL SEARCH BAR
 ====================================================== */
 
 .search-wrapper{
+  position:relative;
+  width:100%;
+  height:64px;
+  margin-bottom:40px;
+
   display:flex;
   align-items:center;
-  gap:24px;
-  width:100%;
+
   background:#ffffff;
-  padding:22px 32px;
-  border-radius:60px;
-  box-shadow:0 20px 50px rgba(0,0,0,.12);
-  margin-bottom:40px;
-  position:relative;
-  z-index:500;
+  border-radius:50px;
+
+  border:1.5px solid #e5e7eb;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+
+  padding:0 20px;
+  transition:all .25s ease;
+}
+
+.search-wrapper:focus-within{
+  border-color:#22c55e;
+  box-shadow:
+    0 0 0 3px rgba(34,197,94,0.15),
+    0 6px 24px rgba(0,0,0,0.08);
 }
 
 .search-location-icon{
-  width:26px;
-  height:26px;
+  position:absolute;
+  left:22px;
+  width:20px;
+  height:20px;
   cursor:pointer;
+  opacity:.8;
+  transition:.2s ease;
+}
+
+.search-location-icon:hover{
+  opacity:1;
 }
 
 .search-input-new{
-  flex:1;
-  border:none;
-  outline:none;
-  font-size:19px;
+  width:100%;
+  height:100%;
+  border:none !important;
+  outline:none !important;
+  background:transparent !important;
+
+  font-size:16px;
   font-weight:500;
-  background:transparent;
+  color:#111827;
+
+  padding-left:50px;
+  padding-right:130px;
+
+  box-shadow:none !important;
+  appearance:none;
+}
+
+
+.search-input-new::placeholder{
+  color:#9ca3af;
 }
 
 .search-right-section{
+  position:absolute;
+  right:20px;
   display:flex;
   align-items:center;
-  gap:24px;
-}
-
-/* ================= PROFILE ================= */
-
-.search-profile-box{
-  display:flex;
-  align-items:center;
-  gap:14px;
+  gap:18px;
 }
 
 .search-profile-icon{
-  width:52px;
-  height:52px;
+  width:38px;
+  height:38px;
   border-radius:50%;
   object-fit:cover;
-  border:2px solid #e5e7eb;
+  cursor:pointer;
+  border:2px solid #f1f5f9;
+  transition:.25s ease;
 }
 
-.search-profile-info{
-  display:flex;
-  flex-direction:column;
+.search-profile-icon:hover{
+  transform:scale(1.08);
+  border-color:#22c55e;
 }
-
-.profile-name{
-  font-size:15px;
-  font-weight:600;
-}
-
-.profile-location{
-  font-size:13px;
-  color:#64748b;
-}
-
-/* ================= CART ================= */
 
 .search-cart-icon{
+  font-size:22px;
   position:relative;
-  font-size:26px;
   cursor:pointer;
+  transition:.2s ease;
+}
+
+.search-cart-icon:hover{
+  transform:scale(1.1);
 }
 
 .cart-badge-new{
   position:absolute;
-  top:-8px;
-  right:-12px;
+  top:-6px;
+  right:-8px;
   background:#ef4444;
-  color:white;
-  font-size:11px;
-  padding:4px 8px;
+  color:#fff;
+  font-size:10px;
+  font-weight:600;
+  padding:3px 6px;
   border-radius:50%;
 }
 
+
 /* ======================================================
-   🔍 SEARCH DROPDOWN (PERFECT ALIGN FIX)
+   🔽 SEARCH DROPDOWN
 ====================================================== */
 
 .search-dropdown{
   position:absolute;
-  top:calc(100% + 12px);
+  top:calc(100% + 14px);
   left:0;
   width:100%;
+
   background:#ffffff;
-  border-radius:28px;
-  box-shadow:0 35px 90px rgba(0,0,0,.18);
-  padding:26px;
-  z-index:400;
+  border-radius:24px;
+
+  box-shadow:0 30px 80px rgba(0,0,0,.18);
+
+  padding:24px;
+  z-index:1000;
+
   max-height:520px;
   overflow-y:auto;
+
+  animation:fadeSlide .25s ease;
 }
 
-/* Heading */
+@keyframes fadeSlide{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.search-dropdown::-webkit-scrollbar{
+  width:6px;
+}
+.search-dropdown::-webkit-scrollbar-thumb{
+  background:#e5e7eb;
+  border-radius:6px;
+}
+
 .search-heading{
   font-size:17px;
   font-weight:700;
@@ -150,26 +201,28 @@ html,body{
   color:#334155;
 }
 
+
 /* ================= PRODUCT ITEM ================= */
 
 .search-item{
   display:flex;
   align-items:center;
-  gap:18px;
-  padding:16px;
-  border-radius:18px;
-  transition:.2s;
+  gap:16px;
+  padding:14px;
+  border-radius:16px;
+  transition:.2s ease;
   cursor:pointer;
 }
 
 .search-item:hover{
-  background:#f1f5f9;
+  background:#f9fafb;
+  transform:translateY(-2px);
 }
 
 .search-thumb{
-  width:75px;
-  height:75px;
-  border-radius:16px;
+  width:70px;
+  height:70px;
+  border-radius:14px;
   object-fit:cover;
 }
 
@@ -180,29 +233,35 @@ html,body{
 }
 
 .search-title{
-  font-size:17px;
+  font-size:16px;
   font-weight:600;
+  color:#111827;
 }
 
 .search-sub{
   font-size:13px;
-  color:#64748b;
+  color:#6b7280;
 }
 
-/* Add Button */
 .mini-add-btn{
-  background:linear-gradient(135deg,#6366f1,#22c55e);
-  border:none;
+  background:#22c55e;
   color:white;
-  padding:9px 16px;
-  border-radius:16px;
-  font-size:14px;
+  border:none;
+  padding:8px 14px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:600;
   cursor:pointer;
+  transition:.2s ease;
 }
 
-/* ======================================================
-   🏪 SHOP HORIZONTAL RECTANGLE CARDS
-====================================================== */
+.mini-add-btn:hover{
+  background:#16a34a;
+  transform:scale(1.05);
+}
+
+
+/* ================= SHOP HORIZONTAL ================= */
 
 .shop-horizontal-scroll{
   display:flex;
@@ -217,27 +276,27 @@ html,body{
 
 .mini-shop-card{
   min-width:220px;
-  height:100px;
+  height:95px;
   display:flex;
   align-items:center;
   gap:14px;
-  background:#f8fafc;
-  border-radius:20px;
+  background:#f9fafb;
+  border-radius:18px;
   padding:14px;
   cursor:pointer;
-  transition:.25s;
+  transition:.25s ease;
 }
 
 .mini-shop-card:hover{
   background:#eef2ff;
-  transform:translateY(-4px);
+  transform:translateY(-3px);
 }
 
 .mini-shop-img{
-  width:80px;
-  height:70px;
+  width:70px;
+  height:60px;
+  border-radius:12px;
   object-fit:cover;
-  border-radius:14px;
 }
 
 .mini-shop-name{
@@ -245,16 +304,17 @@ html,body{
   font-weight:600;
 }
 
+
 /* ======================================================
    🎯 HERO BANNER
 ====================================================== */
 
 .hero-banner{
   height:420px;
-  border-radius:30px;
+  border-radius:28px;
   overflow:hidden;
   margin-top:25px;
-  box-shadow:0 25px 60px rgba(0,0,0,.18);
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
 }
 
 .slider-track{
@@ -267,6 +327,7 @@ html,body{
   min-width:100%;
   object-fit:cover;
 }
+
 
 /* ======================================================
    🛒 CATEGORY
@@ -283,11 +344,15 @@ html,body{
 .category-card{
   background:white;
   border-radius:22px;
-  padding:18px;
+  padding:20px;
   text-align:center;
-  box-shadow:0 12px 30px rgba(0,0,0,.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
   transition:.3s;
   cursor:pointer;
+  height:240px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 
 .category-card:hover{
@@ -295,10 +360,12 @@ html,body{
 }
 
 .category-card img{
-  width:140px;
-  height:100px;
-  object-fit:contain;
+  width:100%;
+  height:150px;
+  object-fit:cover;
+  border-radius:14px;
 }
+
 
 /* ======================================================
    🏪 SHOP CARDS
@@ -314,15 +381,15 @@ html,body{
 
 .shops-card{
   background:white;
-  border-radius:26px;
+  border-radius:24px;
   overflow:hidden;
-  box-shadow:0 18px 45px rgba(0,0,0,.15);
+  box-shadow:0 15px 45px rgba(0,0,0,.15);
   transition:.35s;
 }
 
 .shops-card:hover{
-  transform:translateY(-10px);
-  box-shadow:0 30px 70px rgba(0,0,0,.22);
+  transform:translateY(-8px);
+  box-shadow:0 25px 60px rgba(0,0,0,.22);
 }
 
 .shop-img-top{
@@ -349,7 +416,7 @@ html,body{
 .view-btn{
   margin:16px auto 20px;
   display:block;
-  background:linear-gradient(135deg,#6366f1,#22c55e);
+  background:#22c55e;
   border:none;
   padding:12px 22px;
   border-radius:18px;
@@ -358,34 +425,9 @@ html,body{
   cursor:pointer;
 }
 
-/* ======================================================
-   📍 LOCATION MODAL (CENTER FIX)
-====================================================== */
-
-.location-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(6px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-
-.location-modal{
-  background:white;
-  width:92%;
-  max-width:420px;
-  padding:35px;
-  border-radius:28px;
-  text-align:center;
-  position:relative;
-  box-shadow:0 40px 100px rgba(0,0,0,.3);
-}
 
 /* ======================================================
-   📱 MOBILE RESPONSIVE
+   📱 RESPONSIVE
 ====================================================== */
 
 @media(max-width:768px){
@@ -395,17 +437,12 @@ html,body{
   }
 
   .search-wrapper{
-    padding:16px 20px;
-    border-radius:40px;
-  }
-
-  .search-input-new{
-    font-size:16px;
+    height:56px;
   }
 
   .search-profile-icon{
-    width:44px;
-    height:44px;
+    width:34px;
+    height:34px;
   }
 
   .hero-banner{
@@ -419,7 +456,8 @@ html,body{
   }
 
   .category-card{
-    min-width:160px;
+    min-width:170px;
+    height:auto;
   }
 
   .shop-listt{
@@ -431,5 +469,42 @@ html,body{
   .shops-card{
     min-width:230px;
   }
+}
+.location-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
 
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  z-index:9999;
+  padding:20px; /* mobile safe spacing */
+}
+
+.location-modal{
+  background:white;
+  width:100%;
+  max-width:420px;
+
+  border-radius:22px;
+  padding:30px 24px;
+
+  text-align:center;
+
+  box-shadow:0 30px 80px rgba(0,0,0,.25);
+
+  animation:popupFade .25s ease;
+}
+
+@keyframes popupFade{
+  from{
+    opacity:0;
+    transform:scale(.95);
+  }
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
 }

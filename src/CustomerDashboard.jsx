@@ -51,6 +51,9 @@ export default function CustomerDashboard() {
   const [locationError, setLocationError] = useState("");
   const [search, setSearch] = useState("");
   const [shopResults, setShopResults] = useState([]);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const extractCity = address => {
   if (!address) return "";
@@ -586,112 +589,165 @@ const addToCart = (item) => {
   )}
 
   {/* RIGHT SECTION */}
-  <div className="search-right-section">
+{/* RIGHT SECTION */}
+<div className="search-right-section">
 
-    {/* AUTH */}
+  {/* AUTH (only if not logged in) */}
+  {!isLoggedIn && (
     <div className="auth-wrapper">
-      {!isLoggedIn ? (
-        <>
-          <button
-            className="signin-btn"
-            onClick={() => setShowAuthMenu(!showAuthMenu)}
-          >
-            Sign In ⬇
-          </button>
+      <button
+        className="signin-btn"
+        onClick={() => setShowAuthMenu(!showAuthMenu)}
+      >
+        Sign In ⬇
+      </button>
 
-          {showAuthMenu && (
-            <div className="auth-dropdown">
-              <div
-                className="dropdown-item"
-                onClick={() => {
-                  setShowAuthMenu(false);
-                  setAuthMode("seller-login");
-                }}
-              >
-                🧑‍💼 Seller Login
-              </div>
-
-              <div
-                className="dropdown-item"
-                onClick={() => {
-                  setShowAuthMenu(false);
-                  setAuthMode("customer-login");
-                }}
-              >
-                🛒 Customer Login
-              </div>
-
-              <div
-                className="dropdown-item"
-                onClick={() => {
-                  setShowAuthMenu(false);
-                  setAuthMode("master-login");
-                }}
-              >
-                👑 Master Login
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        <button className="logout-btn" onClick={logout}>
-          Logout
-        </button>
-      )}
-    </div>
-
-    {/* PROFILE */}
-    {isLoggedIn && customer && (
-      <div className="search-profile-box">
-
-        <input
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-          id="dpUpload"
-          onChange={handleDpChange}
-        />
-
-        <img
-          src={
-            customer.photo && customer.photo !== ""
-              ? customer.photo
-              : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-          }
-          className="search-profile-icon"
-          onClick={() => document.getElementById("dpUpload").click()}
-          alt=""
-        />
-
-        <div className="search-profile-info">
+      {showAuthMenu && (
+        <div className="auth-dropdown">
           <div
-            className="profile-name"
-            onClick={() => setEditProfile(true)}
+            className="dropdown-item"
+            onClick={() => {
+              setShowAuthMenu(false);
+              setAuthMode("seller-login");
+            }}
           >
-            {customer.name || "Customer"} ✏️
+            🧑‍💼 Seller Login
           </div>
-          <div className="profile-location">
-            {customer.address || ""}
+
+          <div
+            className="dropdown-item"
+            onClick={() => {
+              setShowAuthMenu(false);
+              setAuthMode("customer-login");
+            }}
+          >
+            🛒 Customer Login
+          </div>
+
+          <div
+            className="dropdown-item"
+            onClick={() => {
+              setShowAuthMenu(false);
+              setAuthMode("master-login");
+            }}
+          >
+            👑 Master Login
           </div>
         </div>
-
-      </div>
-    )}
-
-    {/* CART */}
-    <div
-      className="search-cart-icon"
-      onClick={() => navigate("/cart")}
-    >
-      🛒
-      {cartCount > 0 && (
-        <span className="cart-badge-new">{cartCount}</span>
       )}
     </div>
+  )}
 
+  {/* PROFILE */}
+ {isLoggedIn && customer && (
+  <div className="profile-wrapper">
+
+    <input
+      type="file"
+      accept="image/*"
+      id="dpUpload"
+      style={{ display: "none" }}
+      onChange={handleDpChange}
+    />
+
+    <img
+      src={
+        customer.photo && customer.photo !== ""
+          ? customer.photo
+          : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+      }
+      className="search-profile-icon"
+      onClick={() => setShowProfileMenu(!showProfileMenu)}
+      alt=""
+    />
+
+      {showProfileMenu && (
+        <div className="profile-dropdown">
+
+          <div
+            className="profile-option"
+            onClick={() => {
+              setShowUserDetails(!showUserDetails);
+            }}
+          >
+           🙍‍♂️ User
+          </div>
+
+          {showUserDetails && (
+            <div className="user-details-box">
+              <p><strong>Name:</strong> {customer.name}</p>
+              <p><strong>Address:</strong> {customer.address}</p>
+            </div>
+          )}
+
+          <div
+            className="profile-option"
+            onClick={() => {
+              document.getElementById("dpUpload").click();
+            }}
+          >
+            👤  profile
+          </div>
+
+          <div
+            className="profile-option logout-option"
+            onClick={() => {
+              setShowLogoutConfirm(true);
+              setShowProfileMenu(false);
+            }}
+          >
+            🚪 Logout
+          </div>
+
+        </div>
+      )}
+
+    </div>
+  )}
+
+  {/* CART */}
+  <div
+    className="search-cart-icon"
+    onClick={() => navigate("/cart")}
+  >
+    🛒
+    {cartCount > 0 && (
+      <span className="cart-badge-new">{cartCount}</span>
+    )}
   </div>
 
 </div>
+
+</div>
+
+{/* LOGOUT CONFIRM MODAL */}
+{showLogoutConfirm && (
+  <div className="logout-overlay">
+    <div className="logout-modal">
+      <h3>Are you sure you want to logout?</h3>
+
+      <div className="logout-actions">
+        <button
+          className="cancel-btn"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="confirm-btn"
+          onClick={() => {
+            setShowLogoutConfirm(false);
+            logout();
+          }}
+        >
+          Yes Logout
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 {/* ================= AUTH POPUP ================= */}
 {authMode && (
   <div className="popup-overlay" onClick={() => setAuthMode(null)}>
