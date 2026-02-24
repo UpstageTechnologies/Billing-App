@@ -93,78 +93,63 @@ export default function CustomerRegister({ goLogin }) {
 };
 
 
-  return (
-    <div
-      className="auth-page"
-      onClick={() => goLogin()}
-    >
-      <div
-        className="auth-cardd"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2>Customer Register</h2>
+return (
+  <div className="popup-login-card">
+    <h2>Customer Register</h2>
 
-        <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="login-form">
 
-          <input
-            placeholder="Name"
-            required
-            onChange={e => setForm({ ...form, name: e.target.value })}
-          />
+      <input
+        placeholder="Name"
+        required
+        onChange={e => setForm({ ...form, name: e.target.value })}
+      />
 
-          <input
-            placeholder="Address"
-            required
-            onChange={e => setForm({ ...form, address: e.target.value })}
-          />
+      <input
+        placeholder="Address"
+        required
+        onChange={e => setForm({ ...form, address: e.target.value })}
+      />
 
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            onChange={e => setForm({ ...form, email: e.target.value })}
-          />
+      <input
+        type="email"
+        placeholder="Email"
+        required
+        onChange={e => setForm({ ...form, email: e.target.value })}
+      />
 
-          <input
-          placeholder="Mobile"
-          required
-          onChange={e => setForm({ ...form, mobile: e.target.value })}
-        />
+      <input
+        placeholder="Mobile"
+        required
+        onChange={e => setForm({ ...form, mobile: e.target.value })}
+      />
 
+      <input
+        type="password"
+        placeholder="Password"
+        required
+        onChange={e => setForm({ ...form, password: e.target.value })}
+      />
 
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            onChange={e => setForm({ ...form, password: e.target.value })}
-          />
-
-          <button>
-            Register
-          </button>
-        </form>
-
-       <button className="google-btn" onClick={handleGoogleSignup}>
-        <div className="google-icon-wrapper">
-          <img
-            className="google-icon"
-            src="https://developers.google.com/identity/images/g-logo.png"
-            alt="google"
-          />
-        </div>
-        <span className="google-text">Continue with Google</span>
+      <button className="customer-login-btn">
+        Register
       </button>
+    </form>
 
-
-        {/* 🔥 Required for Firebase */}
-
-        <div
-          className="back-text"
-          onClick={goLogin}
-        >
-          Already have account? Login
-        </div>
+    <button className="google-btn" onClick={handleGoogleSignup}>
+      <div className="google-icon-wrapper">
+        <img
+          className="google-icon"
+          src="https://developers.google.com/identity/images/g-logo.png"
+          alt="google"
+        />
       </div>
-    </div>
-  );
+      <span className="google-text">Continue with Google</span>
+    </button>
+
+    <p className="hint" onClick={goLogin} style={{cursor:"pointer"}}>
+      Already have account? Login
+    </p>
+  </div>
+);
 }

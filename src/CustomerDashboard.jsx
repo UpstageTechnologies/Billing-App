@@ -516,6 +516,35 @@ const addToCart = (item) => {
   {search && (productResults.length > 0 || shopResults.length > 0) && (
     <div className="search-dropdown">
 
+            {/* SHOPS */}
+      {shopResults.length > 0 && (
+        <>
+          <h4 className="search-heading">Shops</h4>
+
+          <div className="shop-horizontal-scroll">
+            {shopResults.map(shop => (
+              <div
+                key={shop.id}
+                className="mini-shop-card"
+                onClick={() => {
+                  navigate(`/shop/${shop.id}`);
+                  setSearch("");
+                }}
+              >
+                <img
+                  src={shop.logo || "https://via.placeholder.com/80"}
+                  className="mini-shop-img"
+                  alt=""
+                />
+                <div className="mini-shop-name">
+                  {shop.name}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       {/* PRODUCTS */}
       {productResults.length > 0 && (
         <>
@@ -556,34 +585,6 @@ const addToCart = (item) => {
         </>
       )}
 
-      {/* SHOPS */}
-      {shopResults.length > 0 && (
-        <>
-          <h4 className="search-heading">Shops</h4>
-
-          <div className="shop-horizontal-scroll">
-            {shopResults.map(shop => (
-              <div
-                key={shop.id}
-                className="mini-shop-card"
-                onClick={() => {
-                  navigate(`/shop/${shop.id}`);
-                  setSearch("");
-                }}
-              >
-                <img
-                  src={shop.logo || "https://via.placeholder.com/80"}
-                  className="mini-shop-img"
-                  alt=""
-                />
-                <div className="mini-shop-name">
-                  {shop.name}
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
 
     </div>
   )}
@@ -727,12 +728,6 @@ const addToCart = (item) => {
       <h3>Are you sure you want to logout?</h3>
 
       <div className="logout-actions">
-        <button
-          className="cancel-btn"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
-          Cancel
-        </button>
 
         <button
           className="confirm-btn"
@@ -743,6 +738,13 @@ const addToCart = (item) => {
         >
           Yes Logout
         </button>
+        
+        <button
+          className="cancel-btn"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -750,8 +752,14 @@ const addToCart = (item) => {
 
 {/* ================= AUTH POPUP ================= */}
 {authMode && (
-  <div className="popup-overlay" onClick={() => setAuthMode(null)}>
-    <div className="auth-card" onClick={(e) => e.stopPropagation()}>
+  <div 
+    className="popup-overlay"
+    onClick={() => setAuthMode(null)}   // 🔥 Outside click close
+  >
+    <div 
+      className="popup-container"
+      onClick={(e) => e.stopPropagation()}   // 🔥 Inside click close ஆகக்கூடாது
+    >
 
       {authMode === "master-login" && (
         <Login
@@ -761,33 +769,36 @@ const addToCart = (item) => {
         />
       )}
 
- {authMode === "master-register" && (
-  <div className="popup-register-card">
-    <MasterRegister goLogin={() => setAuthMode("master-login")} />
-  </div>
-)}
-
-
-
-
+      {authMode === "master-register" && (
+        <MasterRegister
+          goLogin={() => setAuthMode("master-login")}
+        />
+      )}
 
       {authMode === "customer-login" && (
-        <CustomerLogin goRegister={() => setAuthMode("customer-register")} />
+        <CustomerLogin
+          goRegister={() => setAuthMode("customer-register")}
+        />
       )}
 
       {authMode === "customer-register" && (
-        <CustomerRegister goLogin={() => setAuthMode("customer-login")} />
+        <CustomerRegister
+          goLogin={() => setAuthMode("customer-login")}
+        />
       )}
 
       {authMode === "seller-login" && (
         <Login
+          title="Seller Login"
           role="seller"
           goRegister={() => setAuthMode("seller-register")}
         />
       )}
 
       {authMode === "seller-register" && (
-        <Register goLogin={() => setAuthMode("seller-login")} />
+        <Register
+          goLogin={() => setAuthMode("seller-login")}
+        />
       )}
 
     </div>

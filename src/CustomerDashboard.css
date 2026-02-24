@@ -52,12 +52,11 @@ html,body{
 
   background:#ffffff;
   border-radius:50px;
-
   border:1.5px solid #e5e7eb;
   box-shadow:0 4px 20px rgba(0,0,0,0.06);
-
   padding:0 20px;
-  transition:all .25s ease;
+
+  z-index:10;   /* 🔥 important */
 }
 
 .search-wrapper:focus-within{
@@ -107,6 +106,8 @@ html,body{
 .search-right-section{
   position:absolute;
   right:20px;
+  top:50%;                 /* ✅ vertically center */
+  transform:translateY(-50%);
   display:flex;
   align-items:center;
   gap:18px;
@@ -155,24 +156,112 @@ html,body{
    🔽 SEARCH DROPDOWN
 ====================================================== */
 
+.search-wrapper{
+  position:relative;
+}
+
 .search-dropdown{
   position:absolute;
-  top:calc(100% + 14px);
+  top:calc(100% + 12px);   /* always below */
   left:0;
   width:100%;
 
   background:#ffffff;
-  border-radius:24px;
+  border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  padding:20px;
 
-  box-shadow:0 30px 80px rgba(0,0,0,.18);
-
-  padding:24px;
-  z-index:1000;
-
-  max-height:520px;
+  z-index:100;  /* lower than profile popup */
+  max-height:500px;
   overflow-y:auto;
+}
+/* ================= LOGOUT OVERLAY ================= */
 
-  animation:fadeSlide .25s ease;
+.logout-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  padding:20px;
+}
+
+/* ================= LOGOUT MODAL ================= */
+
+.logout-modal{
+  background:#ffffff;
+  width:100%;
+  max-width:420px;
+  padding:35px 30px;
+  border-radius:22px;
+  text-align:center;
+  box-shadow:0 25px 70px rgba(0,0,0,.25);
+  animation:popupFade .25s ease;
+}
+
+.logout-modal h3{
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:25px;
+  color:#1f2937;
+}
+
+/* ================= BUTTON WRAPPER ================= */
+
+.logout-actions{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+}
+
+/* CANCEL BUTTON */
+.cancel-btn{
+  flex:1;
+  padding:12px 0;
+  border-radius:30px;
+  border:none;
+  background:#d30909;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s ease;
+}
+
+.cancel-btn:hover{
+  background:#d30909;
+  border: black;
+}
+
+/* CONFIRM BUTTON */
+.confirm-btn{
+  flex:1;
+  padding:12px 0;
+  border-radius:30px;
+  border:none;
+  background:rgb(56, 211, 56);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s ease;
+}
+
+.confirm-btn:hover{
+  transform:scale(1.05);
+}
+.popup-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+}
+
+.popup-container{
+  width:100%;
+  max-width:420px;
 }
 
 @keyframes fadeSlide{
@@ -335,25 +424,28 @@ html,body{
 
 .category-row{
   margin-top:35px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,220px);
-  justify-content:center;
-  gap:30px;
+  display:flex;
+  gap:24px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  scroll-behavior:smooth;
+}
+
+.category-row::-webkit-scrollbar{
+  display:none;
 }
 
 .category-card{
+  flex:0 0 220px;   /* 🔥 important */
   background:white;
   border-radius:22px;
-  padding:20px;
+  padding:18px;
   text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
   transition:.3s;
   cursor:pointer;
-  height:240px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
 }
+
 
 .category-card:hover{
   transform:translateY(-8px);
@@ -373,17 +465,22 @@ html,body{
 
 .shop-listt{
   margin-top:35px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,260px);
-  justify-content:center;
-  gap:35px;
+  display:flex;
+  gap:28px;
+  overflow-x:auto;
+  padding-bottom:14px;
+  scroll-behavior:smooth;
+}
+.shop-listt::-webkit-scrollbar{
+  display:none;
 }
 
 .shops-card{
+  flex:0 0 260px;  /* 🔥 very important */
   background:white;
   border-radius:24px;
   overflow:hidden;
-  box-shadow:0 15px 45px rgba(0,0,0,.15);
+  box-shadow:0 18px 45px rgba(0,0,0,.12);
   transition:.35s;
 }
 
@@ -414,17 +511,60 @@ html,body{
 }
 
 .view-btn{
-  margin:16px auto 20px;
-  display:block;
-  background:#22c55e;
-  border:none;
-  padding:12px 22px;
-  border-radius:18px;
+  margin:18px;
+  padding:12px 0;
+
+  border-radius:30px;
+  width:calc(100% - 36px);
+
+  background:linear-gradient(135deg,#22c55e,#16a34a);
   color:white;
   font-weight:600;
+  border:none;
+
   cursor:pointer;
+  transition:.3s ease;
 }
 
+.view-btn:hover{
+  transform:scale(1.03);
+}
+
+.profile-wrapper{
+  position:relative;
+}
+
+.profile-dropdown{
+  position:absolute;
+  top:55px;          /* avatar கீழே */
+  right:0;
+
+  width:220px;
+  background:white;
+  border-radius:16px;
+  padding:12px 0;
+
+  box-shadow:0 15px 40px rgba(0,0,0,.25);
+  z-index:500;       /* 🔥 above search dropdown */
+}
+
+.auth-wrapper{
+  position:relative;
+}
+
+.auth-dropdown{
+  position:absolute;
+  top:48px;
+  right:0;
+
+  width:200px;
+  background:white;
+  border-radius:14px;
+  padding:10px 0;
+
+  box-shadow:0 15px 40px rgba(0,0,0,.2);
+  z-index:500;
+}
 
 /* ======================================================
    📱 RESPONSIVE
