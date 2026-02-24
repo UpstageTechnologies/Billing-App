@@ -3,8 +3,7 @@
   import { useNavigate } from "react-router-dom";
   import { doc, getDoc, setDoc, collection, onSnapshot } from "firebase/firestore";
   import "./Dashboard.css";
-  import CreateSeller from "./Createseller.jsx  ";
-
+  import CreateSeller from "./CreateSeller";
 
   import AccountSection from "./AccountSection";
   import Inventory from "./Inventory";
@@ -402,7 +401,7 @@
     </div>
   )}
 
-  {activePage === "createSeller" && ( <CreateSeller setActivePage={setActivePage} />)}
+  {activePage === "createSeller" && (<CreateSeller setActivePage={setActivePage} />)}  
   {activePage==="account" && <AccountSection setActivePage={setActivePage}/>}
   {activePage==="inventory" && <Inventory setActivePage={setActivePage}/>}
   {activePage==="scan" && <Scan setActivePage={setActivePage}/>}
@@ -412,6 +411,7 @@
   {activePage==="orders" && <Orders setActivePage={setActivePage} />}
   {activePage==="customerUI" && <CustomerUISetup setActivePage={setActivePage}/>}
   {activePage==="analytics" && <MasterAnalytics setActivePage={setActivePage}/>}
+
 
   {/* LOGOUT CONFIRM */}
   {showConfirm && (

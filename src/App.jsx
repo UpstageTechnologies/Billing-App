@@ -21,9 +21,7 @@ import CustomerDashboard from "./CustomerDashboard";
 import ShopCart from "./ShopCart";
 import MasterLogin from "./MasterLogin";
 import MasterRegister from "./MasterRegister";
-import CreateSeller from "./Createseller";
-
-
+import CreateSeller from "./CreateSeller";
 export default function App() {
   return (
     <Routes>
@@ -58,7 +56,7 @@ export default function App() {
       <Route path="/shop-cart/:shop" element={<ShopCart />} />
       <Route path="/master-login" element={<MasterLogin />} />
       <Route path="/master-register" element={<MasterRegister />} />
-      <Route path="/create-seller" element={<CreateSeller />} />
-    </Routes>
+      <Route path="/create-seller" element={<CreateSeller />} />    
+      </Routes>
   );
 }
