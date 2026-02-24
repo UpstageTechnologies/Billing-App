@@ -21,6 +21,7 @@ import CustomerDashboard from "./CustomerDashboard";
 import ShopCart from "./ShopCart";
 import MasterLogin from "./MasterLogin";
 import MasterRegister from "./MasterRegister";
+import CreateSeller from "./CreateSeller.jsx  ";
 
 
 export default function App() {

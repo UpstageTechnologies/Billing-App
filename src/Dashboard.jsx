@@ -3,7 +3,7 @@
   import { useNavigate } from "react-router-dom";
   import { doc, getDoc, setDoc, collection, onSnapshot } from "firebase/firestore";
   import "./Dashboard.css";
-  import CreateSeller from "./CreateSeller";
+  import CreateSeller from "./CreateSeller.jsx  ";
 
 
   import AccountSection from "./AccountSection";
@@ -430,3 +430,4 @@
   </div>
   );
   }
+s
