@@ -3,7 +3,6 @@
   import { useNavigate } from "react-router-dom";
   import { doc, getDoc, setDoc, collection, onSnapshot } from "firebase/firestore";
   import "./Dashboard.css";
-  import CreateSeller from "./CreateSeller";
 
   import AccountSection from "./AccountSection";
   import Inventory from "./Inventory";
