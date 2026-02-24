@@ -12,7 +12,7 @@
   import Invoices from "./Invoices";
   import CustomerUISetup from "./CustomerUISetup";
   import Orders from "./Orders";
-  import MasterAnalytics from "./MasterAnalytics"; // ✅ Analytics Import
+  import MasterAnalytics from "./MasterAnalytics"; 
 
   export default function Dashboard() {
 
