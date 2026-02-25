@@ -13,6 +13,8 @@
   import CustomerUISetup from "./CustomerUISetup";
   import Orders from "./Orders";
   import MasterAnalytics from "./MasterAnalytics"; 
+  import CreateSeller from "./pages/CreateSeller";
+
 
   export default function Dashboard() {
 
