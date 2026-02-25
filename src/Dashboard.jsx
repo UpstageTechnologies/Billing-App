@@ -13,6 +13,8 @@
   import CustomerUISetup from "./CustomerUISetup";
   import Orders from "./Orders";
   import MasterAnalytics from "./MasterAnalytics"; 
+  import Seller from "./Seller";
+
 
 
   export default function Dashboard() {
@@ -195,70 +197,63 @@
     return (
   <div className="dash-wrapper">
 
-  {/* TOP BAR */}
-  <div className="dash-topbar">
-  <h2>📊 Dashboard</h2>
+{/* ================= DASHBOARD SEARCH HEADER ================= */}
 
-  <div className="profile" ref={menuRef}>
+<div className="dash-search-bar">
+
+  <input
+    type="text"
+    placeholder="Search inventory, sales, orders..."
+    className="dash-search-input"
+  />
+
+  <div className="dash-search-right">
 
     <div
-      className={`plan-badge ${plan}`}
-      onClick={()=>setActivePage("payment")}
+      className={`dash-plan ${plan}`}
+      onClick={() => setActivePage("payment")}
     >
-      {plan==="basic" && "Basic"}
-      {plan==="premium" && "Premium"}
-      {plan==="lifetime" && "Onetime Access"}
+      {plan === "basic" && "Basic"}
+      {plan === "premium" && "Premium"}
+      {plan === "lifetime" && "Onetime"}
     </div>
 
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-    
-    <span style={{ fontWeight: 600 }}>
-      {userName}
-    </span>
+    <div className="dash-profile-box">
+      <img
+        src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
+        className="dash-profile-img"
+        onClick={() => setShowMenu(!showMenu)}
+      />
 
-    <img
-      src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
-      className="profile-img"
-      onClick={()=>setShowMenu(!showMenu)}
-    />
+      {showMenu && (
+        <div className="dash-profile-dropdown">
+          <div className="dash-user-name">{userName}</div>
 
-  </div>
+          <div
+            className="dash-dropdown-item"
+            onClick={() => {
+              setActivePage("shopProfile");
+              setShowMenu(false);
+            }}
+          >
+            Shop Profile
+          </div>
 
-
-    {showMenu && (
-      <div className="profile-menu">
-
-        <label className="menu-item">
-          Profile
-          <input type="file" hidden onChange={handleUpload}/>
-        </label>
-
-        <div
-          className="menu-item"
-        onClick={()=>{
-    setActivePage("shopProfile");   // 🔥 IMPORTANT
-    setShowMenu(false);
-  }}
-
-        >
-          Shop Profile
+          <div
+            className="dash-dropdown-item danger"
+            onClick={() => {
+              setShowConfirm(true);
+              setShowMenu(false);
+            }}
+          >
+            Logout
+          </div>
         </div>
-
-        <div
-          className="menu-item danger"
-          onClick={()=>{
-            setShowConfirm(true);
-            setShowMenu(false);
-          }}
-        >
-          Logout
-        </div>
-
-      </div>
-    )}
+      )}
+    </div>
 
   </div>
-  </div>
+</div>
 
   {/* HOME */}
   {/* SHOP PROFILE PAGE */}
@@ -401,7 +396,7 @@
     </div>
   )}
 
-  {activePage === "createSeller" && (<CreateSeller setActivePage={setActivePage} />)}  
+  {activePage === "createSeller" && (<Seller setActivePage={setActivePage} />)} 
   {activePage==="account" && <AccountSection setActivePage={setActivePage}/>}
   {activePage==="inventory" && <Inventory setActivePage={setActivePage}/>}
   {activePage==="scan" && <Scan setActivePage={setActivePage}/>}
