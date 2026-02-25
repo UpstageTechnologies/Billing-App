@@ -21,7 +21,6 @@ import CustomerDashboard from "./CustomerDashboard";
 import ShopCart from "./ShopCart";
 import MasterLogin from "./MasterLogin";
 import MasterRegister from "./MasterRegister";
-import CreateSeller from "./pages/CreateSeller";
 export default function App() {
   return (
     <Routes>
