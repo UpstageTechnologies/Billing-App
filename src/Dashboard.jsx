@@ -355,7 +355,9 @@
       {/* ================= MASTER VIEW ================= */}
     {userRole === "master" && (
     <>
-     
+      <div className="dash-card" onClick={() => setActivePage("createSeller")}>
+        👑<h3>Create Shop Owner</h3>
+      </div>
 
       <div className="dash-card" onClick={() => setActivePage("analytics")}>
         📊<h3>Platform Analytics</h3>
@@ -399,6 +401,7 @@
     </div>
   )}
 
+  {activePage === "createSeller" && (<CreateSeller setActivePage={setActivePage} />)}  
   {activePage==="account" && <AccountSection setActivePage={setActivePage}/>}
   {activePage==="inventory" && <Inventory setActivePage={setActivePage}/>}
   {activePage==="scan" && <Scan setActivePage={setActivePage}/>}

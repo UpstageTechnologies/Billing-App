@@ -593,51 +593,53 @@ const addToCart = (item) => {
 {/* RIGHT SECTION */}
 <div className="search-right-section">
 
-  {/* AUTH (only if not logged in) */}
-  {!isLoggedIn && (
-    <div className="auth-wrapper">
-      <button
-        className="signin-btn"
-        onClick={() => setShowAuthMenu(!showAuthMenu)}
-      >
-        Sign In ⬇
-      </button>
+{/* AUTH ICON (if not logged in) */}
+{!isLoggedIn && (
+  <div className="auth-wrapper">
 
-      {showAuthMenu && (
-        <div className="auth-dropdown">
-          <div
-            className="dropdown-item"
-            onClick={() => {
-              setShowAuthMenu(false);
-              setAuthMode("seller-login");
-            }}
-          >
-            🧑‍💼 Seller Login
-          </div>
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+      className="auth-icon"
+      onClick={() => setShowAuthMenu(!showAuthMenu)}
+      alt="auth"
+    />
 
-          <div
-            className="dropdown-item"
-            onClick={() => {
-              setShowAuthMenu(false);
-              setAuthMode("customer-login");
-            }}
-          >
-            🛒 Customer Login
-          </div>
-
-          <div
-            className="dropdown-item"
-            onClick={() => {
-              setShowAuthMenu(false);
-              setAuthMode("master-login");
-            }}
-          >
-            👑 Master Login
-          </div>
+    {showAuthMenu && (
+      <div className="auth-dropdown">
+        <div
+          className="dropdown-item"
+          onClick={() => {
+            setShowAuthMenu(false);
+            setAuthMode("seller-login");
+          }}
+        >
+          🧑‍💼 Seller Login
         </div>
-      )}
-    </div>
-  )}
+
+        <div
+          className="dropdown-item"
+          onClick={() => {
+            setShowAuthMenu(false);
+            setAuthMode("customer-login");
+          }}
+        >
+          🛒 Customer Login
+        </div>
+
+        <div
+          className="dropdown-item"
+          onClick={() => {
+            setShowAuthMenu(false);
+            setAuthMode("master-login");
+          }}
+        >
+          👑 Master Login
+        </div>
+      </div>
+    )}
+
+  </div>
+)}
 
   {/* PROFILE */}
  {isLoggedIn && customer && (
