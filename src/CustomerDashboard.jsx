@@ -55,21 +55,7 @@ export default function CustomerDashboard() {
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const extractCity = address => {
-  if (!address) return "";
-
-  const knownCities = [
-    "sattur",
-    "sivakasi",
-    "virudhunagar",
-    "rajapalayam",
-    "srivilliputhur"
-  ];
-
-  const addr = address.toLowerCase();
-
-  return knownCities.find(city => addr.includes(city)) || "";
-};
+ 
 
 const searchProducts = async (query) => {
   if (!query.trim()) {
@@ -224,12 +210,8 @@ useEffect(() => {
 
   /* 🔥 FIX: Load shops after customer is ready */
 useEffect(() => {
-  if (customer) {
-    loadShops(customer.address);
-  }
-}, [customer]);
-
-
+  loadShops();
+}, []);
 
   /* ================= LOAD UI ================= */
   useEffect(() => {
@@ -284,38 +266,17 @@ else {
 
 
   // ✅ STRICT CITY FILTER — ADD HERE
-const loadShops = async (overrideAddress) => {
+const loadShops = async () => {
   setLoadingShops(true);
 
   const snap = await getDocs(collection(db, "public_shops"));
-  let list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const list = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
 
-  const addressToUse = overrideAddress ?? customer?.address;
-
-  // 🔴 If no address → show nothing
-  if (!addressToUse || addressToUse.trim() === "") {
-    setAllShops([]);
-    setShops([]);
-    setLoadingShops(false);
-    return;
-  }
-
-  const userCity = extractCity(addressToUse);
-
-  if (!userCity) {
-    setAllShops([]);
-    setShops([]);
-    setLoadingShops(false);
-    return;
-  }
-
-  list = list.filter(s => {
-    const shopCity = extractCity(s.address);
-    return shopCity === userCity;
-  });
-
-  setAllShops(list);
-  setShops(list);
+  setAllShops(list);   // for search
+  setShops(list);      // for UI
   setLoadingShops(false);
 };
 useEffect(() => {

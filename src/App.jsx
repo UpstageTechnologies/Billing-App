@@ -22,6 +22,7 @@ import ShopCart from "./ShopCart";
 import MasterLogin from "./MasterLogin";
 import MasterRegister from "./MasterRegister";
 import Seller from "./Seller";
+import SellerRequests from "./SellerRequests";
 export default function App() {
   return (
     <Routes>
@@ -56,7 +57,8 @@ export default function App() {
       <Route path="/shop-cart/:shop" element={<ShopCart />} />
       <Route path="/master-login" element={<MasterLogin />} />
       <Route path="/master-register" element={<MasterRegister />} />
-      <Route path="/create-seller" element={<Seller />} />      
+      <Route path="/create-seller" element={<Seller />} />    
+      <Route path="/seller-requests" element={<SellerRequests />}></Route>  
       </Routes>
   );
 }

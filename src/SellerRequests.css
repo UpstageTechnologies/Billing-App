@@ -1,0 +1,65 @@
+.request-container {
+  padding: 30px;
+}
+
+.request-container h2 {
+  margin-bottom: 20px;
+  color: #0f172a;
+}
+
+.request-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  transition: .25s ease;
+}
+
+.request-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 45px rgba(0,0,0,.12);
+}
+
+.request-card h4 {
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.request-card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.request-card input[type="file"] {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.request-card button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 10px;
+  transition: .2s;
+}
+
+.request-card button:first-of-type {
+  background: #22c55e;
+  color: white;
+}
+
+.request-card button:first-of-type:hover {
+  background: #16a34a;
+}
+
+.request-card button:last-of-type {
+  background: #ef4444;
+  color: white;
+}
+
+.request-card button:last-of-type:hover {
+  background: #dc2626;
+}

@@ -240,8 +240,47 @@
 
 /* ================= PRINT ================= */
 @media print {
-  body * { visibility:hidden; }
-  #invoice-print, #invoice-print * { visibility:visible; }
-  .invoice-overlay { position:absolute; background:#fff; }
-  .invoice-box { box-shadow:none; border-radius:0; }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-print,
+  #invoice-print * {
+    visibility: visible;
+  }
+
+  #invoice-print {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    max-width: 100% !important;   /* 🔥 THIS FIXES HALF WIDTH ISSUE */
+    height: auto;
+    background: white;
+    padding: 25px;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .invoice-overlay {
+    position: absolute;
+    background: white !important;
+  }
+
+  .invoice-buttons {
+    display: none !important;
+  }
+}
+.invoice-header-section {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.invoice-shop-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 12px;
+  margin-bottom: 6px;
 }

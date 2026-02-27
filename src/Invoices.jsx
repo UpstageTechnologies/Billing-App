@@ -1,21 +1,56 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./services/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, doc, getDoc, query, orderBy } from "firebase/firestore";
 import "./Invoices.css";
-
+import "./Sales.css"; 
 export default function Invoices({ setActivePage }) {
   const [invoices, setInvoices] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [shopName, setShopName] = useState("");
+  const [shopLogo, setShopLogo] = useState("");
+
+useEffect(() => {
+
+  const unsubscribeAuth = auth.onAuthStateChanged(user => {
+    if (!user) return;
+
+  const ref = query(
+    collection(db, "users", user.uid, "invoices"),
+    orderBy("createdAt", "desc")
+  );
+    const unsubscribeSnap = onSnapshot(ref, snap => {
+      setInvoices(
+        snap.docs.map(d => ({
+          id: d.id,
+          ...d.data()
+        }))
+      );
+    });
+
+    // cleanup snapshot when auth changes
+    return () => unsubscribeSnap();
+  });
+
+  return () => unsubscribeAuth();
+
+}, []);
 
   useEffect(() => {
+  const loadShop = async () => {
     if (!auth.currentUser) return;
 
-    const ref = collection(db, "users", auth.currentUser.uid, "sales");
+    const ref = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(ref);
 
-    return onSnapshot(ref, snap => {
-      setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-  }, []);
+    if (snap.exists()) {
+      const data = snap.data();
+      setShopName(data.shopName || "");
+      setShopLogo(data.shopLogo || "");
+    }
+  };
+
+  loadShop();
+}, []);
 
   return (
 
@@ -31,8 +66,11 @@ export default function Invoices({ setActivePage }) {
         <div className="invoice-card" key={inv.id} onClick={() => setSelected(inv)}>
           <div className="invoice-header">
             <h3>Invoice #{inv.id.slice(0, 5)}</h3>
-            <span>{inv.createdAt?.toDate?.().toLocaleDateString()}</span>
-          </div>
+            <span>
+              {inv.createdAt
+                ? new Date(inv.createdAt.seconds * 1000).toLocaleString("en-IN")
+                : "Loading..."}
+            </span>          </div>
 
           {/* 👤 CUSTOMER NAME IN CARD */}
           {inv.customerName && (
@@ -57,58 +95,57 @@ export default function Invoices({ setActivePage }) {
 
       {/* 🔥 RECEIPT POPUP */}
       {selected && (
-        <div className="invoice-overlay">
-          <div className="invoice-box" id="invoice-print">
+  <div className="invoice-overlay">
+    <div className="invoice-box" id="invoice-print">
 
-            <h2>BILLPRO</h2>
+      <div className="invoice-header-section">
+        {shopLogo && (
+          <img src={shopLogo} className="invoice-shop-logo" />
+        )}
+        <h2>{shopName}</h2>
+      </div>
 
-            <div className="invoice-meta">
-              <span>Invoice: {selected.id.slice(0, 6)}</span>
-              <span>{selected.createdAt?.toDate?.().toLocaleString()}</span>
-            </div>
+      <div className="invoice-meta">
+        <span>Invoice: {selected.id.slice(0, 6)}</span>
+        <span>
+          {selected.createdAt
+            ? new Date(selected.createdAt.seconds * 1000).toLocaleString()
+            : ""}
+        </span>      </div>
 
-            {/* 👤 CUSTOMER DETAILS IN RECEIPT */}
-            {(selected.customerName || selected.customerAddress) && (
-              <div style={{ fontSize: "12px", marginBottom: "10px" }}>
-                {selected.customerName && <div>Name : {selected.customerName}</div>}
-                {selected.customerAddress && <div>Address : {selected.customerAddress}</div>}
-                <hr style={{ margin: "6px 0" }} />
-              </div>
-            )}
+   <div className="bill-header">
+  <span>Item</span>
+  <span>Qty</span>
+  <span>Price</span>
+  <span>GST%</span>
+  <span>Total</span>
+</div>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>₹</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selected.items.map((i, idx) => (
-                  <tr key={idx}>
-                    <td>{i.itemName}</td>
-                    <td>{i.qty}</td>
-                    <td>{i.price}</td>
-                    <td>{i.qty * i.price}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+{selected.items.map((i, idx) => (
+  <div key={idx} className="bill-item">
+    <span>{i.itemName}</span>
+    <span className="col-qty">{i.qty}</span>
+    <span className="col-price">₹{i.price}</span>
+    <span className="col-gst">{i.gst || 0}%</span>
+    <b className="col-total">
+      ₹{(i.price * i.qty) + (i.price * i.qty * ((i.gst || 0) / 100))}
+    </b>
+  </div>
+))}
+    
 
-            <div className="invoice-total">
-              Grand Total : ₹{selected.total}
-            </div>
+    <div className="total">
+      Subtotal ₹{selected.total}
+    </div>
 
-            <div className="invoice-buttons">
-              <button className="print" onClick={() => window.print()}>🖨 Print</button>
-              <button className="close" onClick={() => setSelected(null)}>Close</button>
-            </div>
+      <div className="invoice-buttons">
+        <button className="print" onClick={() => window.print()}>🖨 Print</button>
+        <button className="close" onClick={() => setSelected(null)}>Close</button>
+      </div>
 
-          </div>
-        </div>
-      )}
+    </div>
+  </div>
+)}
     
     </div>
  

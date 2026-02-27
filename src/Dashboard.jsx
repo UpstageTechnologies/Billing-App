@@ -14,6 +14,8 @@
   import Orders from "./Orders";
   import MasterAnalytics from "./MasterAnalytics"; 
   import Seller from "./Seller";
+  import Requests from "./Requests";
+  import SellerRequests from "./SellerRequests";
 
 
 
@@ -208,16 +210,6 @@
   />
 
   <div className="dash-search-right">
-
-    <div
-      className={`dash-plan ${plan}`}
-      onClick={() => setActivePage("payment")}
-    >
-      {plan === "basic" && "Basic"}
-      {plan === "premium" && "Premium"}
-      {plan === "lifetime" && "Onetime"}
-    </div>
-
     <div className="dash-profile-box">
       <img
         src={photo || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
@@ -228,6 +220,14 @@
       {showMenu && (
         <div className="dash-profile-dropdown">
           <div className="dash-user-name">{userName}</div>
+        <div
+          className={`dash-plan ${plan}`}
+          onClick={() => setActivePage("payment")}
+          >
+              {plan === "basic" && "Basic"}
+              {plan === "premium" && "Premium"}
+              {plan === "lifetime" && "Onetime"}
+            </div>
 
           <div
             className="dash-dropdown-item"
@@ -357,6 +357,14 @@
       <div className="dash-card" onClick={() => setActivePage("analytics")}>
         📊<h3>Platform Analytics</h3>
       </div>
+        
+     <div className="dash-card" onClick={() => setActivePage("sellerrRquests")}>
+        📩<h3>Seller Requests</h3>
+     </div>
+
+        <div className="dash-card" onClick={() => setActivePage("customerUI")}>
+        🖼️<h3>Customer Dashboard</h3>
+      </div>
     </>
   )}
 
@@ -386,9 +394,12 @@
         📦<h3>Orders</h3>
       </div>
 
-      <div className="dash-card" onClick={() => setActivePage("customerUI")}>
-        🖼️<h3>Customer Dashboard</h3>
+      <div className="dash-card" onClick={() => setActivePage("requests")}>
+        📢<h3>Requests</h3>
       </div>
+
+    
+
     </>
   )}
 
@@ -406,7 +417,8 @@
   {activePage==="orders" && <Orders setActivePage={setActivePage} />}
   {activePage==="customerUI" && <CustomerUISetup setActivePage={setActivePage}/>}
   {activePage==="analytics" && <MasterAnalytics setActivePage={setActivePage}/>}
-
+  {activePage === "requests" && (<Requests setActivePage={setActivePage} />)} 
+  {activePage === "sellerRequests" && (<SellerRequests setActivePage={setActivePage} />)}
 
   {/* LOGOUT CONFIRM */}
   {showConfirm && (

@@ -70,7 +70,7 @@
   display: flex;
   flex-direction: column;
   background: #f8fafc;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 /* ================= BACK BUTTON ================= */
@@ -126,15 +126,14 @@
 .bill-item {
   display: grid;
   grid-template-columns:
-    minmax(180px, 1fr)  /* Item */
-    30px                /* Qty */
-    30px                /* Price */
-    30px                /* GST */
-    30px               /* Total */
-    90px;               /* Delete */
-  column-gap: 90px;
+    minmax(200px, 1fr)   /* Item */
+    60px                 /* Qty */
+    80px                 /* Price */
+    60px                 /* GST */
+    100px                /* Total */
+    50px;                /* Delete */
+  column-gap: 12px;
   align-items: center;
-  font-size: 13px;
 }
 
 .bill-header {
@@ -162,7 +161,10 @@
 .col-gst,
 .col-total {
   text-align: right;
-  font-variant-numeric: tabular-nums;
+}
+
+.cancel-btn {
+  justify-self: end;
 }
 
 /* ================= DELETE ICON ================= */
@@ -178,10 +180,6 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-}
-
-.cancel-btn:hover {
-  background: #dc2626;
 }
 
 /* ================= TOTAL ================= */
@@ -228,6 +226,35 @@
 /* ================= PRINT ================= */
 @media print {
   body * { visibility: hidden; }
+  @media print {
+
+  body * { visibility: hidden; }
+
+  .current-bill-list,
+  .current-bill-list *,
+  .total {
+    visibility: visible;
+  }
+
+  .current-bill-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .today-bills-section {
+    display: none !important;   /* 🔥 Hide Today Bills */
+  }
+
+  .action-bar,
+  .back-btn,
+  .cancel-btn,
+  .customer-input,
+  .hold-strip {
+    display: none !important;
+  }
+}
 
   .pos-right,
   .pos-right * { visibility: visible; }
@@ -254,7 +281,7 @@
     background: none;
     color: black;
   }
-}
+} 
 /* TODAY BILL POPUP */
  .history-overlay { position: fixed;
   inset: 0; 
@@ -349,4 +376,53 @@ color: white;
   .bill-item {
     font-size: 14px;
   }
+}
+
+/* TODAY BILLS INLINE SECTION */
+
+.today-bills-section {
+  margin-top: 12px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 20px rgba(0,0,0,.06);
+}
+
+.today-bills-section h4 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.today-bills-list {
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.today-bill-row {
+  padding: 8px;
+  border-bottom: 1px dashed #d1d5db;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.today-bill-row:hover {
+  background: #f1f5f9;
+}
+
+.today-bill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px dashed #d1d5db;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.today-bill-date {
+  font-size: 11px;
+  color: #64748b;
 }

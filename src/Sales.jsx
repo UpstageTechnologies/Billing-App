@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { auth, db } from "./services/firebase";
 import { collection,onSnapshot,doc,updateDoc,addDoc,serverTimestamp,getDoc,setDoc} from "firebase/firestore";
 import "./Sales.css";
+import { query, orderBy } from "firebase/firestore";
 import InvoiceView from "./InvoiceView";
 
 
@@ -31,15 +32,24 @@ export default function Sales({ setActivePage }) {
   }, []);
 
   /* SALES */
-  useEffect(() => {
-    const unsub = auth.onAuthStateChanged(user => {
-      if (!user) return;
-      return onSnapshot(collection(db, "users", user.uid, "sales"), snap =>
-        setTodayBills(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-      );
-    });
-    return () => unsub();
-  }, []);
+useEffect(() => {
+  const unsub = auth.onAuthStateChanged(user => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, "users", user.uid, "sales"),
+      orderBy("createdAt", "desc")   // 🔥 latest first
+    );
+
+    return onSnapshot(q, snap =>
+      setTodayBills(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    );
+  });
+
+  return () => unsub();
+}, []);
+
+
   useEffect(() => {
   const loadBillNo = async () => {
     const ref = doc(db, "global_ids", "bill_counter");
@@ -60,14 +70,16 @@ useEffect(() => {
   const loadShop = async () => {
     if (!auth.currentUser) return;
 
-    const ref = doc(db, "users", auth.currentUser.uid, "settings", "shopProfile");
+    const ref = doc(db, "users", auth.currentUser.uid);
     const snap = await getDoc(ref);
 
     if (snap.exists()) {
-      setShopName(snap.data().name);
-      setShopLogo(snap.data().logo);
+      const data = snap.data();
+      setShopName(data.shopName || "");
+      setShopLogo(data.shopLogo || "");
     }
   };
+
   loadShop();
 }, []);
 
@@ -133,26 +145,63 @@ const total = bill.reduce((sum, i) => {
 
   /* SAVE */
 const saveBill = async () => {
+
   if (!bill.length) return alert("Bill empty");
 
-  // 🔢 BILL COUNTER UPDATE
-  const counterRef = doc(db, "global_ids", "bill_counter");
-  await setDoc(counterRef, { value: billNo });
+  const user = auth.currentUser;
 
-  const data = {
-    items: bill,
-    total,
-    billNo,
-    customerMobile,
-    createdAt: serverTimestamp()
-  };
+  if (!user) {
+    alert("User not logged in");
+    return;
+  }
 
-  await addDoc(collection(db, "users", auth.currentUser.uid, "sales"), data);
-  await addDoc(collection(db, "users", auth.currentUser.uid, "invoices"), data);
+  try {
 
-  setBill([]);
-  setBillNo(prev => prev + 1);
-  setCustomerMobile("");
+    // Update counter
+          const counterRef = doc(db, "global_ids", "bill_counter");
+          const counterSnap = await getDoc(counterRef);
+      let newBillNo = 1;
+
+      if (counterSnap.exists()) {
+        newBillNo = counterSnap.data().value + 1;
+      }
+
+      await setDoc(counterRef, { value: newBillNo });
+      setBillNo(newBillNo);
+    const data = {
+      items: bill,
+      total,
+      billNo,
+      customerMobile,
+      shopName,
+      shopLogo,
+      createdAt: serverTimestamp()
+    };
+
+    console.log("Saving bill for user:", user.uid);
+
+    // Save to SALES
+    await addDoc(
+      collection(db, "users", user.uid, "sales"),
+      data
+    );
+
+    // Save to INVOICES
+    const invoiceRef = await addDoc(
+      collection(db, "users", user.uid, "invoices"),
+      data
+    );
+
+    console.log("Invoice saved successfully:", invoiceRef.id);
+
+    // Reset
+    setBill([]);
+    setBillNo(prev => prev + 1);
+    setCustomerMobile("");
+
+  } catch (error) {
+    console.error("🔥 FIRESTORE ERROR:", error);
+  }
 };
 
 
@@ -211,13 +260,14 @@ const saveBill = async () => {
          {customerMobile && <div>Customer : {customerMobile}</div>}
          </div>
 
-      <div className="bill-header">
-      <span>Item</span>
-      <span>Qty</span>
-      <span>Price</span>
-      <span>GST%</span>
-     <span>Total</span>
-    </div>
+     <div className="bill-header">
+  <span>Item</span>
+  <span>Qty</span>
+  <span>Price</span>
+  <span>GST%</span>
+  <span>Total</span>
+  <span></span>  
+</div>
 
  {bill.map(i => (
   <div key={i.barcode} className="bill-item">
@@ -227,58 +277,66 @@ const saveBill = async () => {
   <span className="col-gst">{i.gst || 0}%</span>
   <b className="col-total">
   ₹{(i.price * i.qty) + (i.price * i.qty * ((i.gst || 0) / 100))}
+
+  
   </b>
 
-
-              {/* ❌ cancel */}
-              <button className="cancel-btn no-print" onClick={() => removeItem(i)}>❌</button>
-            </div>
+    </div>
+            
           ))}
         </div>
-
         <div className="total"
           data-gst={(total * 0.05).toFixed(2)}
           data-grand={(total + total * 0.05).toFixed(2)}>
           Subtotal ₹{total}
         </div>
 
+        
+
         <div className="action-bar">
           <button className="action-btn print-btn" onClick={() => window.print()}>🖨 Print</button>
-          <button className="action-btn today-btn" onClick={() => setShowHistory(true)}>📜 Today Bills</button>
+          <button className="action-btn today-btn"onClick={() => setShowHistory(prev => !prev)}>📜 Today Bills</button>
           <button className="action-btn hold-btn no-print" onClick={holdCurrentBill}>⏸ Hold</button>
           <button className="action-btn pay-btn" onClick={saveBill}>💳 Pay</button>
         </div>
-      </div>
-      {/* TODAY BILLS POPUP */}
-{showHistory && (
-  <div className="history-overlay no-print">
-    <div className="history-modal">
-      <h3>📜 Today Bills</h3>
+        {showHistory && (
+  <div className="today-bills-section">
+    <h4>📜 Today Bills</h4>
 
-      {todayBills.map((b, i) => (
-        <div
-          key={b.id}
-          className="history-card"
-          onClick={() => {
-            setSelectedBill(b);
-            setShowHistory(false);
-          }}
-        >
-          🧾 Bill #{i + 1} — ₹{b.total}
-        </div>
-      ))}
+    <div className="today-bills-list">
+{todayBills.map((b) => (
+  <div
+    key={b.id}
+    className="today-bill-row"
+    onClick={() => setSelectedBill(b)}
+  >
+    <div className="today-bill-left">
+      🧾 Bill #{b.billNo} — ₹{b.total}
+    </div>
 
-      <button onClick={() => setShowHistory(false)}>Close</button>
+    <div className="today-bill-date">
+      {b.createdAt?.seconds
+        ? new Date(b.createdAt.seconds * 1000).toLocaleDateString("en-IN")
+        : ""}
+    </div>
+  </div>
+))}
     </div>
   </div>
 )}
 
 {selectedBill && (
-  <InvoiceView bill={selectedBill} onClose={() => setSelectedBill(null)} />
+  <InvoiceView
+    bill={selectedBill}
+    shopName={shopName}
+    shopLogo={shopLogo}
+    onClose={() => setSelectedBill(null)}
+  />
 )}
+      </div>
 
 
-      {selectedBill && <InvoiceView bill={selectedBill} onClose={() => setSelectedBill(null)} />}
+
     </div>
   );
   
