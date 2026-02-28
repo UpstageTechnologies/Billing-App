@@ -18,8 +18,9 @@ export default function SellerOfferRequest({ setActivePage }) {
   const [shopName, setShopName] = useState("");
   const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
+  const [user, setUser] = useState(null);
+  const [offerPercent, setOfferPercent] = useState("");
 
-  const user = auth.currentUser;
 
   /* LOAD SHOP NAME */
   useEffect(() => {
@@ -30,6 +31,13 @@ export default function SellerOfferRequest({ setActivePage }) {
       }
     });
   }, [user]);
+
+  useEffect(() => {
+  const unsub = auth.onAuthStateChanged(u => {
+    if (u) setUser(u);
+  });
+  return () => unsub();
+}, []);
 
   /* LOAD INVENTORY */
   useEffect(() => {
@@ -55,32 +63,62 @@ export default function SellerOfferRequest({ setActivePage }) {
     });
   }, [user]);
 
-  const submitRequest = async () => {
-    if (!selectedProduct || !offerText.trim()) {
-      alert("Fill all fields");
-      return;
-    }
+     const selectedProductData = products.find(
+        p => p.id === selectedProduct
+      );
 
-    const product = products.find(p => p.id === selectedProduct);
+let finalPrice = null;
 
-    await addDoc(collection(db, "offer_requests"), {
-      sellerId: user.uid,
-      shopName,
-      productName: product.itemName,
-      offerText,
-      status: "pending",
-      bannerImage: "",
-      createdAt: serverTimestamp()
-    });
+if (selectedProductData && offerPercent) {
+  const discount =
+    ((selectedProductData.price || 0) * Number(offerPercent)) / 100;
 
-    setSelectedProduct("");
-    setOfferText("");
-    alert("Request Sent ✅");
-  };
+  finalPrice =  
+   (selectedProductData.price || 0) - discount;
+}
 
-  const filteredProducts = products.filter(p =>
-    p.itemName.toLowerCase().includes(search.toLowerCase())
-  );
+const submitRequest = async () => {
+
+  if (!user) {
+    alert("User not loaded yet");
+    return;
+  }
+
+  if (!selectedProduct || !offerPercent) {
+    alert("Fill all fields");
+    return;
+  }
+
+  if (!selectedProductData) {
+    alert("Select valid product");
+    return;
+  }
+
+  await addDoc(collection(db, "offer_requests"), {
+    sellerId: user.uid,
+    shopName,
+    productName: selectedProductData.itemName,
+    originalPrice: selectedProductData.price,
+    offerPercent: Number(offerPercent),
+    discountedPrice: finalPrice,
+    offerText,
+    status: "pending",
+    bannerImage: "",
+    createdAt: serverTimestamp()
+  });
+
+  setSelectedProduct("");
+  setOfferText("");
+  setOfferPercent("");
+
+  alert("Request Sent ✅");
+};
+
+      const filteredProducts = products.filter(p =>
+      p.itemName?.toLowerCase().includes(search.toLowerCase())
+      );
+
+   
 
   return (
     <div className="request-container">
@@ -102,18 +140,43 @@ export default function SellerOfferRequest({ setActivePage }) {
         onChange={e => setSelectedProduct(e.target.value)}
       >
         <option value="">Select Product</option>
-        {filteredProducts.map(p => (
-          <option key={p.id} value={p.id}>
-            {p.itemName}
-          </option>
-        ))}
+       {filteredProducts.map(p => (
+        <option key={p.id} value={p.id}>
+          {p.itemName} - ₹{p.price || 0}
+        </option>
+      ))}
       </select>
+
+      <select
+  value={offerPercent}
+  onChange={e => setOfferPercent(e.target.value)}
+>
+  <option value="">Select Offer %</option>
+  {[...Array(90)].map((_, i) => (
+    <option key={i+1} value={i+1}>
+      {i+1}%
+    </option>
+  ))}
+</select>
 
       <textarea
         placeholder="Enter Offer"
         value={offerText}
         onChange={e => setOfferText(e.target.value)}
       />
+
+      {selectedProductData && (
+  <div className="price-box">
+    <p>Original Price: ₹{selectedProductData.price}</p>
+
+    {offerPercent && (
+      <p>
+        After {offerPercent}% Discount:
+        <strong> ₹{finalPrice?.toFixed(2)}</strong>
+      </p>
+    )}
+  </div>
+)}
 
       <button onClick={submitRequest}>Submit</button>
 
