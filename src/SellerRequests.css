@@ -44,20 +44,26 @@
   font-weight: 600;
   margin-right: 10px;
   transition: .2s;
+  margin-top: 30px;
 }
 
 .request-card button:first-of-type {
   background: #22c55e;
   color: white;
+  width: 300px ;
+  margin-left: 40px;
+
 }
 
 .request-card button:first-of-type:hover {
   background: #16a34a;
+
 }
 
 .request-card button:last-of-type {
   background: #ef4444;
   color: white;
+  width: 300px ;
 }
 
 .request-card button:last-of-type:hover {

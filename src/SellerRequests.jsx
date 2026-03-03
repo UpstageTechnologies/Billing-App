@@ -20,30 +20,19 @@ export default function SellerRequests({ setActivePage }) {
     });
   }, []);
 
-  const approve = async (req, banner) => {
-    if (!banner) return alert("Upload banner");
+const approve = async (req) => {
+  await updateDoc(doc(db, "offer_requests", req.id), {
+    status: "approved",
+  });
 
-    await updateDoc(doc(db, "offer_requests", req.id), {
-      status: "approved",
-      bannerImage: banner
-    });
+  alert("Approved ✅");
+};
 
-    const uiRef = doc(db, "settings", "customerUI");
-    const snap = await getDoc(uiRef);
-
-    let banners = snap.exists() ? snap.data().banners || [] : [];
-    banners.unshift(banner);
-
-    await setDoc(uiRef, { banners }, { merge: true });
-
-    alert("Approved ✅");
-  };
-
-  const reject = async id => {
-    await updateDoc(doc(db, "offer_requests", id), {
-      status: "rejected"
-    });
-  };
+ const makePending = async (id) => {
+  await updateDoc(doc(db, "offer_requests", id), {
+    status: "pending"
+  });
+};
 
   return (
     <div className="request-container">
@@ -53,24 +42,14 @@ export default function SellerRequests({ setActivePage }) {
       <h2>Seller Requests</h2>
 
       {requests.map(req => (
-        <RequestCard key={req.id} req={req} approve={approve} reject={reject}/>
+        <RequestCard key={req.id} req={req} approve={approve} makePending={makePending}/>
       ))}
 
     </div>
   );
 }
 
-function RequestCard({ req, approve, reject }) {
-
-  const [banner, setBanner] = useState("");
-
-  const handleImage = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setBanner(reader.result);
-    reader.readAsDataURL(file);
-  };
+function RequestCard({ req, approve, makePending }) {
 
   return (
     <div className="request-card">
@@ -79,13 +58,21 @@ function RequestCard({ req, approve, reject }) {
       <p>{req.offerText}</p>
       <p>Status: {req.status}</p>
 
-      {req.status === "pending" && (
-        <>
-          <input type="file" onChange={handleImage} />
-          <button onClick={() => approve(req, banner)}>Approve</button>
-          <button onClick={() => reject(req.id)}>Reject</button>
-        </>
-      )}
+<div style={{ display: "flex", justifyContent: "space-between", marginTop: 20 }}>
+
+  {req.status !== "approved" && (
+    <button onClick={() => approve(req)}>
+      Approve
+    </button>
+  )}
+
+  {req.status !== "pending" && (
+    <button onClick={() => makePending(req.id)}>
+      Pending
+    </button>
+  )}
+
+</div>
     </div>
   );
 }

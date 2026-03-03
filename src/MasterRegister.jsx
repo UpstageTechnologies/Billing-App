@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { auth, db } from "./services/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-
+import "./MasterRegister.css";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 export default function MasterRegister({ goLogin }) {
 
   const [username, setUsername] = useState("");
@@ -59,10 +60,42 @@ export default function MasterRegister({ goLogin }) {
 
     setLoading(false);
   };
+  const handleGoogleRegister = async () => {
+  setError("");
+  setLoading(true);
 
-  return (
-    <>
-      <h2 style={{ marginBottom: 25 }}>👑 Master Register</h2>
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (!snap.exists()) {
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: user.displayName || "Master",
+        email: user.email,
+        role: "master",
+        plan: "basic",
+        createdAt: new Date(),
+      });
+    }
+
+    window.location.href = "/dashboard";
+
+  } catch (err) {
+    setError("Google sign up failed");
+  }
+
+  setLoading(false);
+};
+
+return (
+  <div className="master-auth-wrapper">
+    <div className="master-auth-card">
+
+      <h2>👑 Master Register</h2>
 
       <div className="register-form">
 
@@ -100,13 +133,22 @@ export default function MasterRegister({ goLogin }) {
           </p>
         )}
 
-        {/* ✅ LOGIN POPUP LINK */}
+<button className="google-btn" onClick={handleGoogleRegister}>
+  <div className="google-icon-wrapper">
+    <img
+      className="google-icon"
+      src="https://developers.google.com/identity/images/g-logo.png"
+      alt="Google"
+    />
+  </div>
+  <span className="google-text">Continue with Google</span>
+</button>
+
         <p
           style={{
             marginTop: 15,
             textAlign: "center",
             cursor: "pointer",
-            color: "#7c5cff",
             fontWeight: 500
           }}
           onClick={goLogin}
@@ -115,6 +157,7 @@ export default function MasterRegister({ goLogin }) {
         </p>
 
       </div>
-    </>
-  );
+    </div>
+  </div>
+);
 }

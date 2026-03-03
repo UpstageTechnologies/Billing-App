@@ -153,8 +153,8 @@ const submitRequest = async () => {
 >
   <option value="">Select Offer %</option>
   {[...Array(90)].map((_, i) => (
-    <option key={i+1} value={i+1}>
-      {i+1}%
+    <option key={i+1} value={i+0}>
+      {i+0}%
     </option>
   ))}
 </select>

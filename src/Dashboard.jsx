@@ -358,7 +358,7 @@
         📊<h3>Platform Analytics</h3>
       </div>
         
-     <div className="dash-card" onClick={() => setActivePage("sellerRquests")}>
+     <div className="dash-card" onClick={() => setActivePage("sellerRequests")}>
         📩<h3>Seller Requests</h3>
      </div>
 
