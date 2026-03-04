@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { db } from "./services/firebase";
-import {
-  collection,
-  onSnapshot,
-  updateDoc,
-  doc,
-  setDoc,
-  getDoc
-} from "firebase/firestore";
+import { collection, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import "./SellerRequests.css";
 
 export default function SellerRequests({ setActivePage }) {
 
   const [requests, setRequests] = useState([]);
+
+  const approvedRequests = requests.filter(r => r.status === "approved");
+  const pendingRequests = requests.filter(r => r.status === "pending");
 
   useEffect(() => {
     return onSnapshot(collection(db, "offer_requests"), snap => {
@@ -20,30 +16,54 @@ export default function SellerRequests({ setActivePage }) {
     });
   }, []);
 
-const approve = async (req) => {
-  await updateDoc(doc(db, "offer_requests", req.id), {
-    status: "approved",
-  });
+  const approve = async (req) => {
+    await updateDoc(doc(db, "offer_requests", req.id), {
+      status: "approved",
+    });
+  };
 
-  alert("Approved ✅");
-};
-
- const makePending = async (id) => {
-  await updateDoc(doc(db, "offer_requests", id), {
-    status: "pending"
-  });
-};
+  const makePending = async (id) => {
+    await updateDoc(doc(db, "offer_requests", id), {
+      status: "pending",
+    });
+  };
 
   return (
-    <div className="request-container">
+    <div className="sr-container">
 
-      <button onClick={() => setActivePage("home")}>⬅ Back</button>
+      <button className="sr-back-btn" onClick={() => setActivePage("home")}>
+        ⬅ Back
+      </button>
 
-      <h2>Seller Requests</h2>
+      <div className="sr-columns">
 
-      {requests.map(req => (
-        <RequestCard key={req.id} req={req} approve={approve} makePending={makePending}/>
-      ))}
+        {/* Approved */}
+        <div className="sr-column">
+          <h3>Approved</h3>
+          {approvedRequests.map(req => (
+            <RequestCard
+              key={req.id}
+              req={req}
+              approve={approve}
+              makePending={makePending}
+            />
+          ))}
+        </div>
+
+        {/* Pending */}
+        <div className="sr-column">
+          <h3>Pending</h3>
+          {pendingRequests.map(req => (
+            <RequestCard
+              key={req.id}
+              req={req}
+              approve={approve}
+              makePending={makePending}
+            />
+          ))}
+        </div>
+
+      </div>
 
     </div>
   );
@@ -52,27 +72,35 @@ const approve = async (req) => {
 function RequestCard({ req, approve, makePending }) {
 
   return (
-    <div className="request-card">
+    <div className="sr-card">
+
       <h4>{req.shopName}</h4>
       <p>{req.productName}</p>
       <p>{req.offerText}</p>
       <p>Status: {req.status}</p>
 
-<div style={{ display: "flex", justifyContent: "space-between", marginTop: 20 }}>
+      <div className="sr-btn-group">
 
-  {req.status !== "approved" && (
-    <button onClick={() => approve(req)}>
-      Approve
-    </button>
-  )}
+        {req.status !== "approved" && (
+          <button
+            className="sr-approve-btn"
+            onClick={() => approve(req)}
+          >
+            Approve
+          </button>
+        )}
 
-  {req.status !== "pending" && (
-    <button onClick={() => makePending(req.id)}>
-      Pending
-    </button>
-  )}
+        {req.status !== "pending" && (
+          <button
+            className="sr-pending-btn"
+            onClick={() => makePending(req.id)}
+          >
+            Pending
+          </button>
+        )}
 
-</div>
+      </div>
+
     </div>
   );
 }
