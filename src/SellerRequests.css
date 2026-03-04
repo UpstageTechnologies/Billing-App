@@ -1,4 +1,4 @@
-/* MAIN CONTAINER */
+/* ================= MAIN CONTAINER ================= */
 
 .sr-container{
   max-width:1200px;
@@ -7,26 +7,67 @@
   font-family:Arial, Helvetica, sans-serif;
 }
 
-/* TWO COLUMN LAYOUT */
+/* ================= BACK BUTTON ================= */
 
-.sr-columns{
-  display:flex;
-  gap:30px;
-  align-items:flex-start;
+.sr-back-btn{
+  margin-bottom:25px;
+  background:#0f172a;
+  color:white;
+  width:200px;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.2s;
 }
 
-/* EACH COLUMN */
+.sr-back-btn:hover{
+  background:#1e293b;
+}
+
+
+/* ================= REQUESTS SECTION (TOP) ================= */
+
+.sr-requests-section{
+  max-width:520px;
+  margin:0 auto 50px auto;
+  text-align:center;
+  border:2px dashed #e5e7eb;
+  padding:20px;
+  border-radius:14px;
+  background:#fafafa;
+}
+
+.sr-requests-section h3{
+  margin-bottom:20px;
+  color:#0f172a;
+}
+
+
+/* ================= BOTTOM TWO COLUMNS ================= */
+
+.sr-bottom-columns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:30px;
+}
+
+
+/* ================= COLUMN ================= */
 
 .sr-column{
-  flex:1;
+  width:100%;
 }
 
 .sr-column h3{
   margin-bottom:20px;
   color:#1e293b;
+  text-align:center;
 }
 
-/* CARD */
+
+/* ================= CARD ================= */
 
 .sr-card{
   background:white;
@@ -42,7 +83,8 @@
   box-shadow:0 18px 40px rgba(0,0,0,0.12);
 }
 
-/* TEXT */
+
+/* ================= CARD TEXT ================= */
 
 .sr-card h4{
   font-size:16px;
@@ -56,13 +98,15 @@
   color:#475569;
 }
 
-/* BUTTON GROUP */
+
+/* ================= BUTTON GROUP ================= */
 
 .sr-btn-group{
   margin-top:15px;
 }
 
-/* APPROVE BUTTON */
+
+/* ================= APPROVE BUTTON ================= */
 
 .sr-approve-btn{
   width:100%;
@@ -81,7 +125,8 @@
   transform:scale(1.02);
 }
 
-/* PENDING BUTTON */
+
+/* ================= PENDING BUTTON ================= */
 
 .sr-pending-btn{
   width:100%;
@@ -101,21 +146,21 @@
   transform:scale(1.02);
 }
 
-/* BACK BUTTON */
 
-.sr-back-btn{
-  margin-bottom:25px;
-  background:#0f172a;
-  color:white;
-  width:200px;
-  border:none;
-  padding:8px 14px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:600;
-  transition:0.2s;
-}
+/* ================= RESPONSIVE (MOBILE) ================= */
 
-.sr-back-btn:hover{
-  background:#1e293b;
+@media (max-width:768px){
+
+  .sr-bottom-columns{
+    grid-template-columns:1fr;
+  }
+
+  .sr-requests-section{
+    max-width:100%;
+  }
+
+  .sr-back-btn{
+    width:100%;
+  }
+
 }

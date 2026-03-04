@@ -7,6 +7,7 @@ export default function SellerRequests({ setActivePage }) {
 
   const [requests, setRequests] = useState([]);
 
+  const newRequests = requests.filter(r => !r.status || r.status === "new");
   const approvedRequests = requests.filter(r => r.status === "approved");
   const pendingRequests = requests.filter(r => r.status === "pending");
 
@@ -29,78 +30,107 @@ export default function SellerRequests({ setActivePage }) {
   };
 
   return (
-    <div className="sr-container">
 
-      <button className="sr-back-btn" onClick={() => setActivePage("home")}>
-        ⬅ Back
-      </button>
+<div className="sr-container">
 
-      <div className="sr-columns">
+<button className="sr-back-btn" onClick={() => setActivePage("home")}>
+⬅ Back
+</button>
 
-        {/* Approved */}
-        <div className="sr-column">
-          <h3>Approved</h3>
-          {approvedRequests.map(req => (
-            <RequestCard
-              key={req.id}
-              req={req}
-              approve={approve}
-              makePending={makePending}
-            />
-          ))}
-        </div>
+{/* REQUESTS TOP */}
 
-        {/* Pending */}
-        <div className="sr-column">
-          <h3>Pending</h3>
-          {pendingRequests.map(req => (
-            <RequestCard
-              key={req.id}
-              req={req}
-              approve={approve}
-              makePending={makePending}
-            />
-          ))}
-        </div>
+<div className="sr-requests-section">
 
-      </div>
+<h3>Requests</h3>
 
-    </div>
+{newRequests.map(req => (
+<RequestCard
+key={req.id}
+req={req}
+approve={approve}
+makePending={makePending}
+/>
+))}
+
+</div>
+
+
+{/* APPROVED + PENDING */}
+
+<div className="sr-bottom-columns">
+
+<div className="sr-column">
+
+<h3>Approved</h3>
+
+{approvedRequests.map(req => (
+<RequestCard
+key={req.id}
+req={req}
+approve={approve}
+makePending={makePending}
+/>
+))}
+
+</div>
+
+
+<div className="sr-column">
+
+<h3>Pending</h3>
+
+{pendingRequests.map(req => (
+<RequestCard
+key={req.id}
+req={req}
+approve={approve}
+makePending={makePending}
+/>
+))}
+
+</div>
+
+</div>
+
+</div>
+
   );
 }
 
 function RequestCard({ req, approve, makePending }) {
 
   return (
-    <div className="sr-card">
 
-      <h4>{req.shopName}</h4>
-      <p>{req.productName}</p>
-      <p>{req.offerText}</p>
-      <p>Status: {req.status}</p>
+<div className="sr-card">
 
-      <div className="sr-btn-group">
+<h4>{req.shopName}</h4>
+<p>{req.productName}</p>
+<p>{req.offerText}</p>
+<p>Status: {req.status || "new"}</p>
 
-        {req.status !== "approved" && (
-          <button
-            className="sr-approve-btn"
-            onClick={() => approve(req)}
-          >
-            Approve
-          </button>
-        )}
+<div className="sr-btn-group">
 
-        {req.status !== "pending" && (
-          <button
-            className="sr-pending-btn"
-            onClick={() => makePending(req.id)}
-          >
-            Pending
-          </button>
-        )}
+{req.status !== "approved" && (
+<button
+className="sr-approve-btn"
+onClick={() => approve(req)}
+>
+Approve
+</button>
+)}
 
-      </div>
+{req.status !== "pending" && (
+<button
+className="sr-pending-btn"
+onClick={() => makePending(req.id)}
+>
+Pending
+</button>
+)}
 
-    </div>
+</div>
+
+</div>
+
   );
 }
