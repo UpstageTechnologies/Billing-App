@@ -94,18 +94,18 @@ const submitRequest = async () => {
     return;
   }
 
-  await addDoc(collection(db, "offer_requests"), {
-    sellerId: user.uid,
-    shopName,
-    productName: selectedProductData.itemName,
-    originalPrice: selectedProductData.price,
-    offerPercent: Number(offerPercent),
-    discountedPrice: finalPrice,
-    offerText,
-    status: "pending",
-    bannerImage: "",
-    createdAt: serverTimestamp()
-  });
+ await addDoc(collection(db, "offer_requests"), {
+  sellerId: user.uid,
+  shopName,
+  productName: selectedProductData.itemName,
+  originalPrice: selectedProductData.price,
+  offerPercent: Number(offerPercent),
+  discountedPrice: finalPrice,
+  offerText,
+  status: "new",   
+  bannerImage: "",
+  createdAt: serverTimestamp()
+});
 
   setSelectedProduct("");
   setOfferText("");
