@@ -38,7 +38,7 @@ await addDoc(collection(db,"orders"),{
 
   status: "new",
 
-  paymentStatus: "unpaid",
+  paymentStatus: "paid",
 
   orderDate: new Date().toLocaleDateString(),
 
