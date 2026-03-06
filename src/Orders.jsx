@@ -8,6 +8,7 @@ export default function Orders({ setActivePage }) {
   const [orders, setOrders] = useState([]);
   const [expandedOrder, setExpandedOrder] = useState(null);
 
+  
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "orders"), snap => {
       setOrders(

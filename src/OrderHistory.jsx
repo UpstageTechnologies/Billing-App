@@ -9,27 +9,27 @@ export default function OrderHistory(){
 
   const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
 
-    if(!customer?.name) return;
+  if(!customer?.id) return;
 
-    const q = query(
-      collection(db,"orders"),
-      where("customerName","==",customer.name)
+  const q = query(
+    collection(db,"orders"),
+    where("customerId","==",customer.id)
+  );
+
+  const unsub = onSnapshot(q, (snap) => {
+    setOrders(
+      snap.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      }))
     );
+  });
 
-    const unsub = onSnapshot(q, (snap) => {
-      setOrders(
-        snap.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-      );
-    });
+  return () => unsub();
 
-    return () => unsub();
-
-  }, [customer]);
+}, [customer]);
 
   return (
     <div style={{ padding: 20 }}>
@@ -63,10 +63,24 @@ export default function OrderHistory(){
             </b>
           </p>
 
+
+          <p>Date : {o.orderDate}</p>
+
+          <p>Payment :
+          <b style={{
+          color: o.paymentStatus === "paid" ? "green" : "red"
+          }}>
+          { o.paymentStatus }
+          </b>
+          </p>
+
           {o.items.map((it, idx) => (
             <p key={idx}>
               {it.itemName} × {it.qty}
             </p>
+
+           
+
           ))}
 
         </div>

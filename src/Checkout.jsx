@@ -26,6 +26,8 @@ export default function Checkout() {
 
       // 🔥 SAVE ORDER IN FIRESTORE
 await addDoc(collection(db,"orders"),{
+  
+  customerId: customer?.id || "",   // 
 
   customerName: customer?.name || "Guest",
   customerAddress: customer?.address || "",
