@@ -25,14 +25,27 @@ export default function Checkout() {
     try{
 
       // 🔥 SAVE ORDER IN FIRESTORE
-    await addDoc(collection(db,"orders"),{
+await addDoc(collection(db,"orders"),{
+
   customerName: customer?.name || "Guest",
   customerAddress: customer?.address || "",
+
   shopName: data.items[0]?.shopName || "",
-  shopId: data.items[0]?.shopId || "",  items: data.items,
+  shopId: data.items[0]?.shopId || "",
+
+  items: data.items,
   total: data.total,
-  status: "new",   // 🔥 change this
+
+  status: "new",
+
+  paymentStatus: "unpaid",
+
+  orderDate: new Date().toLocaleDateString(),
+
+  orderTime: new Date().toLocaleTimeString(),
+
   createdAt: new Date()
+
 });
 
       // 🔥 ALSO SAVE IN LOCAL ORDER HISTORY
