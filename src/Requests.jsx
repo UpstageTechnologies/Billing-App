@@ -19,35 +19,44 @@ export default function SellerOfferRequest({ setActivePage }) {
   const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
   const [user, setUser] = useState(null);
-  const [offerPercent, setOfferPercent] = useState("");
 
+  const [offerPercent, setOfferPercent] = useState("");
+  const [validDays, setValidDays] = useState("");
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  /* LOAD USER */
+  useEffect(() => {
+    const unsub = auth.onAuthStateChanged(u => {
+      if (u) setUser(u);
+    });
+    return () => unsub();
+  }, []);
 
   /* LOAD SHOP NAME */
   useEffect(() => {
     if (!user) return;
+
     getDoc(doc(db, "users", user.uid)).then(snap => {
       if (snap.exists()) {
         setShopName(snap.data().shopName || "");
       }
     });
-  }, [user]);
 
-  useEffect(() => {
-  const unsub = auth.onAuthStateChanged(u => {
-    if (u) setUser(u);
-  });
-  return () => unsub();
-}, []);
+  }, [user]);
 
   /* LOAD INVENTORY */
   useEffect(() => {
     if (!user) return;
+
     return onSnapshot(
       collection(db, "users", user.uid, "inventory"),
       snap => {
         setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
       }
     );
+
   }, [user]);
 
   /* LOAD MY REQUESTS */
@@ -55,109 +64,222 @@ export default function SellerOfferRequest({ setActivePage }) {
     if (!user) return;
 
     return onSnapshot(collection(db, "offer_requests"), snap => {
+
       const list = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(r => r.sellerId === user.uid);
 
       setRequests(list);
+
     });
+
   }, [user]);
 
-     const selectedProductData = products.find(
-        p => p.id === selectedProduct
-      );
+  useEffect(() => {
 
-let finalPrice = null;
+  if (!startDate || !validDays) return;
 
-if (selectedProductData && offerPercent) {
-  const discount =
-    ((selectedProductData.price || 0) * Number(offerPercent)) / 100;
+  const start = new Date(startDate);
 
-  finalPrice =  
-   (selectedProductData.price || 0) - discount;
-}
+  start.setDate(start.getDate() + Number(validDays) - 1);
 
-const submitRequest = async () => {
+  const calculatedEnd =
+    start.toISOString().split("T")[0];
 
-  if (!user) {
-    alert("User not loaded yet");
-    return;
+  setEndDate(calculatedEnd);
+
+}, [startDate, validDays]);
+
+
+  const selectedProductData =
+    products.find(p => p.id === selectedProduct);
+
+  let finalPrice = null;
+
+  if (selectedProductData && offerPercent) {
+
+    const discount =
+      ((selectedProductData.price || 0) * Number(offerPercent)) / 100;
+
+    finalPrice =
+      (selectedProductData.price || 0) - discount;
+
   }
 
-  if (!selectedProduct || !offerPercent) {
-    alert("Fill all fields");
-    return;
-  }
+  /* SUBMIT REQUEST */
 
-  if (!selectedProductData) {
-    alert("Select valid product");
-    return;
-  }
+  const submitRequest = async () => {
 
- await addDoc(collection(db, "offer_requests"), {
-  sellerId: user.uid,
-  shopName,
-  productName: selectedProductData.itemName,
-  originalPrice: selectedProductData.price,
-  offerPercent: Number(offerPercent),
-  discountedPrice: finalPrice,
-  offerText,
-  status: "new",   
-  bannerImage: "",
-  createdAt: serverTimestamp()
-});
+    if (!user) {
+      alert("User not loaded yet");
+      return;
+    }
 
-  setSelectedProduct("");
-  setOfferText("");
-  setOfferPercent("");
+    if (!selectedProduct || !offerPercent || !validDays || !startDate || !endDate) {
+      alert("Fill all fields");
+      return;
+    }
 
-  alert("Request Sent ✅");
-};
+    if (!selectedProductData) {
+      alert("Select valid product");
+      return;
+    }
 
-      const filteredProducts = products.filter(p =>
-      p.itemName?.toLowerCase().includes(search.toLowerCase())
-      );
+    await addDoc(collection(db, "offer_requests"), {
 
-   
+      sellerId: user.uid,
+      shopName,
+
+      productName: selectedProductData.itemName,
+      originalPrice: selectedProductData.price,
+
+      offerPercent: Number(offerPercent),
+      discountedPrice: finalPrice,
+
+      offerText,
+
+      validDays: Number(validDays),
+
+      startDate,
+      endDate,
+
+      status: "new",
+
+      createdDate: new Date().toISOString(),
+
+      bannerImage: "",
+
+      createdAt: serverTimestamp()
+
+    });
+
+    setSelectedProduct("");
+    setOfferText("");
+    setOfferPercent("");
+    setValidDays("");
+    setStartDate("");
+    setEndDate("");
+
+    alert("Request Sent ✅");
+
+  };
+
+  const filteredProducts = products.filter(p =>
+    p.itemName?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
+
     <div className="request-container">
 
-      <button onClick={() => setActivePage("home")}>⬅ Back</button>
+      <button onClick={() => setActivePage("home")}>
+        ⬅ Back
+      </button>
 
       <h2>Create Offer Request</h2>
 
       <input value={shopName} disabled />
 
-      <input
-        placeholder="Search Product"
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-      />
+ <div className="product-dropdown">
+
+  <input
+    placeholder="Search & Select Product"
+    value={
+      selectedProductData
+        ? `${selectedProductData.itemName} - ₹${selectedProductData.price}`
+        : search
+    }
+    onChange={e => {
+      setSearch(e.target.value);
+      setSelectedProduct("");
+    }}
+    onFocus={() => setSearch("")}
+  />
+
+  {search !== "" && (
+
+    <div className="dropdown-list">
+
+      {filteredProducts.map(p => (
+
+        <div
+          key={p.id}
+          className="dropdown-item"
+          onClick={() => {
+            setSelectedProduct(p.id);
+            setSearch("");
+          }}
+        >
+
+          {p.itemName} - ₹{p.price || 0}
+
+        </div>
+
+      ))}
+
+    </div>
+
+  )}
+
+</div>
+
+      {/* OFFER PERCENT */}
 
       <select
-        value={selectedProduct}
-        onChange={e => setSelectedProduct(e.target.value)}
+        value={offerPercent}
+        onChange={e => setOfferPercent(e.target.value)}
       >
-        <option value="">Select Product</option>
-       {filteredProducts.map(p => (
-        <option key={p.id} value={p.id}>
-          {p.itemName} - ₹{p.price || 0}
-        </option>
-      ))}
+
+        <option value="">Select Offer %</option>
+
+        {[...Array(90)].map((_, i) => (
+
+          <option key={i+1} value={i+1}>
+            {i+1}%
+          </option>
+
+        ))}
+
       </select>
 
+      {/* VALID DAYS */}
+
       <select
-  value={offerPercent}
-  onChange={e => setOfferPercent(e.target.value)}
->
-  <option value="">Select Offer %</option>
-  {[...Array(90)].map((_, i) => (
-    <option key={i+1} value={i+0}>
-      {i+0}%
-    </option>
-  ))}
-</select>
+        value={validDays}
+        onChange={e => setValidDays(e.target.value)}
+      >
+
+        <option value="">Offer Valid Days</option>
+
+        {[...Array(30)].map((_, i) => (
+
+          <option key={i+1} value={i+1}>
+            {i+1} Days
+          </option>
+
+        ))}
+
+      </select>
+
+      {/* DATE RANGE */}
+
+      <label>Offer Start Date</label>
+
+      <input
+        type="date"
+        value={startDate}
+        onChange={e => setStartDate(e.target.value)}
+      />
+
+      <label>Offer End Date</label>
+
+      <input
+        type="date"
+        value={endDate}
+        onChange={e => setEndDate(e.target.value)}
+      />
+
+      {/* OFFER TEXT */}
 
       <textarea
         placeholder="Enter Offer"
@@ -165,31 +287,58 @@ const submitRequest = async () => {
         onChange={e => setOfferText(e.target.value)}
       />
 
+      {/* PRICE PREVIEW */}
+
       {selectedProductData && (
-  <div className="price-box">
-    <p>Original Price: ₹{selectedProductData.price}</p>
 
-    {offerPercent && (
-      <p>
-        After {offerPercent}% Discount:
-        <strong> ₹{finalPrice?.toFixed(2)}</strong>
-      </p>
-    )}
-  </div>
-)}
+        <div className="price-box">
 
-      <button onClick={submitRequest}>Submit</button>
+          <p>Original Price: ₹{selectedProductData.price}</p>
+
+          {offerPercent && (
+
+            <p>
+
+              After {offerPercent}% Discount :
+
+              <strong>
+                ₹{finalPrice?.toFixed(2)}
+              </strong>
+
+            </p>
+
+          )}
+
+        </div>
+
+      )}
+
+      <button onClick={submitRequest}>
+        Submit
+      </button>
 
       <h3>My Requests</h3>
 
       {requests.map(r => (
+
         <div key={r.id}>
+
           <strong>{r.productName}</strong>
+
           <p>{r.offerText}</p>
+
+          <p>Start : {r.startDate}</p>
+
+          <p>End : {r.endDate}</p>
+
           <span>{r.status}</span>
+
         </div>
+
       ))}
 
     </div>
+
   );
+
 }

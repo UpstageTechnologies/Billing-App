@@ -19,7 +19,7 @@ html,body{
 /* ================= APP WRAPPER ================= */
 
 .customer-app{
-  max-width:1300px;
+  max-width:88%;
   margin:auto;
   padding:30px 24px 80px;
   position:relative;
@@ -399,7 +399,7 @@ html,body{
 ====================================================== */
 
 .hero-banner{
-  height:420px;
+  height:550px;
   border-radius:28px;
   overflow:hidden;
   margin-top:25px;

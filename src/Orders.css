@@ -1,9 +1,10 @@
-/* Page */
+/* PAGE */
+
 .orders-page{
   padding:30px;
   background:#f4f6fb;
   min-height:100vh;
-  font-family: Arial, sans-serif;
+  font-family:Arial, sans-serif;
 
   display:flex;
   flex-direction:column;
@@ -11,45 +12,98 @@
 }
 
 .orders-page h2{
-  margin-bottom:25px;
-  font-size:26px;
+  font-size:28px;
+  margin-bottom:30px;
 }
 
-/* Card */
+
+/* NEW ORDERS SECTION */
+
+.orders-section{
+  width:100%;
+  max-width:800px;
+  margin-bottom:40px;
+}
+
+.orders-section h3{
+  text-align:center;
+  margin-bottom:20px;
+  font-size:20px;
+}
+
+
+/* GRID FOR 3 COLUMNS */
+
+.order-columns{
+  width:100%;
+  max-width:1100px;
+
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:25px;
+}
+
+
+/* EACH COLUMN ALIGNMENT */
+
+.order-columns > div{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.order-columns h3{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+
+/* CARD */
+
 .order-card{
   background:#ffffff;
-  padding:22px;
-  margin-bottom:20px;
-  border-radius:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.08);
-  transition:0.3s;
-
-  width:500px;   /* Card center size */
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.07);
+  transition:0.2s;
+  width:100%;
 }
 
 .order-card:hover{
-  transform:translateY(-3px);
+  transform:translateY(-2px);
 }
 
-/* Header */
+
+/* SMALL CARD */
+
+.order-card.small{
+  padding:16px;
+}
+
+
+/* HEADER */
+
 .order-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  margin-bottom:6px;
 }
 
 .order-header h4{
   margin:0;
-  font-size:19px;
+  font-size:18px;
 }
 
-/* Status Badge */
+
+/* STATUS BADGE */
+
 .status{
   padding:6px 14px;
   border-radius:20px;
-  font-size:14px;
-  text-transform:capitalize;
+  font-size:13px;
   font-weight:600;
+  text-transform:capitalize;
 }
 
 .status.pending{
@@ -67,108 +121,105 @@
   color:#721c24;
 }
 
-/* Text */
+.status.delivered{
+  background:#d1ecf1;
+  color:#0c5460;
+}
+
+
+/* TEXT */
+
 .address{
   color:#555;
-  font-size:15px;
-  margin:8px 0;
+  font-size:14px;
+  margin-bottom:10px;
 }
 
 .items{
-  margin-top:10px;
+  margin-top:6px;
+  margin-bottom:6px;
 }
 
 .items p{
   margin:4px 0;
-  font-size:15px;
+  font-size:14px;
 }
 
-/* Total + Buttons Wrapper */
-.total-actions{
-  margin-top:14px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
+
+/* TOTAL */
 
 .total{
+  margin-top:10px;
+  margin-bottom:12px;
   font-weight:700;
-  margin-bottom:10px;
-  font-size:16px;
+  border:2px solid #16a34a;
+  border-radius:10px;
+  padding:6px;
+  text-align:center;
+  color:#16a34a;
 }
 
-/* Buttons Area */
+
+/* BUTTONS */
+
 .actions{
   display:flex;
-  gap:15px;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
 }
 
-/* Confirm Button */
+button{
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+}
+
+
+/* BUTTON COLORS */
+
 .confirm-button{
   background:#28a745;
   color:white;
-  border:none;
-  padding:10px 22px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:14px;
-  width:120px;
-  transition:0.2s;
 }
 
 .confirm-button:hover{
   background:#218838;
 }
 
-/* Cancel Button */
 .cancel-button{
   background:#dc3545;
   color:white;
-  border:none;
-  padding:10px 22px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:14px;
-  width:120px;
-  transition:0.2s;
 }
 
 .cancel-button:hover{
   background:#c82333;
 }
 
-/* Mobile */
-@media(max-width:600px){
-
-  .order-card{
-    width:100%;
-  }
-
-  .order-header h4{
-    font-size:17px;
-  } 
-
-  .confirm-button,
-  .cancel-button{
-    width:100px;
-    font-size:13px;
-  }
+.pending-button{
+  background:#ffc107;
+  color:#000;
 }
-.shipped-button{
-  background:#007bff;
+
+.pending-button:hover{
+  background:#e0a800;
+}
+
+.delivered-button{
+  background:#17a2b8;
   color:white;
-  border:none;
-  padding:10px 22px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:14px;
-  width:120px;
-  transition:0.2s;
 }
 
-.shipped-button:hover{
-  background:#0069d9;
+.delivered-button:hover{
+  background:#138496;
 }
+
+
+/* BACK BUTTON */
+
 .back-btn{
   position:fixed;
   top:20px;
@@ -181,10 +232,23 @@
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
-  z-index:1000;
 }
 
 .back-btn:hover{
   background:#574fe8;
 }
 
+
+/* MOBILE RESPONSIVE */
+
+@media(max-width:900px){
+
+.order-columns{
+  grid-template-columns:1fr;
+}
+
+.orders-section{
+  max-width:100%;
+}
+
+}

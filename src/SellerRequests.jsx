@@ -106,6 +106,11 @@ function RequestCard({ req, approve, makePending }) {
 <h4>{req.shopName}</h4>
 <p>{req.productName}</p>
 <p>{req.offerText}</p>
+
+<p>Offer Days: {req.validDays}</p>
+<p>Start: {req.startDate}</p>
+<p>End: {req.endDate}</p><p>Created Date: {req.createdDate?.slice(0,10)}</p>
+
 <p>Status: {req.status || "new"}</p>
 
 <div className="sr-btn-group">
