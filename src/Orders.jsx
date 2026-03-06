@@ -74,14 +74,30 @@ export default function Orders({ setActivePage }) {
 
     <p className="total">Total ₹{o.total}</p>
 
-    <div className="actions">
-      <button
-        className="pending-button"
-        onClick={()=>setPending(o.id)}
-      >
-        Pending
-      </button>
-    </div>
+  <div className="actions">
+
+  <button
+    className="pending-button"
+    onClick={()=>setPending(o.id)}
+  >
+    Pending
+  </button>
+
+  <button
+    className="confirm-button"
+    onClick={()=>setConfirmed(o.id)}
+  >
+    Confirm
+  </button>
+
+  <button
+    className="cancel-button"
+    onClick={()=>cancelOrder(o.id)}
+  >
+    Cancel
+  </button>
+
+</div>
 
   </div>
 
