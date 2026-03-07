@@ -1,0 +1,39 @@
+.master-orders{
+padding:30px;
+}
+
+.shop-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,200px);
+gap:20px;
+margin-top:20px;
+}
+
+.shop-card{
+background:white;
+border-radius:12px;
+padding:20px;
+text-align:center;
+cursor:pointer;
+box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+.shop-img{
+width:80px;
+height:80px;
+object-fit:cover;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+.orders-table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+.orders-table th,
+.orders-table td{
+border:1px solid #ddd;
+padding:10px;
+}

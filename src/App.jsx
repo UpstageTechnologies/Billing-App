@@ -23,6 +23,7 @@ import MasterLogin from "./MasterLogin";
 import MasterRegister from "./MasterRegister";
 import Seller from "./Seller";
 import SellerRequests from "./SellerRequests";
+import MasterOrders from "./MasterOrders";
 export default function App() {
   return (
     <Routes>
@@ -59,6 +60,7 @@ export default function App() {
       <Route path="/master-register" element={<MasterRegister />} />
       <Route path="/create-seller" element={<Seller />} />    
       <Route path="/seller-requests" element={<SellerRequests />}></Route>  
+      <Route path="/master-orders" element={<MasterOrders/>}></Route>
       </Routes>
   );
 }

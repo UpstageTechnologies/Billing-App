@@ -34,6 +34,7 @@ await addDoc(collection(db,"orders"),{
 
   shopName: data.items[0]?.shopName || "",
   shopId: data.items[0]?.shopId || "",
+  shopLogo: data.items[0]?.shopLogo || data.items[0]?.image || "",
 
   items: data.items,
   total: data.total,

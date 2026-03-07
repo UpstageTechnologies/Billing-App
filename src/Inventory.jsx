@@ -124,40 +124,53 @@ const handleImage=(e)=>{
 };
 
 /* ADD ITEM */
-const handleSubmit=async(e)=>{
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   if(editingId){
+
     await updateDoc(
       doc(db,"users",auth.currentUser.uid,"inventory",editingId),
-      {...form,barcodeImage:barcodeImg}
+      {
+        ...form,
+        shopName: shopName,
+        barcodeImage: barcodeImg
+      }
     );
+
     setEditingId(null);
+
   }else{
+
     await addDoc(
       collection(db,"users",auth.currentUser.uid,"inventory"),
-      {...form,barcodeImage:barcodeImg,createdAt:serverTimestamp()}
+      {
+        ...form,
+        shopName: shopName,   // 🔥 IMPORTANT FIX
+        barcodeImage: barcodeImg,
+        createdAt: serverTimestamp()
+      }
     );
+
   }
 
-setForm({
-  itemNo:"",
-  itemName:"",
-  price:"",
-  quantity:"",
-  barcode:"",
-  gst:"0",
-  image:"",
-  category:"",
-  shopName: form.shopName,
-  shopAddress: form.shopAddress,
-  lat: form.lat,
-  lng: form.lng
-});
+  setForm({
+    itemNo:"",
+    itemName:"",
+    price:"",
+    quantity:"",
+    barcode:"",
+    gst:"0",
+    image:"",
+    category:"",
+    shopName: shopName,
+    shopAddress: form.shopAddress,
+    lat: form.lat,
+    lng: form.lng
+  });
 
-setBarcodeImg("");
+  setBarcodeImg("");
 };
-
 /* DELETE */
 const deleteItem=async(id)=>{
   await deleteDoc(doc(db,"users",auth.currentUser.uid,"inventory",id));
@@ -218,7 +231,7 @@ onChange={e=>setForm({...form,itemName:e.target.value})}/>
 
 <input placeholder="Price"
 value={form.price}
-onChange={e=>setForm({...form,price:e.target.value})}/>
+onChange={e=>setForm({...form,price:Number(e.target.value)})}/>
 
 <input placeholder="Quantity"
 value={form.quantity}

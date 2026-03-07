@@ -16,6 +16,7 @@
   import Seller from "./Seller";
   import Requests from "./Requests";
   import SellerRequests from "./SellerRequests";
+  import MasterOrders from "./MasterOrders";
 
 
 
@@ -365,6 +366,12 @@
         <div className="dash-card" onClick={() => setActivePage("customerUI")}>
         🖼️<h3>Customer Dashboard</h3>
       </div>
+
+      <div className="dash-card" onClick={() => setActivePage("allShopOrders")}>
+        🧾<h3>Total Orders</h3>
+      </div>
+  
+
     </>
   )}
 
@@ -419,6 +426,7 @@
   {activePage==="analytics" && <MasterAnalytics setActivePage={setActivePage}/>}
   {activePage === "requests" && (<Requests setActivePage={setActivePage} />)} 
   {activePage === "sellerRequests" && (<SellerRequests setActivePage={setActivePage} />)}
+  {activePage === "allShopOrders" && (<MasterOrders setActivePage={setActivePage} />)}
 
   {/* LOGOUT CONFIRM */}
   {showConfirm && (
